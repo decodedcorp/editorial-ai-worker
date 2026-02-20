@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Python project scaffold (uv, pyproject.toml, src layout, pydantic-settings config)
+- [x] 01-01-PLAN.md — Python project scaffold (uv, pyproject.toml, src layout, pydantic-settings config)
 - [ ] 01-02-PLAN.md — LangGraph StateGraph skeleton (lean state schema, stub nodes, conditional edges, compile + tests)
 - [ ] 01-03-PLAN.md — Gemini LLM factory (create_llm, API call verification, LangSmith tracing)
 
@@ -157,7 +157,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Graph Skeleton + LLM Integration | 0/3 | Not started | - |
+| 1. Graph Skeleton + LLM Integration | 1/3 | In progress | - |
 | 2. Data Layer | 0/2 | Not started | - |
 | 3. Curation Agent | 0/2 | Not started | - |
 | 4. Editorial Agent - Generation + Layout | 0/3 | Not started | - |

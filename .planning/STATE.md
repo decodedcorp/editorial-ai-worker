@@ -10,27 +10,27 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 1 of 8 (Graph Skeleton + LLM Integration)
-Plan: 0 of 3 in current phase
-Status: Ready to plan
-Last activity: 2026-02-20 — Roadmap created
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-20 — Completed 01-01-PLAN.md
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░░░░░░░░░░░░░] 1/22 (5%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 1
+- Average duration: 3m
+- Total execution time: 0.05 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 1 | 1/3 | 3m | 3m |
 
 **Recent Trend:**
-- Last 5 plans: -
+- Last 5 plans: 3m
 - Trend: -
 
 *Updated after each plan completion*
@@ -45,10 +45,12 @@ Recent decisions affecting current work:
 - [Roadmap]: 8 phases derived from 17 v1 requirements, comprehensive depth
 - [Roadmap]: Editorial Agent split into 2 phases (Generation+Layout / DB Tools) for focused delivery
 - [Roadmap]: Admin split into Backend+HITL and Dashboard UI for API/frontend separation
+- [01-01]: hatchling build backend instead of uv_build for custom package name (editorial_ai)
+- [01-01]: Python 3.12+ union syntax (str | None) over Optional[str]
 
 ### Pending Todos
 
-None yet.
+- User must configure GOOGLE_API_KEY and LANGSMITH_API_KEY before Plan 01-02 (see 01-USER-SETUP.md)
 
 ### Blockers/Concerns
 
@@ -58,5 +60,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Roadmap creation complete
+Stopped at: Completed 01-01-PLAN.md
 Resume file: None
