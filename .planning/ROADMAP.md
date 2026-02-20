@@ -32,12 +32,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. StateGraph가 state schema, stub nodes, edges로 정의되어 `graph.compile()` 호출 시 에러 없이 컴파일된다
   3. `ChatGoogleGenerativeAI(model="gemini-2.5-flash")`로 프롬프트를 보내면 응답이 정상 반환된다
   4. LangSmith 트레이싱이 연결되어 그래프 실행 시 트레이스가 기록된다
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Python project scaffold (uv, pyproject.toml, project structure, env config)
-- [ ] 01-02: LangGraph StateGraph skeleton (state schema, stub nodes, edges, compile)
-- [ ] 01-03: Vertex AI (Gemini) integration + LangSmith tracing setup
+- [ ] 01-01-PLAN.md — Python project scaffold (uv, pyproject.toml, src layout, pydantic-settings config)
+- [ ] 01-02-PLAN.md — LangGraph StateGraph skeleton (lean state schema, stub nodes, conditional edges, compile + tests)
+- [ ] 01-03-PLAN.md — Gemini LLM factory (create_llm, API call verification, LangSmith tracing)
 
 ### Phase 2: Data Layer
 **Goal**: 파이프라인이 Supabase DB와 안정적으로 통신하고, 그래프 상태가 Postgres에 영속화되는 상태
