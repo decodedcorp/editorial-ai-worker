@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 ## Current Position
 
 Phase: 1 of 8 (Graph Skeleton + LLM Integration)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-20 — Completed 01-01-PLAN.md
+Last activity: 2026-02-20 — Completed 01-02-PLAN.md
 
-Progress: [█░░░░░░░░░░░░░░░░░░░░░] 1/22 (5%)
+Progress: [██░░░░░░░░░░░░░░░░░░░░] 2/22 (9%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
+- Total plans completed: 2
 - Average duration: 3m
-- Total execution time: 0.05 hours
+- Total execution time: 0.1 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 | 1/3 | 3m | 3m |
+| 1 | 2/3 | 6m | 3m |
 
 **Recent Trend:**
-- Last 5 plans: 3m
-- Trend: -
+- Last 5 plans: 3m, 3m
+- Trend: stable
 
 *Updated after each plan completion*
 
@@ -47,6 +47,8 @@ Recent decisions affecting current work:
 - [Roadmap]: Admin split into Backend+HITL and Dashboard UI for API/frontend separation
 - [01-01]: hatchling build backend instead of uv_build for custom package name (editorial_ai)
 - [01-01]: Python 3.12+ union syntax (str | None) over Optional[str]
+- [01-02]: build_graph() factory with node_overrides for testability (PregelNode wrapping prevents direct monkeypatch)
+- [01-02]: Lean state principle - IDs/references only, Annotated reducers for accumulative lists only
 
 ### Pending Todos
 
@@ -60,5 +62,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 01-01-PLAN.md
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
