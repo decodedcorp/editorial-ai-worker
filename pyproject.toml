@@ -1,0 +1,50 @@
+[project]
+name = "editorial-ai-worker"
+version = "0.1.0"
+description = "Multi-agent editorial content pipeline for fashion magazines"
+readme = "README.md"
+authors = [
+    { name = "thxforall", email = "113906780+thxforall@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "langchain-google-genai>=4.2.1",
+    "langgraph>=1.0.9",
+    "langsmith>=0.7.5",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.8.0",
+    "python-dotenv>=1.2.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/editorial_ai"]
+
+[tool.uv.sources]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.14.0",
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.25.0",
+    "ruff>=0.15.2",
+]
