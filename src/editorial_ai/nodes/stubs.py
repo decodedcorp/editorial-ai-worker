@@ -34,7 +34,7 @@ def stub_editorial(state: EditorialPipelineState) -> dict:
 
 
 def stub_review(state: EditorialPipelineState) -> dict:
-    """Stub: Phase 3에서 구현. 콘텐츠 품질 검수."""
+    """Stub review node. Real implementation in nodes/review.py (Phase 6)."""
     return {
         "pipeline_status": "awaiting_approval",
         "review_result": {"passed": True},

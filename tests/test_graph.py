@@ -5,7 +5,7 @@ from __future__ import annotations
 from langgraph.graph.state import CompiledStateGraph
 
 from editorial_ai.graph import build_graph, graph
-from editorial_ai.nodes.stubs import stub_curation, stub_editorial, stub_enrich
+from editorial_ai.nodes.stubs import stub_curation, stub_editorial, stub_enrich, stub_review
 
 
 def _initial_state() -> dict:
@@ -33,6 +33,12 @@ def test_graph_has_enrich_node():
     assert "enrich" in compiled.nodes
 
 
+def test_graph_has_real_review_node():
+    """Default graph uses real review_node, not stub."""
+    compiled = build_graph()
+    assert "review" in compiled.nodes
+
+
 def test_graph_compiles():
     """Graph compiles into a CompiledStateGraph instance."""
     assert graph is not None
@@ -48,7 +54,7 @@ def test_graph_compiles_with_real_editorial_node():
 
 def test_graph_happy_path():
     """Happy path: all stubs pass, pipeline reaches 'published'."""
-    sync_graph = build_graph(node_overrides={"curation": stub_curation, "editorial": stub_editorial, "enrich": stub_enrich})
+    sync_graph = build_graph(node_overrides={"curation": stub_curation, "editorial": stub_editorial, "enrich": stub_enrich, "review": stub_review})
     result = sync_graph.invoke(_initial_state())
     assert result["pipeline_status"] == "published"
     assert result["admin_decision"] == "approved"
@@ -115,7 +121,7 @@ def test_graph_admin_revision_requested():
             "admin_decision": "approved",
         }
 
-    test_graph = build_graph(node_overrides={"curation": stub_curation, "editorial": stub_editorial, "enrich": stub_enrich, "admin_gate": mock_admin_gate})
+    test_graph = build_graph(node_overrides={"curation": stub_curation, "editorial": stub_editorial, "enrich": stub_enrich, "review": stub_review, "admin_gate": mock_admin_gate})
     result = test_graph.invoke(_initial_state())
     assert result["pipeline_status"] == "published"
     assert call_count["admin"] == 2

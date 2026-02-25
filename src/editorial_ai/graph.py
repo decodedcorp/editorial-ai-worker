@@ -3,6 +3,7 @@
 Defines the StateGraph topology with stub nodes and conditional edges.
 The graph follows: curation -> source -> editorial -> enrich -> review -> admin_gate -> publish
 with conditional routing after review (retry/fail) and admin_gate (revision/reject).
+Review node performs LLM-as-a-Judge evaluation (Phase 6).
 """
 
 from __future__ import annotations
@@ -17,13 +18,14 @@ from langgraph.graph.state import CompiledStateGraph
 from editorial_ai.nodes.curation import curation_node
 from editorial_ai.nodes.editorial import editorial_node
 from editorial_ai.nodes.enrich import enrich_editorial_node
+from editorial_ai.nodes.review import review_node
 from editorial_ai.nodes.stubs import (
     stub_admin_gate,
     stub_curation,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_editorial,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_enrich,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_publish,
-    stub_review,
+    stub_review,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_source,
 )
 from editorial_ai.state import EditorialPipelineState
@@ -70,7 +72,7 @@ def build_graph(
         "source": stub_source,
         "editorial": editorial_node,
         "enrich": enrich_editorial_node,  # Phase 5: DB enrichment
-        "review": stub_review,
+        "review": review_node,
         "admin_gate": stub_admin_gate,
         "publish": stub_publish,
     }
