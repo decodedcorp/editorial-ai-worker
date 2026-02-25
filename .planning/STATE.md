@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** 키워드 하나로 셀럽/상품/레퍼런스가 조합된 에디토리얼 콘텐츠가 자동 생성되고, 검수 루프를 거쳐 관리자가 승인하면 발행
-**Current focus:** Phase 5 complete, verified. Ready for Phase 6.
+**Current focus:** Phase 6 in progress -- Review Agent Feedback Loop.
 
 ## Current Position
 
-Phase: 5 of 8 (Editorial Agent - DB Tools)
-Plan: 3 of 3 in phase 5
-Status: Phase 5 complete, verified. Ready for Phase 6.
-Last activity: 2026-02-25 — Phase 5 verified and complete
+Phase: 6 of 8 (Review Agent - Feedback Loop)
+Plan: 1 of 3 in phase 6
+Status: In progress
+Last activity: 2026-02-25 — Completed 06-01-PLAN.md
 
-Progress: [██████████████░░░░░░░░] 13/22 (59%)
+Progress: [██████████████░░░░░░░░] 14/22 (64%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
-- Average duration: ~2.7m
-- Total execution time: ~0.59 hours
+- Total plans completed: 14
+- Average duration: ~2.6m
+- Total execution time: ~0.63 hours
 
 **By Phase:**
 
@@ -32,9 +32,10 @@ Progress: [██████████████░░░░░░░░] 1
 | 3 | 2/2 | ~7m | ~3.5m |
 | 4 | 3/3 | ~8m | ~2.7m |
 | 5 | 3/3 | ~6m | ~2m |
+| 6 | 1/3 | ~2m | ~2m |
 
 **Recent Trend:**
-- Last 5 plans: 4m, 2m, 2m, 2m, 2m
+- Last 5 plans: 2m, 2m, 2m, 2m, 2m
 - Trend: stable
 
 *Updated after each plan completion*
@@ -77,6 +78,10 @@ Recent decisions affecting current work:
 - [04-03]: Trend context built from all topic backgrounds + keywords, concatenated
 - [04-03]: Primary keyword from first curated topic, fallback to curation_input seed
 - [05-03]: Enrich node is transparent -- does not change pipeline_status (only modifies current_draft)
+- [06-01]: Hybrid evaluation: Pydantic format check (deterministic) before LLM semantic evaluation
+- [06-01]: LLM evaluates 3 criteria only (hallucination, fact_accuracy, content_completeness); format handled by Pydantic
+- [06-01]: Overall pass requires ALL criteria to pass; any failure = overall fail
+- [06-01]: Temperature 0.0 for LLM evaluation for deterministic scoring
 
 ### Pending Todos
 
@@ -90,5 +95,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 05-03-PLAN.md (Enrich Node + Graph Wiring) — Phase 5 complete
+Stopped at: Completed 06-01-PLAN.md (Review Models, Prompt & Service)
 Resume file: None
