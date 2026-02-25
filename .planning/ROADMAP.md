@@ -12,7 +12,7 @@
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Graph Skeleton + LLM Integration** - LangGraph StateGraph 스켈레톤과 Vertex AI(Gemini) 연동
+- [x] **Phase 1: Graph Skeleton + LLM Integration** - LangGraph StateGraph 스켈레톤과 Vertex AI(Gemini) 연동
 - [ ] **Phase 2: Data Layer** - Supabase 서비스 레이어와 Postgres 체크포인터 구축
 - [ ] **Phase 3: Curation Agent** - Perplexity API 기반 트렌드 키워드 수집 에이전트
 - [ ] **Phase 4: Editorial Agent - Generation + Layout** - 에디토리얼 초안 생성 및 Magazine Layout JSON 구조화 출력
@@ -36,8 +36,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md — Python project scaffold (uv, pyproject.toml, src layout, pydantic-settings config)
-- [ ] 01-02-PLAN.md — LangGraph StateGraph skeleton (lean state schema, stub nodes, conditional edges, compile + tests)
-- [ ] 01-03-PLAN.md — Gemini LLM factory (create_llm, API call verification, LangSmith tracing)
+- [x] 01-02-PLAN.md — LangGraph StateGraph skeleton (lean state schema, stub nodes, conditional edges, compile + tests)
+- [x] 01-03-PLAN.md — Gemini LLM factory (create_llm, API call verification, LangSmith tracing)
 
 ### Phase 2: Data Layer
 **Goal**: 파이프라인이 Supabase DB와 안정적으로 통신하고, 그래프 상태가 Postgres에 영속화되는 상태
@@ -157,7 +157,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Graph Skeleton + LLM Integration | 1/3 | In progress | - |
+| 1. Graph Skeleton + LLM Integration | 3/3 | Complete | 2026-02-25 |
 | 2. Data Layer | 0/2 | Not started | - |
 | 3. Curation Agent | 0/2 | Not started | - |
 | 4. Editorial Agent - Generation + Layout | 0/3 | Not started | - |
