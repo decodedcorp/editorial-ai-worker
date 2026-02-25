@@ -95,6 +95,7 @@ class EditorialService:
             if max_repair_attempts is not None
             else settings.editorial_max_repair_attempts
         )
+        self._image_model_available = True  # circuit breaker for image gen
 
     @retry_on_api_error
     async def generate_content(
@@ -159,6 +160,13 @@ class EditorialService:
         Returns image bytes on success, None on failure.
         Caller should fall back to default template on None.
         """
+        if not self._image_model_available:
+            logger.debug(
+                "Skipping Nano Banana (model unavailable), using default template for keyword=%s",
+                keyword,
+            )
+            return None
+
         prompt = build_layout_image_prompt(keyword, title, num_sections)
 
         try:
@@ -192,12 +200,21 @@ class EditorialService:
                 keyword,
             )
             return None
-        except Exception:  # noqa: BLE001
-            logger.warning(
-                "Nano Banana layout generation failed for keyword=%s",
-                keyword,
-                exc_info=True,
-            )
+        except Exception as exc:  # noqa: BLE001
+            exc_str = str(exc).lower()
+            if "404" in exc_str or "not found" in exc_str or "not supported" in exc_str:
+                self._image_model_available = False
+                logger.warning(
+                    "Nano Banana model '%s' not available (404/not supported). "
+                    "Disabling image generation for this session. Falling back to default template.",
+                    self.image_model,
+                )
+            else:
+                logger.warning(
+                    "Nano Banana layout generation failed for keyword=%s",
+                    keyword,
+                    exc_info=True,
+                )
             return None
 
     async def parse_layout_image(
