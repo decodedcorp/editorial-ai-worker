@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** 키워드 하나로 셀럽/상품/레퍼런스가 조합된 에디토리얼 콘텐츠가 자동 생성되고, 검수 루프를 거쳐 관리자가 승인하면 발행
-**Current focus:** Phase 7 in progress. Content service, admin gate, publish node, and FastAPI admin API complete. Graph wiring next.
+**Current focus:** Phase 7 complete. Full HITL loop wired: admin_gate interrupt, approve/reject/revision flows, publish node. Ready for Phase 8 dashboard.
 
 ## Current Position
 
 Phase: 7 of 8 (Admin Backend + HITL)
-Plan: 2 of 3 in phase 7
-Status: In progress
-Last activity: 2026-02-25 — Completed 07-02-PLAN.md
+Plan: 3 of 3 in phase 7
+Status: Phase complete
+Last activity: 2026-02-25 — Completed 07-03-PLAN.md
 
-Progress: [██████████████████░░░░] 18/22 (82%)
+Progress: [███████████████████░░░] 19/22 (86%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: ~2.5m
-- Total execution time: ~0.78 hours
+- Total execution time: ~0.85 hours
 
 **By Phase:**
 
@@ -33,10 +33,10 @@ Progress: [██████████████████░░░░] 1
 | 4 | 3/3 | ~8m | ~2.7m |
 | 5 | 3/3 | ~6m | ~2m |
 | 6 | 3/3 | ~6m | ~2m |
-| 7 | 2/3 | ~6m | ~3m |
+| 7 | 3/3 | ~10m | ~3.3m |
 
 **Recent Trend:**
-- Last 5 plans: 2m, 2m, 2m, 3m, 3m
+- Last 5 plans: 2m, 2m, 3m, 3m, 4m
 - Trend: stable
 
 *Updated after each plan completion*
@@ -99,6 +99,8 @@ Recent decisions affecting current work:
 - [07-02]: Dev mode: skip API key auth when ADMIN_API_KEY is not configured
 - [07-02]: Pipeline trigger blocks until interrupt (returns thread_id when graph pauses at admin_gate)
 - [07-02]: Added list_contents with optional status filter and count for paginated list endpoint
+- [07-03]: Sync graph tests use _ALL_STUBS dict override (real admin_gate/publish are async)
+- [07-03]: Integration tests use custom stubs producing minimal state for admin_gate
 
 ### Pending Todos
 
@@ -112,5 +114,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 07-02-PLAN.md (FastAPI Admin API)
+Stopped at: Completed 07-03-PLAN.md (Graph Wiring + Interrupt/Resume Tests)
 Resume file: None
