@@ -1,298 +1,418 @@
-# Domain Pitfalls
+# Domain Pitfalls: v1.1 Features
 
-**Domain:** Multi-agent editorial AI pipeline (LangGraph + Vertex AI)
-**Researched:** 2026-02-20
-**Overall Confidence:** MEDIUM-HIGH (multiple sources cross-referenced; some LangGraph/Vertex specifics verified against official docs)
+**Domain:** Adding observability, dynamic rendering, and E2E execution to existing editorial AI pipeline
+**Researched:** 2026-02-26
+**Overall Confidence:** MEDIUM-HIGH (cross-referenced with codebase analysis, official docs, and community reports)
+
+**Scope:** This document covers pitfalls specific to the v1.1 milestone: first live E2E run, pipeline observability/metrics, and dynamic magazine rendering. For foundational pipeline pitfalls (feedback loops, state bloat, SDK choices), see the original PITFALLS.md from v1.0 research.
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause rewrites or major architecture changes.
+Mistakes that cause blocked progress, data loss, or require significant rework.
 
-### Pitfall 1: Feedback Loop Infinite Cycling (Review-Reject-Re-edit Death Spiral)
+### Pitfall 1: First E2E Run -- curation_input Key Mismatch Between API and Node
 
-**What goes wrong:** The review agent repeatedly rejects the editorial agent's output, which re-edits and gets rejected again, burning tokens and time indefinitely. This is especially common when the judge's rubric is misaligned with what the editorial agent can actually fix, or when the feedback is too vague to be actionable.
+**What goes wrong:** The pipeline trigger endpoint (`/trigger`) sends `{"seed_keyword": ..., "category": ...}` as `curation_input`, but `curation_node` reads `curation_input.get("keyword")`. The key is `seed_keyword` in the API but the node expects `keyword`. First real run silently produces `pipeline_status: "failed"` with "no seed keyword provided."
 
-**Why it happens:** No hard cap on retry iterations. The LLM-as-a-Judge rubric penalizes issues the editorial agent cannot resolve (e.g., "needs better celebrity photos" when the agent only has text tools). Feedback is qualitative ("make it better") instead of structured and actionable.
+**Why it happens:** The pipeline was built with stubs and unit tests that directly set `curation_input: {"keyword": "..."}`. The API route was added later and uses `seed_keyword` (matching the `TriggerRequest` schema). Nobody caught the mismatch because there was never an integration test through the actual HTTP endpoint to the real node.
 
-**Consequences:** Runaway API costs (each loop = multiple LLM calls + tool invocations). Cron job never completes. Content quality does not improve after 2-3 iterations --- it degrades as context window fills with prior failed attempts.
+**Consequences:** First demo fails immediately. Debug cycle wastes hours because the error message ("no seed keyword") does not indicate the field name mismatch -- it looks like the keyword was not provided at all.
 
 **Warning signs:**
-- Average loop count per article exceeding 3 during testing
-- Review feedback repeating the same critique across iterations
-- Token usage per article growing linearly with no quality improvement
-- Cron jobs timing out
+- `pipeline.py` line 32 sends `"seed_keyword"` but `curation.py` line 24 reads `"keyword"`
+- No integration test that goes through the full API -> graph -> real node path
+- Unit tests use `curation_input: {"keyword": "..."}` directly
 
 **Prevention:**
-- Hard cap: max 3 review-reject cycles, then escalate to human review with the best attempt so far
-- Structured feedback schema: the judge must return specific field-level issues (e.g., `{"issues": [{"field": "body_paragraph_2", "type": "hallucination", "detail": "..."}]}`) not prose
-- Gate check: before re-editing, verify the feedback contains actionable items the editorial agent actually has tools to fix
-- Monotonic quality check: if score does not improve between iterations, break the loop early
+- Before E2E run, audit every field name between API schemas and node state readers
+- Write one integration test that sends a real HTTP request to `/trigger` and asserts `pipeline_status != "failed"`
+- Standardize: pick either `keyword` or `seed_keyword` everywhere
 
-**Phase:** Must be designed into the graph architecture from Phase 1 (graph skeleton). Retrofit is painful because it changes node topology.
+**Detection:** Run `grep -r "seed_keyword" src/ && grep -r '"keyword"' src/editorial_ai/nodes/curation.py` to find the mismatch.
+
+**Phase:** E2E execution (must fix before first run)
+
+**Confidence:** HIGH (verified by reading codebase -- `pipeline.py` line 32 vs `curation.py` line 24)
 
 ---
 
-### Pitfall 2: Checkpoint State Bloat from Large Editorial Payloads
+### Pitfall 2: Supabase Session Pooler + AsyncPostgresSaver Prepared Statement Errors
 
-**What goes wrong:** LangGraph creates a new checkpoint at every graph step. When state contains the full editorial content (article text, layout JSON, search results, celebrity data, product data), each checkpoint duplicates all of it. A single article generation with 10+ steps across agents writes hundreds of megabytes to the checkpoint store.
+**What goes wrong:** `AsyncPostgresSaver.from_conn_string()` sets `prepare_threshold=0` (documented in `checkpointer.py` comment), which should disable prepared statements. However, under concurrent requests or after connection recycling, Supabase's Supavisor pooler can still produce `InvalidSqlStatementName` errors like `"prepared statement asyncpg_stmt_9 does not exist"`.
 
-**Why it happens:** Teams store everything in the LangGraph state dict for convenience. LangGraph checkpoints the entire state at every node transition. With 5 tool calls on the editorial agent alone, plus curation, source, review, and re-edit steps, a single article can hit 15+ checkpoints.
+**Why it happens:** Supabase replaced PgBouncer with Supavisor. The transaction pooler (port 6543) does not support prepared statements at all. The session pooler (port 5432) does support them but has connection limits. If `from_conn_string` internally uses asyncpg with `statement_cache_size > 0`, the session pooler may work initially but fail under load when connections are recycled.
 
-**Consequences:** Database bloat (PostgreSQL / Supabase). Slow state loading on human-in-the-loop resume (admin approval may take hours/days). Storage costs scale multiplicatively with article count.
+**Consequences:** Pipeline crashes intermittently during E2E runs. The error is non-deterministic, making it extremely hard to reproduce in local testing (which uses direct connections, not pooled).
 
 **Warning signs:**
-- Checkpoint table growing faster than expected during integration testing
-- State loading time exceeding 1 second
-- Supabase storage warnings
+- `InvalidSqlStatementName` errors in production logs
+- Errors that appear only under concurrent pipeline runs
+- Using port 6543 (transaction pooler) instead of 5432 (session pooler)
 
 **Prevention:**
-- Store only references (IDs, URLs) in LangGraph state; keep full payloads in Supabase tables or external storage
-- Use the LangGraph Store for cross-thread data rather than embedding in state
-- Keep state lean: `{"article_id": "uuid", "status": "review", "score": 7.2}` not `{"full_article_json": {...50KB...}}`
-- Consider `durability="exit"` mode if intermediate step recovery is not needed (writes checkpoint only at run end)
+- Verify you are using port 5432 (session pooler), not 6543 (transaction pooler)
+- Test with the actual Supabase connection string, not a local PostgreSQL
+- If errors persist, explicitly pass `statement_cache_size=0` in connection parameters
+- Add a connection health check before pipeline runs
+- Consider running `checkpointer.setup()` as a one-time migration, not on every app start
 
-**Phase:** Must be decided in Phase 1 (state schema design). Migrating from fat state to lean state after building multiple agents is a rewrite.
+**Phase:** E2E execution (validate connection before first run)
+
+**Confidence:** MEDIUM-HIGH (known issue in Supabase + asyncpg ecosystem; the project comment already acknowledges it)
+
+**Sources:**
+- [Supabase + asyncpg prepared statement issues (GitHub #39227)](https://github.com/supabase/supabase/issues/39227)
+- [AsyncPostgresSaver InvalidSqlStatementName (LangGraph #2755)](https://github.com/langchain-ai/langgraph/issues/2755)
+- [Supabase pooling and asyncpg fix (Medium)](https://medium.com/@patrickduch93/supabase-pooling-and-asyncpg-dont-mix-here-s-the-real-fix-44f700b05249)
 
 ---
 
-### Pitfall 3: ChatVertexAI Deprecation and SDK Migration Landmine
+### Pitfall 3: Adding Observability Fields to State Breaks Existing Checkpoints
 
-**What goes wrong:** Team builds the entire pipeline on `langchain-google-vertexai` / `ChatVertexAI`, then discovers it is deprecated. Migration to `ChatGoogleGenerativeAI` (with `vertexai=True`) introduces 50-90% latency increases due to the switch from gRPC to REST transport, breaking production SLAs.
+**What goes wrong:** To track per-node metrics (tokens, timing, prompts), you add new fields to `EditorialPipelineState` (e.g., `node_metrics: list[dict]`). Existing checkpoints in PostgreSQL were written with the old schema. Resuming an interrupted pipeline (e.g., one paused at `admin_gate`) after deploying the schema change causes deserialization errors or silently drops the new fields.
 
-**Why it happens:** Tutorials and examples still reference `ChatVertexAI`. The deprecation was announced in late 2025 with `langchain-google-genai` 4.0.0. Teams new to the ecosystem do not know which package to start with.
+**Why it happens:** LangGraph's `JsonPlusSerializer` serializes the full state dict. When deserializing old checkpoints, new required fields are missing. TypedDict does not enforce defaults at runtime, so the behavior is undefined -- sometimes the field is `None`, sometimes it raises `KeyError`, depending on how the node accesses it.
 
-**Consequences:** Either build on a deprecated package and face forced migration later, or migrate early and deal with latency regressions. Vertex AI SDK releases after June 2026 will not support Gemini at all.
+**Consequences:** All in-flight pipelines (paused at admin_gate) become unresumable after deployment. Human approvals that were pending are lost.
 
 **Warning signs:**
-- Import warnings about deprecation in test runs
-- Using `langchain-google-vertexai` package
-- Latency spikes after any SDK upgrade
+- Deploying state schema changes while pipelines are paused at `admin_gate`
+- `KeyError` or `TypeError` when resuming a pipeline after deployment
+- New metric fields returning `None` when you expected an empty list
 
 **Prevention:**
-- Start with `langchain-google-genai` with `vertexai=True` from day one --- do not use `ChatVertexAI`
-- Pin SDK versions and test latency before any upgrade
-- Abstract the LLM client behind an interface so swapping implementations requires changing one file
-- Monitor the LangChain Google integrations changelog: https://github.com/langchain-ai/langchain-google/discussions/1422
+- Add new state fields with `Annotated[list[dict], operator.add]` and ensure nodes always check `state.get("field") or []` (which the codebase already does for existing fields -- maintain this pattern)
+- Do NOT add required fields without defaults to the state TypedDict
+- Before deploying schema changes, either: (a) approve/reject all pending pipelines, or (b) write a migration script that adds default values to existing checkpoints
+- Store observability data in a separate table (e.g., `pipeline_runs`, `node_executions`) rather than in LangGraph state -- this is the recommended approach
 
-**Phase:** Phase 1 (environment setup). This is a day-one decision that is expensive to change.
+**Phase:** Observability (architectural decision: state vs. external table)
+
+**Confidence:** HIGH (verified against LangGraph checkpoint serialization behavior and breaking change reports)
+
+**Sources:**
+- [LangGraph checkpoint-postgres breaking change (GitHub #5862)](https://github.com/langchain-ai/langgraph/issues/5862)
+- [AsyncPostgresSaver JSON serializable error (LangChain Forum)](https://forum.langchain.com/t/asyncpostgressaver-and-json-serializable-error/692)
 
 ---
 
-### Pitfall 4: Gemini Structured Output Reliability Issues
+### Pitfall 4: Gemini Token Usage Metadata Inaccuracy
 
-**What goes wrong:** Gemini models intermittently produce malformed JSON when `responseSchema` is enforced, including looping text fragments, stray newline escape sequences, and output that exhausts the max token limit without completing the schema. This is especially problematic for the Magazine Layout JSON that the frontend must parse.
+**What goes wrong:** You build a token tracking dashboard using `response.usage_metadata.prompt_token_count` and `candidates_token_count` from the `google-genai` SDK. The numbers are wildly inaccurate -- production shows 950K prompt tokens where calculations estimate 85K. Cost projections based on these numbers are 10x off.
 
-**Why it happens:** Known issue with Gemini Flash models and structured output. Schema complexity (deeply nested layout JSON with arrays of components, each with variant types) increases failure probability. The model sometimes enters a repetition loop when constrained by a complex schema.
+**Why it happens:** The Gemini API has had documented bugs in `usage_metadata` token counts, particularly with image inputs and file uploads. The `EditorialService` sends image bytes (Nano Banana layout images) through `generate_content`, which can trigger inflated token counts. Additionally, `thinking_token_count` (from Gemini 2.5 Flash thinking mode) may or may not be included in `candidates_token_count` depending on whether you use the Gemini Developer API vs. Vertex AI.
 
-**Consequences:** Frontend receives unparseable JSON. Pipeline silently produces corrupted content. If not caught by the review agent, broken layouts reach the admin approval queue, wasting human reviewer time.
+**Consequences:** Cost tracking dashboard shows misleading numbers. Budget alerts fire incorrectly. Per-node cost attribution is meaningless.
 
 **Warning signs:**
-- JSON parse errors in test runs, especially with complex nested schemas
-- Output token usage hitting max without completing the response
-- Repeated fragments in generated JSON
+- Token counts that seem impossibly high for the input size
+- Mismatch between `count_tokens()` pre-call estimate and `usage_metadata` post-call result
+- Different token counts for the same prompt between Gemini API and Vertex AI backends
 
 **Prevention:**
-- Use Pydantic models for schema definition and validate every output before passing to the next node
-- Implement an `OutputFixingParser` wrapper that uses a second LLM call to repair malformed output
-- Keep the Layout JSON schema as flat as possible; move deeply nested structures to separate tool calls
-- Set a reasonable `max_output_tokens` and detect when it is exhausted (indicates truncation, not completion)
-- Have the review agent explicitly validate JSON parsability as the first check before content quality
-- Test with both Gemini Pro and Flash; Pro is more reliable for complex structured output but slower/costlier
+- Cross-validate: call `client.models.count_tokens()` for a sample of requests and compare with `usage_metadata`
+- Log both `count_tokens()` estimates and `usage_metadata` actuals during the initial E2E runs
+- For cost tracking, use `count_tokens()` as the source of truth for input tokens and `usage_metadata.candidates_token_count` for output tokens
+- Separate `thoughts_token_count` from `candidates_token_count` explicitly -- do not assume they are additive
+- Pin the google-genai SDK version and revalidate token counts after any upgrade
 
-**Phase:** Phase 1 (output schema design) and Phase 2 (editorial agent implementation). The schema flattening decision affects both frontend contract and agent prompts.
+**Phase:** Observability (token tracking implementation)
+
+**Confidence:** MEDIUM (bug was reported fixed but accuracy varies by model and input type)
+
+**Sources:**
+- [Token count broken (googleapis/python-genai #470)](https://github.com/googleapis/python-genai/issues/470)
+- [Thinking tokens not properly counted (simonw/llm-gemini #75)](https://github.com/simonw/llm-gemini/issues/75)
+- [Gemini token counting official docs](https://ai.google.dev/gemini-api/docs/tokens)
 
 ---
 
 ## Moderate Pitfalls
 
-Mistakes that cause significant delays or technical debt.
+Mistakes that cause delays, incorrect data, or degraded user experience.
 
-### Pitfall 5: LLM-as-a-Judge Inconsistency and Bias
+### Pitfall 5: Observability Wrapper Breaks google-genai Async Call Patterns
 
-**What goes wrong:** The review agent gives inconsistent scores for the same content across runs. It exhibits position bias (favoring content at the start), verbosity bias (longer = better), and self-enhancement bias (preferring its own generation style). One practitioner reported "one in every ten tests spits out absolute garbage."
+**What goes wrong:** To collect per-node metrics, you wrap each Gemini call with timing and token tracking. The wrapper uses `time.time()` around `await client.aio.models.generate_content()`. But the wrapper inadvertently changes exception handling: `retry_on_api_error` (tenacity decorator) expects specific exception types (`errors.ClientError`, `errors.ServerError`), and wrapping the call changes the exception chain, causing retries to stop working.
 
-**Why it happens:** LLM judges are inherently stochastic. Without calibration data and clear rubrics, the judge drifts. Single-LLM evaluation is brittle compared to human annotators, especially for subjective editorial quality.
+**Why it happens:** The codebase uses `google-genai` SDK directly (not LangChain's ChatGoogleGenerativeAI), so there is no built-in callback system. Adding observability means manually wrapping each service method. If the wrapper catches exceptions to log them and re-raises, the tenacity `retry_if_exception_type` check may fail because the re-raised exception is wrapped.
+
+**Consequences:** Retries silently break. Transient API errors that previously resolved with retry now cause pipeline failures. The failure rate increases but nobody connects it to the observability change.
 
 **Warning signs:**
-- Score variance > 1.5 points (on a 10-point scale) for the same content across runs
-- All articles passing review (judge is too lenient) or none passing (too strict)
-- Review scores not correlating with human quality assessments
+- Increased pipeline failure rate after adding observability wrappers
+- Retry count always showing 0 or 1 in logs (retries not happening)
+- `tenacity.RetryError` exceptions appearing that were not seen before
 
 **Prevention:**
-- Use structured rubrics with explicit criteria and scoring anchors (e.g., "hallucination: 0 = none found, 5 = fabricated claims")
-- Set temperature to 0 for the judge to minimize stochasticity
-- Build a calibration set of 10-20 pre-scored articles; validate judge consistency against this set before going live
-- Log all judge decisions with reasoning for human audit
-- Consider a two-pass review: fast check (format, JSON validity, required fields) as deterministic code, then LLM judge only for content quality
+- Do NOT wrap individual API calls. Instead, instrument at the node level: measure time and collect `usage_metadata` after each node completes
+- If you must wrap API calls, use a decorator that preserves the original exception type:
+  ```python
+  async def timed_generate(client, **kwargs):
+      start = time.monotonic()
+      try:
+          response = await client.aio.models.generate_content(**kwargs)
+          elapsed = time.monotonic() - start
+          return response, elapsed
+      except Exception:
+          elapsed = time.monotonic() - start
+          raise  # preserve original exception for tenacity
+  ```
+- Test that retries still work after adding observability (send a request that triggers a 429, verify it retries)
 
-**Phase:** Phase 3 (review agent). But the calibration dataset should be started in Phase 2 as editorial content is generated.
+**Phase:** Observability (implementation approach)
+
+**Confidence:** HIGH (verified by reading `curation_service.py` retry_on_api_error pattern)
 
 ---
 
-### Pitfall 6: Human-in-the-Loop Resume Failures
+### Pitfall 6: Dynamic Magazine Renderer Crashes on AI-Generated Edge Cases
 
-**What goes wrong:** Admin approves content hours or days after generation. The graph resume fails because: the checkpoint store is misconfigured, the state schema has changed between generation and approval, or the LLM context from the original run is lost.
+**What goes wrong:** The Next.js magazine renderer receives `MagazineLayout` JSON from the API and renders each block by type. But AI-generated content produces edge cases the renderer does not handle: empty `paragraphs: []` in BodyTextBlock, `image_url: ""` in HeroBlock (from the default template), `celebs: []` in CelebFeatureBlock, or `products: []` in ProductShowcaseBlock. The renderer crashes or shows blank sections.
 
-**Why it happens:** Human-in-the-loop requires persistent checkpointing, but teams test with `MemorySaver` (in-memory, lost on restart) and forget to switch to `AsyncPostgresSaver` for production. Schema migrations during development break existing checkpoints.
+**Why it happens:** Looking at the actual codebase: `create_default_template()` in `layout.py` creates blocks with `image_url=""`, `paragraphs=[]`, and `products=[]`. The `enrich_from_posts_node` only fills blocks if matching data exists in `enriched_contexts`. If Supabase has no matching posts (common for new/niche keywords), the template blocks remain empty. The Pydantic models allow these empty values (they are valid per schema), but the frontend renderer assumes non-empty data.
 
-**Consequences:** Admin clicks "approve" and nothing happens, or worse, the pipeline re-runs from scratch, generating different content than what was reviewed.
+**Consequences:** Magazine preview page shows broken images (empty `src=""`), empty sections, or crashes entirely. Admin cannot evaluate content quality because the preview is unusable.
 
 **Warning signs:**
-- Using `MemorySaver` in any non-test environment
-- No migration strategy for checkpoint schema changes
-- Graph resume producing different output than the checkpointed state
+- `HeroBlock(image_url="")` in the default template
+- `BodyTextBlock(paragraphs=[])` -- renders nothing
+- `ProductShowcaseBlock(products=[])` -- empty showcase section
+- No Supabase posts matching the curated keywords
 
 **Prevention:**
-- Use `AsyncPostgresSaver` (or Supabase PostgreSQL) from the start of integration testing
-- Run `checkpointer.setup()` as a separate migration script, not in application runtime
-- Store the approved content snapshot separately from the checkpoint (so approval publishes the exact content that was reviewed, not a re-generation)
-- Design the post-approval flow as a simple publish step that reads from the content store, not from LLM state
+- Defensive rendering: every block component must handle empty/missing data gracefully
+  ```tsx
+  // BAD
+  <img src={block.image_url} />
 
-**Phase:** Phase 4 (human-in-the-loop). But the checkpointer choice should be made in Phase 1.
+  // GOOD
+  {block.image_url ? (
+    <img src={block.image_url} />
+  ) : (
+    <div className="placeholder">No image available</div>
+  )}
+  ```
+- Add a `blocks.filter()` step in the renderer that removes blocks with no meaningful content before rendering
+- Create a `isBlockRenderable(block)` utility that checks minimum data requirements per block type
+- Test the renderer with the exact output of `create_default_template("test", "Test Title")` -- this is the worst-case input
+
+**Phase:** Dynamic rendering (component implementation)
+
+**Confidence:** HIGH (verified by reading `layout.py` default template and `enrich_from_posts.py` enrichment logic)
 
 ---
 
-### Pitfall 7: Perplexity API as Single Point of Failure
+### Pitfall 7: Log Storage Growth from Full Prompt/Response Logging
 
-**What goes wrong:** The curation agent and source agent both depend on Perplexity API. Rate limits (429 errors), outages, or slow responses block the entire pipeline. Weekly cron triggers many articles at once, hitting burst limits.
+**What goes wrong:** To build the observability dashboard, you log full prompts and LLM responses for every Gemini call. Each `curation_node` call makes 3+ Gemini API calls (research, subtopic expansion, extraction). Each `editorial_node` makes 3 calls (content generation, image generation, layout parsing) plus potential repair calls. A single pipeline run produces 10+ LLM calls. At ~5-20KB per prompt/response pair, each run generates 100-400KB of log data. With weekly batch runs of 5-10 articles, plus retries, this grows to multi-GB per month.
 
-**Why it happens:** Perplexity uses a leaky bucket rate limiter. Batch generation (weekly cron producing multiple articles simultaneously) can exhaust the burst capacity. No fallback search provider is configured.
+**Why it happens:** The instinct when adding observability is to "log everything." Prompts are large (trend context includes DB data, enriched contexts, feedback history). Responses include full JSON layout objects. Nobody calculates the storage cost upfront.
 
-**Consequences:** Weekly content generation partially or fully fails. Some articles get search results, others do not, creating inconsistent quality. Retry storms compound the rate limiting.
+**Consequences:** Supabase database storage fills up. Query performance degrades as the log table grows. Free/Pro tier Supabase storage limits (8GB) are hit within months.
 
 **Warning signs:**
-- 429 errors in cron job logs
-- Inconsistent search result quality between articles in the same batch
-- Perplexity API response times exceeding 10 seconds
+- Log table size growing faster than content table
+- Supabase storage usage alerts
+- Dashboard queries becoming slow
 
 **Prevention:**
-- Implement exponential backoff with jitter for Perplexity calls
-- Serialize article generation (process articles sequentially, not in parallel) or add deliberate delays between batch items
-- Cache Perplexity results in the vector DB so repeated queries for similar topics do not hit the API
-- Budget for a higher usage tier if batch volume exceeds basic tier limits
-- Design the curation agent to be idempotent: if interrupted, it can resume without duplicate work
+- Log metadata only by default: model name, token counts, elapsed time, success/failure, first 200 chars of prompt
+- Store full prompts/responses only for failed calls (for debugging)
+- Add a TTL/retention policy: auto-delete detailed logs older than 30 days, keep summary metrics forever
+- Calculate expected storage: (avg_prompt_size + avg_response_size) x calls_per_run x runs_per_week x 4 weeks
+- Consider LangSmith for full trace storage instead of your own database (it is already configured in `config.py`)
 
-**Phase:** Phase 2 (curation agent) for implementation, but capacity planning in Phase 1.
+**Phase:** Observability (storage design)
+
+**Confidence:** HIGH (calculated from codebase: curation makes 3+ calls, editorial makes 3+ calls, review makes 1 call = 7+ per run minimum)
 
 ---
 
-### Pitfall 8: Context Window Pollution in Multi-Agent Pipelines
+### Pitfall 8: Timing Metrics Mislead Because of Retry and Backoff
 
-**What goes wrong:** As content flows through curation -> editorial -> source -> review -> re-edit, each agent's context accumulates prior agents' full outputs. By the time the editorial agent gets feedback for re-editing (iteration 2+), its context contains: original curation data, first draft, all tool call results, source verification results, review feedback, and now must generate a revision. This exceeds practical context limits or degrades quality.
+**What goes wrong:** You measure node execution time and display it on the dashboard. But `curation_node` wraps its Gemini calls with `@retry_on_api_error` (tenacity: exponential backoff, 3 attempts). A node that takes "45 seconds" might have spent 2 seconds on the actual API call and 43 seconds on backoff waits after two retries. The dashboard shows "curation is slow" when the real issue is API rate limiting.
 
-**Why it happens:** LangGraph state grows additively. Teams append to message lists without trimming. Gemini's large context window (1M+ tokens) creates a false sense of security --- models still degrade with cluttered context even when within limits.
+**Why it happens:** Node-level timing captures wall-clock time including retries, backoff delays, and error handling. Without separating "API time" from "wait time" from "retry count," the metrics are uninterpretable.
 
-**Consequences:** Quality degradation on re-edits. Increased latency and cost. Agent starts hallucinating or ignoring instructions buried deep in context.
+**Consequences:** Team optimizes the wrong thing. Dashboard shows misleading performance data. Stakeholders get alarmed by "45-second curation" when the API call itself is fast.
 
 **Warning signs:**
-- Re-edited articles being worse than the first draft
-- Token usage doubling on each feedback iteration
-- Agent ignoring specific feedback points
+- High variance in node execution times (2s vs 45s for the same node)
+- Node times that are suspiciously close to retry backoff intervals (1s, 2s, 4s, 8s...)
+- No way to distinguish first-attempt time from total time
 
 **Prevention:**
-- Each agent should receive a clean, curated context, not the full message history
-- Use LangGraph's state channels to pass only relevant data between nodes (not full conversation)
-- On re-edit: pass only the current draft, the structured feedback, and the original brief --- not the full history
-- Implement a context summarization step before re-edit if needed
+- Track three separate metrics per node: `attempt_count`, `total_elapsed_ms`, `first_attempt_elapsed_ms`
+- Track per-API-call timing inside the retry loop, not outside it
+- Log retry events separately: `{"event": "retry", "node": "curation", "attempt": 2, "error": "429 rate limited", "backoff_ms": 2000}`
+- Display retry count alongside timing on the dashboard
 
-**Phase:** Phase 1 (state schema and graph design). This is an architectural decision about how nodes communicate.
+**Phase:** Observability (metrics design)
+
+**Confidence:** HIGH (verified: `retry_on_api_error` in `curation_service.py` uses `wait_exponential(min=1, max=60)`)
+
+---
+
+### Pitfall 9: google-genai SDK Does NOT Use LangChain Callbacks
+
+**What goes wrong:** You try to add observability using LangChain's callback system (`CallbackHandler`, `on_llm_start`, `on_llm_end`) because LangSmith is already configured. But the codebase uses `google.genai.Client` directly -- NOT `ChatGoogleGenerativeAI` from `langchain-google-genai`. LangChain callbacks are never triggered because the LLM calls bypass LangChain entirely.
+
+**Why it happens:** The project made a deliberate choice to use the native `google-genai` SDK for direct access to Google Search Grounding, image generation (Nano Banana), and vision capabilities that are not available through the LangChain wrapper. This is the correct architectural choice, but it means LangChain's observability ecosystem does not apply.
+
+**Consequences:** Hours spent trying to wire up LangChain callbacks that never fire. LangSmith traces show graph-level events but no LLM call details. The observability gap is exactly where you need the most visibility.
+
+**Warning signs:**
+- LangSmith traces showing node transitions but no LLM call spans
+- `from langchain_google_genai import ChatGoogleGenerativeAI` not used anywhere in the services
+- `google.genai.Client.aio.models.generate_content()` called directly
+
+**Prevention:**
+- Accept that observability must be built at the application level, not via LangChain callbacks
+- Use the `response.usage_metadata` from `generate_content()` responses directly
+- Build a lightweight metrics collector that wraps the `genai.Client` or instruments each service method
+- If LangSmith integration is desired for LLM calls, use the LangSmith SDK directly (not through LangChain callbacks):
+  ```python
+  from langsmith import traceable
+
+  @traceable(name="gemini_generate")
+  async def tracked_generate(client, **kwargs):
+      response = await client.aio.models.generate_content(**kwargs)
+      return response
+  ```
+- Alternatively, integrate with OpenTelemetry spans for vendor-neutral observability
+
+**Phase:** Observability (architecture decision -- must decide approach before implementation)
+
+**Confidence:** HIGH (verified by reading entire codebase: all LLM calls go through `google.genai.Client`, zero use of LangChain LLM wrappers)
+
+---
+
+### Pitfall 10: Discriminated Union Rendering Fails on Unknown Block Types
+
+**What goes wrong:** The `MagazineLayout.blocks` field uses a discriminated union (`Field(discriminator="type")`) with 10 known block types. If a future pipeline version introduces a new block type, or if the AI hallucinates a type name (e.g., `"video_embed"` instead of `"image_gallery"`), the Pydantic validation fails and the entire layout is rejected -- not just the unknown block.
+
+**Why it happens:** Pydantic discriminated unions are strict: if the `type` field does not match any variant, validation fails for the entire list. There is no "skip unknown" option in the current schema. The AI occasionally produces creative block types not in the schema.
+
+**Consequences:** One bad block type in a 12-block layout causes the entire magazine to fail validation. The review node catches this as a format error, triggering a re-edit cycle that may not fix the underlying issue (the AI might produce the same creative type again).
+
+**Warning signs:**
+- `ValidationError` mentioning discriminator field `type`
+- Review feedback repeatedly citing "format" failure
+- The editorial agent re-generating similar layouts with the same unknown type
+
+**Prevention:**
+- In the renderer (frontend), use a block type registry with a fallback:
+  ```tsx
+  const BLOCK_RENDERERS = { hero: HeroBlock, headline: HeadlineBlock, ... };
+  const renderer = BLOCK_RENDERERS[block.type] || FallbackBlock;
+  ```
+- In the pipeline, pre-filter blocks before Pydantic validation: remove blocks with unknown types rather than rejecting the whole layout
+- Add a warning log when unknown block types are encountered (helps track AI hallucination patterns)
+- In the editorial prompt, explicitly list allowed block types (already done in `build_layout_parsing_prompt`)
+
+**Phase:** Dynamic rendering (frontend) + Review node (backend)
+
+**Confidence:** MEDIUM-HIGH (verified schema in `layout.py`; AI hallucination of type names is a known pattern with structured output)
 
 ---
 
 ## Minor Pitfalls
 
-Mistakes that cause annoyance but are fixable without major refactoring.
+Mistakes that cause friction but are quickly fixable.
 
-### Pitfall 9: Cron Job Error Handling and Partial Failure Recovery
+### Pitfall 11: CORS and Authentication Gaps in Admin API for Magazine Preview
 
-**What goes wrong:** Weekly cron triggers pipeline for 5-10 articles. Article 3 fails (API error, malformed data). The entire batch is marked as failed, or worse, the error is swallowed and partially-generated content sits in a broken state in Supabase.
+**What goes wrong:** The admin dashboard fetches magazine layout JSON from the FastAPI backend to render a preview. CORS is configured for the dashboard origin, but the magazine preview component makes additional requests (e.g., loading images from Supabase storage, fetching product thumbnails from external URLs). These cross-origin requests fail silently, showing broken images in the preview.
 
 **Prevention:**
-- Process each article independently with its own try/except and status tracking
-- Use per-article status in Supabase: `queued` -> `generating` -> `review` -> `pending_approval` -> `published` / `failed`
-- Implement a dead letter queue: failed articles get logged with error context for manual retry
-- Cron job should report success/failure counts, not just overall status
+- The magazine renderer should handle image load errors with fallback placeholders
+- Proxy external images through the backend or use Supabase storage URLs (same origin)
+- Test the preview with actual production image URLs, not just localhost
 
-**Phase:** Phase 5 (cron and deployment).
+**Phase:** Dynamic rendering
 
 ---
 
-### Pitfall 10: Vector DB Embedding Model Lock-in
+### Pitfall 12: `time.time()` vs `time.monotonic()` for Duration Tracking
 
-**What goes wrong:** Team picks an embedding model (e.g., `text-embedding-004`), populates the vector DB with all historical posts, then discovers the model is deprecated or a better one exists. Re-embedding the entire corpus is expensive and time-consuming.
+**What goes wrong:** Using `time.time()` for execution timing. System clock adjustments (NTP sync, DST changes) can produce negative durations or time jumps.
 
 **Prevention:**
-- Store the embedding model version as metadata alongside each vector
-- Design the vector DB schema to support multiple embedding versions simultaneously
-- Keep the raw text alongside embeddings so re-embedding is possible
-- Start with a small corpus for validation before bulk-embedding everything
+- Always use `time.monotonic()` for measuring elapsed time
+- Use `time.time()` only for timestamps (when the metric was recorded)
 
-**Phase:** Phase 2 (vector DB setup).
+**Phase:** Observability
 
 ---
 
-### Pitfall 11: Magazine Layout JSON Schema Drift
+### Pitfall 13: Magazine Preview Performance with Many Image Blocks
 
-**What goes wrong:** The Layout JSON schema evolves as the frontend (decoded-app) adds new component types or layout options. The editorial agent's prompt and Pydantic model fall out of sync with what the frontend expects, causing silent rendering failures.
+**What goes wrong:** A magazine layout with 6+ `ImageGalleryBlock` images, a `HeroBlock` image, and multiple `ProductShowcaseBlock` thumbnails triggers 10+ simultaneous image loads in the browser. The preview page becomes slow and janky, especially on slower connections.
 
 **Prevention:**
-- Define the Layout JSON schema as a shared Pydantic model in a package or contract file
-- Version the schema and include the version in the output JSON
-- Automated contract test: generate sample output -> validate against frontend's expected schema
-- Change management process: schema changes require updating both the agent prompt and the frontend parser
+- Lazy load images below the fold with `loading="lazy"` or Intersection Observer
+- Use Next.js `Image` component with built-in lazy loading and blur placeholder
+- Limit gallery images to 4-6 per block in the renderer (even if the data has more)
+- Add image dimensions to the layout schema to prevent layout shift
 
-**Phase:** Phase 2 (editorial agent) and ongoing.
+**Phase:** Dynamic rendering
 
 ---
 
 ## Phase-Specific Warnings
 
-| Phase | Likely Pitfall | Mitigation |
-|-------|---------------|------------|
-| Phase 1: Graph Skeleton & State | Fat state design (#2), context pollution (#8), wrong SDK (#3) | Define lean state schema early; use `langchain-google-genai`; establish data-passing patterns between nodes |
-| Phase 2: Curation & Editorial Agents | Perplexity rate limits (#7), Gemini structured output failures (#4), embedding lock-in (#10) | Implement retry logic, output validation, and schema versioning from the start |
-| Phase 3: Review Agent & Feedback Loop | Infinite cycling (#1), judge inconsistency (#5) | Hard caps, structured feedback schema, calibration dataset |
-| Phase 4: Human-in-the-Loop & Admin | Resume failures (#6), checkpoint bloat surfacing (#2) | Production checkpointer, content snapshot for approval |
-| Phase 5: Cron & Production | Partial failure recovery (#9), batch rate limiting (#7) | Per-article error handling, sequential processing with delays |
+| Phase/Feature | Likely Pitfall | Mitigation |
+|---------------|---------------|------------|
+| E2E First Run | curation_input key mismatch (#1) | Audit API->node field names before first run |
+| E2E First Run | Supabase pooler errors (#2) | Test with real Supabase connection string, not local PG |
+| E2E First Run | Empty Supabase data -> empty magazine | Seed test data in posts/solutions tables first |
+| Observability | State schema changes break checkpoints (#3) | Store metrics in separate table, not LangGraph state |
+| Observability | google-genai not using LangChain callbacks (#9) | Build app-level instrumentation or use LangSmith @traceable |
+| Observability | Token count inaccuracy (#4) | Cross-validate with count_tokens(), log both values |
+| Observability | Retry timing confusion (#8) | Track per-attempt vs total time separately |
+| Observability | Log storage growth (#7) | Log metadata only, full prompts only on failure |
+| Dynamic Rendering | Empty blocks from default template (#6) | Defensive rendering for all block types |
+| Dynamic Rendering | Unknown block type crashes (#10) | Block type registry with fallback component |
+| Dynamic Rendering | Image loading performance (#13) | Lazy loading, Next.js Image component |
 
 ---
 
-## LangGraph-Specific Gotchas (Quick Reference)
+## Quick Decision Guide
 
-| Gotcha | Detail |
-|--------|--------|
-| `MemorySaver` in prod | Only for testing. Use `AsyncPostgresSaver` or equivalent for any deployment. |
-| `checkpointer.setup()` | Run as migration script, not in app runtime. Prevents permission errors and race conditions. |
-| State schema changes | Break existing checkpoints. Version your state schema and handle migration. |
-| Streaming + structured output | Structured output enforcement prevents token-by-token streaming. Plan UI accordingly. |
-| Supervisor vs swarm | Supervisor pattern adds latency due to "translation" overhead. For linear pipelines, direct handoff between agents is better. |
+Before implementing each feature, answer these questions:
 
-## Vertex AI / Gemini-Specific Gotchas (Quick Reference)
+**Observability:**
+1. Where to store metrics? --> Separate Supabase table (NOT LangGraph state)
+2. How to instrument? --> Node-level wrappers + `response.usage_metadata` (NOT LangChain callbacks)
+3. What to log? --> Metadata always, full prompts only on failure
+4. How to handle retries in timing? --> Track attempt count + per-attempt time separately
 
-| Gotcha | Detail |
-|--------|--------|
-| `ChatVertexAI` deprecated | Use `ChatGoogleGenerativeAI(model="gemini-2.5-flash", vertexai=True)` instead. |
-| SDK after June 2026 | `langchain-google-vertexai` will stop supporting Gemini entirely. |
-| gRPC -> REST latency | New unified SDK uses REST, 50-90% slower than old gRPC. Monitor and benchmark. |
-| OpenAPI schema limits | `default`, `optional`, `maximum`, `oneOf` not supported in Vertex AI schemas. Keep schemas simple. |
-| Structured output on Flash | Intermittent malformed JSON with complex schemas. Validate every output. |
-| Gemini 3 tool calling bugs | `gemini-3-pro-preview` may call tools incorrectly. Prefer stable model versions. |
+**Dynamic Rendering:**
+1. What does worst-case input look like? --> `create_default_template()` output with all empty fields
+2. How to handle unknown block types? --> Fallback component, not crash
+3. How to handle missing images? --> Placeholder, not broken `<img>`
+
+**E2E Execution:**
+1. Is the API -> node field mapping correct? --> Audit `seed_keyword` vs `keyword`
+2. Is there test data in Supabase? --> Seed posts/solutions before first run
+3. Is the connection string correct (port 5432, not 6543)? --> Verify
 
 ---
 
 ## Sources
 
-- [LangGraph Multi-Agent Orchestration Guide (Latenode)](https://latenode.com/blog/ai-frameworks-technical-infrastructure/langgraph-multi-agent-orchestration/langgraph-multi-agent-orchestration-complete-framework-guide-architecture-analysis-2025) - MEDIUM confidence
-- [Advanced Multi-Agent Development with LangGraph (Medium)](https://medium.com/@kacperwlodarczyk/advanced-multi-agent-development-with-langgraph-expert-guide-best-practices-2025-4067b9cec634) - LOW confidence
-- [Why Do Multi-Agent LLM Systems Fail? (arXiv)](https://arxiv.org/html/2503.13657v1) - HIGH confidence (peer-reviewed)
-- [LangGraph Checkpointing Best Practices 2025 (SparkCo)](https://sparkco.ai/blog/mastering-langgraph-checkpointing-best-practices-for-2025) - MEDIUM confidence
-- [Gemini Structured Output Issues (GitHub)](https://github.com/googleapis/google-cloud-java/issues/11782) - HIGH confidence (official issue tracker)
-- [langchain-google-genai 4.0.0 Deprecation Notice (GitHub)](https://github.com/langchain-ai/langchain-google/discussions/1422) - HIGH confidence (official discussion)
-- [Vertex AI Structured Output Docs (Google Cloud)](https://docs.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output) - HIGH confidence (official docs)
-- [LLM Tool-Calling in Production: Infinite Loop Failure Mode (Medium)](https://medium.com/@komalbaparmar007/llm-tool-calling-in-production-rate-limits-retries-and-the-infinite-loop-failure-mode-you-must-2a1e2a1e84c8) - LOW confidence
-- [Perplexity API Rate Limits (Official Docs)](https://docs.perplexity.ai/guides/usage-tiers) - HIGH confidence
-- [LangChain Human-in-the-Loop Docs](https://docs.langchain.com/oss/python/langchain/human-in-the-loop) - HIGH confidence
-- [Gemini Structured Outputs: Good, Bad, Ugly (Dylan Castillo)](https://dylancastillo.co/posts/gemini-structured-outputs.html) - MEDIUM confidence
-- [State of Agent Engineering (LangChain)](https://www.langchain.com/state-of-agent-engineering) - MEDIUM confidence
+- [Supabase + asyncpg prepared statement issues (GitHub #39227)](https://github.com/supabase/supabase/issues/39227) - HIGH confidence
+- [AsyncPostgresSaver InvalidSqlStatementName (LangGraph #2755)](https://github.com/langchain-ai/langgraph/issues/2755) - HIGH confidence
+- [LangGraph checkpoint-postgres breaking change (GitHub #5862)](https://github.com/langchain-ai/langgraph/issues/5862) - HIGH confidence
+- [Token count broken (googleapis/python-genai #470)](https://github.com/googleapis/python-genai/issues/470) - HIGH confidence
+- [Thinking tokens not counted correctly (simonw/llm-gemini #75)](https://github.com/simonw/llm-gemini/issues/75) - MEDIUM confidence
+- [Gemini token counting official docs](https://ai.google.dev/gemini-api/docs/tokens) - HIGH confidence
+- [LangGraph observability with Langfuse](https://langfuse.com/guides/cookbook/example_langgraph_agents) - MEDIUM confidence
+- [LangGraph + FastAPI + Postgres fight (Medium)](https://medium.com/@termtrix/i-built-a-langgraph-fastapi-agent-and-spent-days-fighting-postgres-8913f84c296d) - LOW confidence
+- [Supabase pooling and asyncpg fix (Medium)](https://medium.com/@patrickduch93/supabase-pooling-and-asyncpg-dont-mix-here-s-the-real-fix-44f700b05249) - MEDIUM confidence
+- [LangGraph token usage tracking (LangChain Forum)](https://forum.langchain.com/t/how-to-obtain-token-usage-from-langgraph/1727) - MEDIUM confidence
+- [OpenTelemetry instrumentation for LangChain/LangGraph (Last9)](https://last9.io/blog/langchain-and-langgraph-instrumentation-guide/) - MEDIUM confidence
+- Codebase analysis: `pipeline.py`, `curation.py`, `editorial_service.py`, `layout.py`, `checkpointer.py`, `state.py` - HIGH confidence

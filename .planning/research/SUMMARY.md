@@ -1,269 +1,278 @@
 # Project Research Summary
 
-**Project:** Editorial AI Worker (Fashion editorial content auto-generation)
-**Domain:** Multi-agent editorial AI pipeline — fashion content generation
-**Researched:** 2026-02-20
-**Confidence:** MEDIUM-HIGH
+**Project:** Editorial AI Worker
+**Domain:** Pipeline Observability + Dynamic Magazine Renderer + E2E Execution Setup
+**Milestone:** v1.1 (builds on shipped v1.0)
+**Researched:** 2026-02-26
+**Confidence:** HIGH
 
 ## Executive Summary
 
-This project builds a production multi-agent pipeline that auto-generates fashion editorial content for the decoded-app. The architecture follows a deterministic, sequential workflow — Curation -> Source -> Editorial -> Review -> Admin Gate -> Publish — implemented as a LangGraph StateGraph with Postgres-backed checkpointing. The recommended approach is a supervisor-style orchestration (not swarm) using LangGraph 1.0.8 GA with Gemini 2.5 Flash as the primary LLM, Supabase pgvector for vector search, and Perplexity Sonar for trend research. Google Cloud Run is the deployment target given the long-running nature of LLM pipelines (minutes, not seconds), making Cloudflare Workers unsuitable despite the repo name.
+The v1.1 milestone extends a working Editorial AI Worker — a 7-node LangGraph pipeline that generates magazine-quality content using Gemini 2.5 Flash, stores it in Supabase, and presents it in a Next.js admin dashboard for approval. The three v1.1 goals (E2E execution validation, pipeline observability, and dynamic magazine rendering) are architectural enhancements to an already-functional system, not greenfield work. Research confirms the scope is well-bounded and all three features can be implemented without adding significant new infrastructure: zero new Python dependencies, one frontend library (`motion` v12), one new Supabase table, and one SQL migration.
 
-The most important architectural decisions must be made in Phase 1 before writing any agent logic: lean state schema design (store IDs and references, not full payloads), the `langchain-google-genai` SDK (not the deprecated `langchain-google-vertexai`), and bounded feedback loops with hard retry caps. These three decisions are expensive to change retroactively and affect every downstream phase. The Magazine Layout JSON schema — the contract between this worker and decoded-app's frontend — must be versioned from day one and validated at every node boundary.
+The recommended approach prioritizes E2E validation first because a confirmed working pipeline is the prerequisite for testing both observability (needs real data flowing through nodes) and the renderer (needs real Layout JSON with populated image URLs). Observability must be implemented at the application layer — not through LangChain callbacks — because the codebase uses the native `google-genai` SDK directly for all LLM calls, bypassing LangChain's callback system entirely. The magazine renderer is largely already built; the block architecture is correct and the work is upgrading 4 image-bearing block components from gray placeholder boxes to real image rendering, plus editorial typography improvements.
 
-The critical risks are all manageable with upfront design discipline: feedback loop death spirals (mitigated by max 3 retries + structured feedback schema), checkpoint state bloat (mitigated by lean state referencing Supabase IDs), Gemini structured output intermittent failures (mitigated by Pydantic validation + output repair), and HITL resume failures (mitigated by using `AsyncPostgresSaver` from integration testing onward, never `MemorySaver`). The feature scope for MVP is well-defined: 7 table-stakes features plus Source Agent and scheduling form a shippable v1.
+The two highest-risk items are both in E2E setup: a confirmed `seed_keyword` vs `keyword` field name mismatch between the API trigger endpoint and `curation_node` (guaranteed first-run failure without a fix), and potential Supabase `AsyncPostgresSaver` prepared statement errors when using the wrong connection pool port. Both are straightforward to fix once identified. The observability implementation has one critical subtlety: token metrics must be collected from `response.usage_metadata` on native google-genai responses, not via LangChain callback handlers that never fire for these calls.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The core stack is LangGraph 1.0.8 + `langchain-google-genai` 4.1.2 + Gemini 2.5 Flash + Supabase (Postgres + pgvector) + FastAPI on Cloud Run. Python 3.12 is the target runtime. LangSmith provides native LangGraph tracing from day one. uv replaces pip/poetry for package management. The critical SDK migration note: `ChatVertexAI` from `langchain-google-vertexai` is deprecated as of late 2025 and will be removed June 2026 — the correct path is `ChatGoogleGenerativeAI(model="gemini-2.5-flash", project="...", location="us-central1")` from `langchain-google-genai` 4.x, which routes through Vertex AI while using the new unified `google-genai` SDK.
+The v1.0 stack (LangGraph 1.0.9, Gemini 2.5 Flash via native `google-genai` SDK, Supabase, FastAPI, Next.js 15 + Tailwind CSS 4) is unchanged for v1.1. The only net-new dependency is `motion` v12 for the admin dashboard — a React 19-compatible animation library (renamed from `framer-motion`) for scroll-reveal and entrance animations.
 
-**Core technologies:**
-- `langgraph>=1.0.8`: StateGraph orchestration for the editorial pipeline — GA, supervisor pattern, human-in-the-loop via `interrupt()`
-- `langchain-google-genai>=4.1.2`: LangChain Gemini integration — replaces deprecated `ChatVertexAI`; use `ChatGoogleGenerativeAI` with `project` param
-- `gemini-2.5-flash`: Primary LLM for editorial generation — best cost/quality ratio for structured content
-- `gemini-2.5-flash-lite`: Curation and routing — 1.5x faster, lower cost for lightweight classification tasks
-- `gemini-embedding-001`: Embeddings for vector search — top MTEB multilingual scores, unified billing
-- `langgraph-checkpoint-postgres>=2.0.0`: Durable state for HITL pause/resume — direct Supabase Postgres connection
-- Supabase pgvector: Vector storage co-located with relational data — no separate vector DB needed at editorial content scale
-- Perplexity Sonar: Trend research and source finding — purpose-built for citations, $1/M tokens
-- `fastapi>=0.129.0` + `uvicorn>=0.34.0`: Admin dashboard API and pipeline triggers — async-native, Pydantic integration
-- `pydantic>=2.12.5`: Single source of truth for Layout JSON schema, LLM output validation, API types
-- LangSmith: Native LangGraph tracing — free tier, essential for multi-agent debugging
-- `uv>=0.6.0`: Package management — 10-100x faster than pip, deterministic lockfiles
+**Core v1.1 stack additions:**
+- `motion` v12 (admin frontend, one `pnpm add`): Magazine-feel entrance animations and scroll reveals — React 19 compatible, ~50KB gzipped
+- `time.monotonic()` (Python stdlib): Correct tool for measuring node wall-clock duration — `time.time()` produces unreliable results
+- `pipeline_node_runs` Supabase table (new SQL migration): Persistent per-node execution metrics, FK to `editorial_contents.thread_id`, decoupled from LangGraph state
+- `next/font/google` (already in Next.js 15): Editorial typography (Playfair Display for headlines, Noto Sans KR for Korean body) — zero new dependency
 
-**What not to use:** `gemini-3-flash` (public preview, unstable), `ChatVertexAI` (deprecated), separate vector DB (Pinecone/Weaviate — pgvector sufficient), OpenAI embeddings (second vendor), Cloudflare Workers (CPU time limits incompatible with long-running pipelines).
+**What was evaluated and rejected:**
+- LangSmith/Langfuse as mandatory dependency — already configured as opt-in (`LANGSMITH_TRACING=true`); custom Supabase logging gives the admin UI full control over displayed data
+- OpenTelemetry/Jaeger — infrastructure-level overkill for 7 nodes and low-concurrency manual runs
+- Three.js/GSAP in admin dashboard — consumer-facing viewer explicitly belongs in `decoded-app`; admin preview needs standard React + Tailwind
+- `next/image` for external URLs — requires `remotePatterns` for each allowed domain; standard `<img>` with fallback is correct for arbitrary image sources from the pipeline
+
+See `.planning/research/STACK.md` for full rationale, implementation patterns, and the complete list of new files to create.
 
 ### Expected Features
 
-Full feature research in `.planning/research/FEATURES.md`.
+**Must have (table stakes — v1.1 milestone goals):**
+- `curation_input` field name fix (`seed_keyword` vs `keyword` alignment) — guaranteed pipeline failure without this fix
+- Environment variable validation at startup (Pydantic `@model_validator` fail-fast, not cryptic runtime errors)
+- Supabase connection + table health check (`GET /health`) — verify connectivity before first pipeline run
+- `AsyncPostgresSaver` connection validation with SSL guidance (port 5432 session pooler, not 6543 transaction pooler)
+- Pipeline trigger button + keyword input form in Admin UI — currently no UI exists; requires curl/Postman for pipeline trigger
+- Seed data SQL script for celebs/products/posts — empty Supabase tables produce empty magazine content
+- Per-node execution timing (wall-clock) and token usage collection (from `response.usage_metadata` on google-genai responses)
+- `pipeline_node_runs` Supabase table + migration SQL
+- `GET /api/pipeline/runs/{thread_id}` endpoint
+- Admin detail page pipeline log panel (accordion/timeline component)
+- Upgrade 4 image-bearing blocks (hero, product, celeb, gallery) from placeholder boxes to real `<img>` rendering with fallback
+- Block-level React Error Boundaries in `BlockRenderer`
+- Defensive empty-state rendering for all 10 block types
 
-**Must have (table stakes) — ship in MVP:**
-- Trend keyword curation via Perplexity — pipeline entry point; without this content is stale
-- Editorial Agent with 5 tool skills producing Magazine Layout JSON — core value, this IS the product
-- LLM-as-a-Judge review with structured feedback — automated quality gate; binary pass/fail is insufficient
-- Feedback loop with max retry (3 attempts) — evaluate-reflect-refine is industry standard pattern
-- Celeb/influencer search from Supabase DB — editorial authority requires personality context
-- Product/brand search from Supabase DB — commercial value requires shoppable product tie-in
-- Human-in-the-loop admin approval (pending/approved/rejected) — mandatory for brand/legal risk management
-- Admin content preview + approve/reject UI — approving a JSON blob is not acceptable
-- Execution logging and traceability per pipeline run — non-negotiable for debugging multi-agent systems
-- Retry limits and graceful failure — default 3, then escalate to human
+**Should have (low effort, high value differentiators):**
+- Token cost estimation display in log panel (Gemini 2.5 Flash pricing × token counts = ~$0.03/run)
+- Side-by-side JSON + rendered view on content detail page (layout change only, components already exist)
+- Pipeline progress status indicator in content list view (current node name)
+- Responsive preview mode toggle (mobile/tablet/desktop width switching)
+- Magazine-quality typography system (Google Fonts via `next/font/google`)
 
-**Should have (high-value differentiators to include in MVP):**
-- Source Agent (Perplexity) — fact-grounded content with verifiable URLs separates from "AI slop"
-- Structured feedback injection on retry — makes the feedback loop genuinely iterative, not naive retry
-- Content scheduling (weekly cron) — operational necessity, low marginal complexity
-
-**Defer to v2+:**
-- Vector DB similarity search for dedup (use keyword dedup initially)
-- SNS content integration (API access complexity)
-- External reference collection via web scraping (fragile)
-- Configurable editorial templates (start with one template)
-- Quality analytics dashboard (collect metrics from day 1, visualize later)
-- Multi-dimension review scoring breakdown (start with pass/fail + text feedback)
+**Defer to post-v1.1:**
+- Real-time pipeline progress via SSE (`astream_events()`) — high complexity, acceptable 2-min wait for now
+- Prompt playground (edit/test prompts in Admin) — significant scope, iterate in code first
+- Pipeline A/B comparison view — needs multiple accumulated runs first
+- Magazine theme variants — establish one solid theme before adding variants
+- PDF/print export — screenshot suffices for stakeholder reviews
+- Node-level re-run from Admin — complex checkpoint manipulation, full re-trigger is sufficient
 
 **Explicit anti-features — do not build:**
-- Fully autonomous publishing without human gate
-- AI-generated images (uncanny valley, copyright ambiguity)
-- Real-time generation on user request (bypasses quality control)
-- Complex WYSIWYG admin editor (frontend distraction)
-- Multi-language support in v1 (doubles prompt engineering surface)
-- Custom LLM fine-tuning (premature, no training corpus yet)
+- LangSmith/Langfuse as mandatory runtime dependency — opt-in via env vars is correct
+- Full CMS visual editor (drag-drop blocks) — the pipeline generates layout, admin reviews it; visual editor contradicts core value
+- Canvas/WebGL/Three.js in admin renderer — consumer-facing experience lives in `decoded-app`
+- Block-level inline editing in preview — two-way sync between JSON and DOM is a maintenance nightmare
+- Automated cost alerting/budgets — pipeline runs are manual, display per-run cost and monitor manually
+
+See `.planning/research/FEATURES.md` for full feature table with complexity estimates and the complete dependency graph.
 
 ### Architecture Approach
 
-The architecture is a LangGraph `StateGraph` with 6 nodes (Curation, Source, Editorial, Review, Admin Gate, Publish) connected by both direct edges and conditional edges that implement two feedback loops: an automatic Review->Editorial loop (bounded by `revision_count` <= 3) and a human-triggered Admin->Editorial loop. The `interrupt()` pattern freezes the pipeline at Admin Gate until `Command(resume=...)` is called from the admin dashboard API — zero compute while waiting. State flows as a typed `TypedDict` with `Annotated` reducers only for accumulating fields (error logs, tool call logs).
+The v1.1 architecture extends three existing layers without adding new tiers. The backend gains a `node_wrapper` decorator in `observability.py` that wraps all 7 nodes at `build_graph()` time (not in individual node files), and a `preflight.py` module that validates all service connections at FastAPI startup lifespan. The database gains one new table (`pipeline_node_runs`) with a FK to `editorial_contents.thread_id`. The frontend gains two new components (`pipeline-timeline.tsx`, `preview-mode-toggle.tsx`) and visual enhancements to 10 existing block components. The Python Pydantic to TypeScript type contract is already established 1:1 and requires no changes.
 
-**Major components:**
-1. **Curation Agent** (Node) — selects trending topics from Supabase celeb/products + Perplexity trend research; writes `curated_topics`
-2. **Source Agent** (Node) — enriches curated topics with verified facts and URLs via Perplexity; deduplicates against vector DB; writes `enriched_contexts`
-3. **Editorial Agent** (Node) — generates Magazine Layout JSON using Gemini 2.5 Flash with 5 bound tool skills; reads enriched context; writes `current_draft`
-4. **Review Agent** (Node) — LLM-as-a-Judge scoring across tone, accuracy, brand voice, uniqueness; writes `review_result`; routes to revision or Admin Gate
-5. **Admin Gate** (Node with `interrupt()`) — pauses pipeline for human approval; resumes via API call with decision + optional feedback
-6. **Publish/Finalize** (Node) — writes approved content to Supabase, stores embedding in pgvector; idempotent
-7. **Supabase service layer** (`supabase_service.py`) — thin wrapper for all DB operations; nodes never run raw queries
-8. **Vector service layer** (`vector_service.py`) — `find_similar_posts()`, `store_post_embedding()`, `get_trending_keywords()`
-9. **Perplexity service layer** (`perplexity_service.py`) — wrapped with retry logic and aggressive 30s timeout
+**Major v1.1 components:**
+1. `src/editorial_ai/observability.py` — `node_wrapper` decorator + `save_node_run()` fire-and-forget persistence; applied to all 7 nodes in `build_graph()`; observability failures are silently caught and never break the pipeline
+2. `src/editorial_ai/preflight.py` — validates Supabase REST, Postgres checkpointer, Google AI, and optional LangSmith at FastAPI startup; populates `/health` endpoint with per-service status
+3. `supabase/migrations/002_pipeline_node_runs.sql` — stores `thread_id`, `node_name`, `started_at`, `duration_ms`, `status`, `error_message`, `revision_count` with FK to `editorial_contents`
+4. `src/editorial_ai/api/routes/pipeline.py` (modified) — adds `GET /api/pipeline/runs/{thread_id}` and `GET /api/pipeline/runs/recent` endpoints
+5. `admin/src/components/pipeline-timeline.tsx` — horizontal timeline of node executions with green/red/gray status indicators on content detail page
+6. Enhanced block components — 10 existing components upgraded in-place: real `<img>` rendering for hero/product/celeb/gallery, CSS-only carousel/masonry for galleries, editorial typography, defensive empty-state handling
 
-**Key patterns:**
-- Idempotent nodes — every node safe to re-execute on checkpointer resume
-- Lean state — IDs and references only; full payloads live in Supabase, not LangGraph state
-- Bounded feedback loops — `revision_count` hard cap prevents infinite cycling
-- Structured output enforcement — Pydantic validation at every LLM output boundary
-- Per-node error boundaries — try/except writes to `error_log` and sets `pipeline_status="failed"`
-- Each node owns its own LLM instance with its own system prompt and temperature
+**Key architectural constraints to respect:**
+- Lean state principle: observability data goes in a separate Supabase table, NEVER in `EditorialPipelineState` (would bloat Postgres checkpoints and break resume for in-flight pipelines)
+- Fire-and-forget pattern in `node_wrapper`'s `finally` block: `try/except pass` ensures Supabase failures never kill the pipeline
+- Standard `<img>` not `next/image` for external image URLs (arbitrary domains require `remotePatterns` configuration in `next.config.ts`)
+- 1:1 Python Pydantic to TypeScript type parity must be maintained: no frontend-only props that diverge from `layout.py` models
 
-**Editorial Agent implementation:** Start with Option A (single node with 5 bound tools via `llm.bind_tools([...])`). Promote to subgraph only when internal editorial routing becomes too complex for one node.
+**Data flow change (v1.0 → v1.1):**
+```
+Before: Pipeline Node -> State Update -> Supabase (editorial_contents only)
+After:  Pipeline Node -> node_wrapper() -> State Update + pipeline_node_runs INSERT (fire-and-forget)
+                                              |
+        Admin Dashboard -> GET /api/contents/{id}       -> Real images + magazine CSS
+                        -> GET /api/pipeline/runs/{tid} -> Execution timeline
+                        -> GET /health                  -> Service status
+        Startup -> preflight_check() -> /health reports per-service status
+```
+
+See `.planning/research/ARCHITECTURE.md` for complete component inventory, build-order dependency graph, and all 5 anti-patterns to avoid.
 
 ### Critical Pitfalls
 
-Full pitfall research in `.planning/research/PITFALLS.md`.
+1. **`curation_input` key mismatch (`seed_keyword` vs `keyword`)** — `pipeline.py` sends `seed_keyword` but `curation_node` reads `.keyword`. First E2E run silently fails with "no seed keyword provided." Verified by direct codebase line references. Fix: audit all field names between API schemas and node state readers before first run; run `grep -r "seed_keyword" src/ && grep -r '"keyword"' src/editorial_ai/nodes/curation.py`.
 
-1. **Feedback loop death spiral** — Review rejects indefinitely, burning tokens without quality improvement. Prevention: hard cap at 3 revisions (in state as `revision_count`), structured field-level feedback schema (not prose), monotonic quality check to break early. Must be built into graph topology in Phase 1 — retrofit is a node topology rewrite.
+2. **Supabase `AsyncPostgresSaver` prepared statement errors** — Using port 6543 (transaction pooler) instead of port 5432 (session pooler) produces intermittent `InvalidSqlStatementName` errors. Fix: verify `DATABASE_URL` uses port 5432; test with real Supabase connection string (not local PostgreSQL) before first pipeline run.
 
-2. **Checkpoint state bloat** — Full editorial payloads (50KB+) duplicated across 15+ checkpoints per article. Prevention: lean state with only IDs/references; full content lives in Supabase; consider `durability="exit"` if intermediate recovery is not needed. Must be decided in Phase 1 state schema design.
+3. **Adding observability fields to `EditorialPipelineState` breaks existing checkpoints** — New TypedDict fields cause deserialization failures when resuming pipelines paused at `admin_gate` after deployment. Fix: store all observability data in the separate `pipeline_node_runs` table only — never in LangGraph state.
 
-3. **ChatVertexAI deprecation landmine** — Building on the deprecated `langchain-google-vertexai` package forces a painful migration before June 2026 with 50-90% latency regression from gRPC to REST. Prevention: use `ChatGoogleGenerativeAI` from `langchain-google-genai` 4.x from day one. Day-one decision, expensive to change.
+4. **Native `google-genai` SDK bypasses LangChain callbacks entirely** — The codebase uses `client.aio.models.generate_content()` directly; LangChain `CallbackHandler` (`on_llm_start`, `on_llm_end`) never fires for these calls. Hours wasted wiring up callbacks that produce nothing. Fix: collect token metrics from `response.usage_metadata` in each service method; use LangSmith `@traceable` decorator if individual LLM call tracing is needed.
 
-4. **Gemini structured output intermittent failures** — Flash models produce malformed JSON with complex nested schemas, especially Magazine Layout JSON. Prevention: Pydantic validation at every node, `OutputFixingParser` wrapper for repair, keep schema as flat as possible, detect truncation via `max_output_tokens`. Phase 1 (schema design) + Phase 2 (editorial agent).
+5. **Dynamic renderer crashes on AI-generated empty blocks** — `create_default_template()` produces `HeroBlock(image_url="")`, `BodyTextBlock(paragraphs=[])`, `ProductShowcaseBlock(products=[])`. Fix: every block component needs defensive empty-state rendering; add `isBlockRenderable(block)` filter before rendering.
 
-5. **HITL resume failures** — Admin approves content hours later; `MemorySaver` loses state on restart; schema migrations break existing checkpoints. Prevention: use `AsyncPostgresSaver` from integration testing onward, run `checkpointer.setup()` as separate migration script, store approved content snapshot in Supabase so publish reads from content store not LLM state.
+**Additional pitfalls confirmed by codebase analysis:**
+- Gemini `usage_metadata` token counts can be inaccurate with image inputs; cross-validate with `count_tokens()` during initial E2E runs
+- Node timing metrics are misleading when tenacity retry backoff is included in wall-clock time; track `attempt_count` separately from `total_elapsed_ms`
+- Unknown block types in the discriminated union crash the renderer; add a fallback component to the `BLOCK_MAP` registry
+- CORS failures for images loaded from arbitrary external URLs; use standard `<img>` with `onError` fallback, test with production image URLs
 
-6. **Context window pollution on re-edits** — Each feedback iteration accumulates all prior agents' outputs; re-edited drafts degrade in quality. Prevention: pass only current draft + structured feedback + original brief to editorial agent on re-edit; never pass full message history across nodes.
-
-7. **Perplexity as single point of failure** — Rate limits (429) and outages block batch article generation. Prevention: exponential backoff with jitter, serialize batch processing (sequential not parallel), cache results in vector DB.
+See `.planning/research/PITFALLS.md` for all 13 pitfalls with code-level verification, source links, and phase-specific warning table.
 
 ## Implications for Roadmap
 
-Research strongly supports a 6-phase build order matching the dependency chain in the pipeline. This order is not arbitrary — it mirrors the data flow, ensures each phase can be validated against real inputs, and front-loads the architectural decisions that are expensive to change.
+The dependency structure is unambiguous and mandates a specific phase ordering. E2E setup is the hard prerequisite: observability needs real pipeline runs to produce data, and the renderer validation needs real Layout JSON with populated image URLs. The renderer is the only pillar that can partially proceed in parallel (using v1.0 demo mode data for visual testing), but full validation requires a working pipeline.
 
-### Phase 1: Foundation (State, Graph Skeleton, Services)
+### Phase 1: E2E Execution Foundation
 
-**Rationale:** Every agent depends on the state schema and service layers. Critical architectural decisions (lean state, SDK choice, checkpointer, Layout JSON schema) must be locked in here before any agent logic is written. Retroactive changes to state schema break checkpoints and require rewriting multiple agents.
+**Rationale:** Without a confirmed working pipeline (real Gemini calls, real Supabase data, confirmed checkpointer connectivity), neither observability nor renderer can be properly tested. This phase eliminates all first-run blockers before building on top of them. It also serves as developer onboarding documentation via `.env.example`.
 
-**Delivers:** Compilable graph with stub nodes, Postgres checkpointer working, Supabase and vector service layers testable in isolation, Layout JSON schema defined as versioned Pydantic model.
+**Delivers:** A fully operational pipeline triggered from the Admin UI, with startup validation, health checks, seed data, and confirmed end-to-end execution. The `e2e_smoke.py` script provides a repeatable validation artifact.
 
-**Addresses:** State schema design (core architecture), service layer abstractions, `langchain-google-genai` SDK setup, LangSmith tracing wired up.
+**Addresses features:**
+- `curation_input` field name fix (the critical first-run blocker)
+- Pydantic `@model_validator` for fail-fast env var validation at startup
+- `preflight.py` module with per-service connectivity checks
+- `GET /health` endpoint reporting per-service status
+- Pipeline trigger button + keyword input form in Admin contents page
+- Seed data SQL script for celebs/products/posts
+- `.env.example` with all required variables documented
+- Basic `scripts/e2e_smoke.py` (trigger → poll → approve → verify published)
 
-**Avoids:** Pitfall 2 (checkpoint bloat), Pitfall 3 (deprecated SDK), Pitfall 4 (schema complexity), Pitfall 8 (context pollution — architectural decision).
+**Avoids:** Pitfall #1 (key mismatch), Pitfall #2 (wrong connection pool port)
 
-**Research flag:** Standard patterns (LangGraph StateGraph construction is well-documented). No deep research needed.
+**Research flag:** Standard patterns — no additional research needed. All gaps identified by direct codebase analysis with specific file and line references. Implementation is configuration, scripting, and one field name fix.
 
-### Phase 2: Data Pipeline (Curation Agent + Source Agent)
+### Phase 2: Pipeline Observability (Backend)
 
-**Rationale:** These nodes produce `curated_topics` and `enriched_contexts` — the inputs that Editorial needs. They also exercise the service layers from Phase 1 with real data. Building Editorial before Curation/Source means testing Editorial with mocked data that may not reflect real complexity.
+**Rationale:** Build the data collection layer before the Admin UI that consumes it. The `node_wrapper` decorator and Supabase table can be validated via direct API calls (`GET /api/pipeline/runs/{thread_id}`) before the timeline component exists. Building backend-first also serves as a debugging foundation for any issues surfaced during Phase 1 E2E runs.
 
-**Delivers:** Given a trigger, the pipeline selects trending celeb/product combinations from Supabase and enriches them with Perplexity-sourced facts and dedup checks against vector DB.
+**Delivers:** Per-node execution timing, token usage, error status, and revision count for all 7 pipeline nodes, persisted in Supabase and accessible via REST API.
 
-**Addresses:** Trend keyword curation (table stakes), Source Agent with Perplexity (MVP differentiator), celeb/product search from DB.
+**Addresses features:**
+- `observability.py` with `node_wrapper` decorator and fire-and-forget `save_node_run()`
+- Node wrapping in `build_graph()` (non-invasive; tests continue using `node_overrides`)
+- `supabase/migrations/002_pipeline_node_runs.sql`
+- `GET /api/pipeline/runs/{thread_id}` and `GET /api/pipeline/runs/recent` endpoints
+- Token cost estimation logic (static Gemini 2.5 Flash pricing constants)
 
-**Avoids:** Pitfall 7 (Perplexity rate limits — implement retry and timeout here), Pitfall 10 (embedding model lock-in — store model version as metadata from day one).
+**Avoids:** Pitfall #3 (state bloat — metrics in separate table), Pitfall #5 (exception chain corruption — do not wrap individual API calls, instrument at node level), Pitfall #7 (log storage growth — store metadata only; full prompts only for failed nodes), Pitfall #8 (retry timing confusion — track `attempt_count` separately), Pitfall #9 (LangChain callbacks don't fire — use `response.usage_metadata` directly), Pitfall #12 (use `time.monotonic()` not `time.time()`)
 
-**Uses:** Perplexity Sonar, Supabase (celeb/products tables), pgvector, `gemini-embedding-001`.
+**Research flag:** Standard patterns for `node_wrapper` decorator and Supabase persistence. One validation spot-check at implementation time: verify exact `response.usage_metadata` field names against the installed `google-genai` SDK version before building the token collection layer. Cross-validate with `count_tokens()` on first real run to detect accuracy issues (Pitfall #4, medium confidence).
 
-**Research flag:** Needs attention for Perplexity rate limit handling and vector DB schema. Patterns exist but integration specifics need verification.
+### Phase 3: Magazine Renderer Enhancement (Frontend, parallelizable with Phase 2)
 
-### Phase 3: Content Generation (Editorial Agent)
+**Rationale:** Pure frontend CSS/component work with no backend dependencies beyond the already-working Layout JSON API from v1.0. The block renderer architecture is already correct — this is visual enhancement to existing components, not new architecture. Can proceed in parallel with Phase 2 once Phase 1 E2E is confirmed, using demo mode data for initial visual testing.
 
-**Rationale:** Depends on enriched context from Phase 2. This is the core value of the product — maximum attention warranted. The 5 tool skills and Magazine Layout JSON structured output are the most complex and novel part of the build.
+**Delivers:** Magazine-quality block rendering with real images, editorial typography, carousel and masonry gallery layouts, robust empty-state handling, and block-level error isolation.
 
-**Delivers:** Given enriched context, produces valid Magazine Layout JSON matching the versioned Pydantic schema.
+**Addresses features:**
+- Real `<img>` rendering with fallback for hero, product showcase, celeb feature, image gallery blocks
+- CSS-only carousel (`overflow-x-auto scroll-snap-x` + `snap-start`) and masonry (`columns-2 gap-4`) for `ImageGalleryBlock`
+- Google Fonts via `next/font/google` (Playfair Display for headlines, Noto Sans KR for Korean body)
+- Drop caps and editorial leading/tracking for `BodyTextBlock`
+- Decorative pull quote styling (large font, accent border)
+- Block-level React Error Boundaries in `BlockRenderer`
+- `isBlockRenderable(block)` utility with pre-render filter
+- Fallback component in `BLOCK_MAP` for unknown block types
+- `motion` v12 scroll-reveal entrance animations (`pnpm add motion`)
+- `loading="lazy"` on all gallery images
 
-**Addresses:** Editorial Agent with 5 tool skills (core differentiator), structured output (table stakes), Magazine Layout JSON schema.
+**Avoids:** Pitfall #6 (empty blocks crash — defensive rendering), Pitfall #10 (unknown block type fallback), Pitfall #11 (image load error fallbacks), Pitfall #13 (lazy loading for images below fold)
 
-**Avoids:** Pitfall 4 (Gemini structured output failures — validate every output, implement `OutputFixingParser`). Pitfall 3 (ensure `ChatGoogleGenerativeAI` is used, not `ChatVertexAI`).
+**Research flag:** Standard patterns — Tailwind CSS 4 component enhancement. No additional research needed. Implementation note: use `<img>` not `next/image` for external URLs from the pipeline.
 
-**Uses:** Gemini 2.5 Flash with `with_structured_output()`, `langchain-google-genai 4.x`, `pydantic>=2.12.5`.
+### Phase 4: Dashboard Integration
 
-**Research flag:** Gemini structured output reliability with complex Layout JSON needs empirical testing. Run schema stress tests early. This phase likely benefits from `/gsd:research-phase` for the Layout JSON schema design specifically.
+**Rationale:** Combines the observability API (Phase 2) and enhanced block components (Phase 3) into the complete Admin content detail page experience. Depends on both previous phases being complete. This is the phase that delivers the visible v1.1 milestone outcome.
 
-### Phase 4: Quality Loop (Review Agent + Bounded Feedback)
+**Delivers:** The complete v1.1 Admin experience — content detail page with pipeline execution timeline, per-node timing/status, token cost display, responsive preview toggle, and side-by-side JSON + rendered view.
 
-**Rationale:** Needs real drafts from Phase 3 to review — cannot build the review rubric in the abstract. The feedback loop is the first non-trivial conditional graph topology and the most critical system behavior to get right.
+**Addresses features:**
+- `pipeline-timeline.tsx` on content detail page (horizontal node execution timeline with status indicators)
+- Token cost display in log panel
+- `preview-mode-toggle.tsx` (mobile/tablet/desktop width constraints)
+- Side-by-side JSON + rendered view layout (CSS change, components exist)
+- Pipeline progress status in content list table
+- Updated `e2e_smoke.py` with observability assertions (verify 7 node run entries)
 
-**Delivers:** Review agent scores drafts, routes to revision or approval, feedback loop terminates correctly at max retries, structured feedback improves editorial output across iterations.
-
-**Addresses:** LLM-as-a-Judge review (table stakes), feedback loop with structured retry (table stakes + differentiator), multi-dimension scoring foundation.
-
-**Avoids:** Pitfall 1 (death spiral — hard cap via `revision_count`, structured feedback schema, monotonic quality check), Pitfall 5 (judge inconsistency — temperature=0 for judge, calibration dataset, two-pass check: deterministic format validation first then LLM quality evaluation).
-
-**Research flag:** LLM-as-a-Judge calibration needs empirical calibration data from Phase 3 outputs. Plan to build a 10-20 article calibration set before going live with review agent. Standard patterns exist for the graph topology.
-
-### Phase 5: Human Gate + Publish
-
-**Rationale:** Requires the full pipeline upstream to produce content worth approving, and requires the Postgres checkpointer from Phase 1 for `interrupt()` to work correctly. The `interrupt()`/`Command(resume=...)` HITL pattern is well-documented but has specific production requirements (never `MemorySaver`, content snapshot strategy).
-
-**Delivers:** Pipeline pauses at Admin Gate with draft + review scores surfaced for human decision; admin approve/reject/revision-request resumes pipeline; approved content written to Supabase and indexed in vector DB; admin preview UI functional.
-
-**Addresses:** Human-in-the-loop approval (table stakes), content preview (table stakes), publish to Supabase, vector DB update for future dedup.
-
-**Avoids:** Pitfall 6 (HITL resume failures — `AsyncPostgresSaver` only, `checkpointer.setup()` as migration, content snapshot in Supabase before approval).
-
-**Research flag:** Standard patterns. LangGraph `interrupt()`/`Command` is well-documented. Admin dashboard integration is straightforward API design.
-
-### Phase 6: Triggers + Operations
-
-**Rationale:** Operational concerns belong last — the pipeline must work end-to-end before adding cron and monitoring. But tracing (LangSmith) should be wired from Phase 1 even if operational dashboards come in Phase 6.
-
-**Delivers:** Weekly cron trigger via Cloud Scheduler, per-article error isolation (article 3 failure does not kill articles 4-10), dead letter queue for failed articles, LangSmith traces accessible, batch size configured, Cloud Run deployment.
-
-**Addresses:** Content scheduling (weekly cron, MVP), retry limits and graceful failure (table stakes), execution logging (table stakes — LangSmith integration).
-
-**Avoids:** Pitfall 9 (partial failure recovery — per-article `try/except` with independent Supabase status tracking), Pitfall 7 (batch rate limiting — sequential processing with deliberate delays between batch items).
-
-**Research flag:** Cloud Run deployment and Cloud Scheduler are standard GCP patterns. LangSmith auto-instrumentation is straightforward. No deeper research needed.
+**Research flag:** Standard patterns — React component composition with existing shadcn/ui primitives. No additional research needed.
 
 ### Phase Ordering Rationale
 
-- State schema and service layers come first because both the data pipeline AND the agent logic depend on them. There is no valid shortcut order.
-- Data pipeline (Curation + Source) precedes Editorial because Editorial needs real enriched context to produce meaningful output for testing the structured output schema.
-- Review Agent follows Editorial because it needs real drafts; building the rubric without seeing actual output is guesswork.
-- Admin Gate follows Review because you need reviewed drafts worth approving, and because the `interrupt()` checkpointer must be validated with real state.
-- Operations come last because adding cron and monitoring to a broken pipeline just adds noise.
-- This order also front-loads all 4 critical pitfalls that are architectural (Pitfalls 1, 2, 3, 8) in Phases 1-2, ensuring they are never retrofitted.
+- **E2E first** because it is the hard prerequisite: observability needs real pipeline data, renderer validation needs real Layout JSON with image URLs populated by the pipeline
+- **Observability backend before dashboard** because the timeline component needs data to display and the API endpoints can be validated independently via curl after Phase 1 runs
+- **Renderer in parallel with observability** because it has zero backend dependencies for the visual enhancement work; demo mode data from v1.0 is sufficient for visual testing
+- **Dashboard integration last** because it depends on both the observability API (Phase 2) and the enhanced renderer components (Phase 3) being complete
+- This ordering matches the dependency graph independently derived by both ARCHITECTURE.md and FEATURES.md — HIGH confidence in phase structure
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
-- **Phase 3 (Editorial Agent):** Magazine Layout JSON schema complexity and Gemini structured output reliability are empirically uncertain. Recommend `research-phase` specifically for the Layout JSON schema contract with decoded-app frontend and Gemini Flash structured output stress testing.
-- **Phase 2 (Curation + Source):** Perplexity API rate limit behavior under batch load needs benchmarking. Vector DB schema design for multi-version embedding support.
+Phases with standard patterns (skip `research-phase`):
+- **Phase 1 (E2E Setup):** Configuration and scripting against a well-understood existing codebase. All gaps identified by direct codebase line analysis, not speculation.
+- **Phase 3 (Magazine Renderer):** Tailwind CSS 4 component enhancements. Well-established patterns. Block architecture already proven correct by codebase analysis.
+- **Phase 4 (Dashboard Integration):** React component composition with existing shadcn/ui. No novel patterns required.
 
-Phases with standard patterns (skip research-phase):
-- **Phase 1 (Foundation):** LangGraph StateGraph construction, `AsyncPostgresSaver` setup, and Pydantic model design are well-documented with official sources.
-- **Phase 4 (Review + Feedback):** Conditional graph routing and bounded feedback loop patterns are well-documented in LangGraph. Calibration is empirical, not research.
-- **Phase 5 (Human Gate):** LangGraph `interrupt()`/`Command` is well-documented. Standard API design.
-- **Phase 6 (Operations):** Cloud Run + Cloud Scheduler + LangSmith are standard GCP/LangChain patterns.
+Phases warranting implementation-time validation (spot-check, not full `research-phase`):
+- **Phase 2 (Observability):** Validate exact `response.usage_metadata` field names (`prompt_token_count`, `candidates_token_count`, `total_token_count`) against the installed `google-genai` version before building token collection. Cross-validate with `client.models.count_tokens()` on the first real E2E run to surface any accuracy issues. This is a medium-confidence concern that does not warrant blocking implementation — just validate before building the dashboard display layer.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Core technologies (LangGraph 1.0.8, langchain-google-genai 4.1.2, Gemini 2.5 Flash GA) verified against official PyPI, Google, and LangChain sources. Deprecation timeline confirmed via official GitHub discussion. |
-| Features | MEDIUM | Fashion editorial AI is a niche domain. Table stakes derived from general AI content pipeline patterns + Zalando case study. Feature ordering is opinionated inference from research, not verified against a direct comparator. |
-| Architecture | MEDIUM-HIGH | LangGraph patterns (StateGraph, interrupt, conditional edges, checkpointing) verified against official documentation. Editorial-specific node composition and state schema design are opinionated but grounded in official patterns. |
-| Pitfalls | MEDIUM-HIGH | Critical pitfalls (death spiral, state bloat, SDK deprecation) are well-documented across multiple sources including official issue trackers. Gemini structured output issues confirmed on official Google Cloud Java issue tracker. HITL resume failure pattern confirmed in LangChain official docs. |
+| Stack | HIGH | Zero new Python dependencies; `motion` v12 confirmed React 19 compatible; all other additions are existing installed packages or stdlib. Technology choices are extensions of the confirmed-working v1.0 stack. |
+| Features | HIGH | Based on direct codebase analysis of all node, service, block component, and API files. Feature gaps are unambiguous (placeholder vs real image, missing startup validation, no UI trigger). Complexity estimates are MEDIUM confidence for Gemini API token accuracy and Supabase connection edge cases. |
+| Architecture | HIGH | `node_wrapper` decorator, `preflight.py`, and block component enhancements are all additive changes to well-understood existing components. 1:1 Python-TypeScript type parity is already established and working. Data flow changes are minimal (one new Supabase table, no new API contract). |
+| Pitfalls | HIGH | 4 of 13 pitfalls verified by direct codebase line references (key mismatch, retry exception chain, state bloat, google-genai bypasses callbacks). Supabase pooler issue has corroborating GitHub issues and a project code comment acknowledging it. Token accuracy issue is MEDIUM — reported fixed in recent SDK versions but varies by input type (image vs text). |
 
-**Overall confidence:** MEDIUM-HIGH
+**Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Magazine Layout JSON schema:** The exact schema contract between editorial-ai-worker and decoded-app frontend is not defined in research. This must be established with the frontend team before Phase 1 completes. All agent prompts, Pydantic models, and review rubrics depend on this contract.
-- **Gemini 2.5 Flash structured output reliability for this schema:** Research identifies this as a known issue but actual failure rate depends on the specific Layout JSON schema complexity. Empirical testing needed in Phase 3 with the real schema.
-- **Perplexity API tier and rate limits for batch workload:** Research identifies rate limiting as a critical pitfall but actual capacity planning depends on weekly article volume and content category. Needs benchmarking once article targets are defined.
-- **Supabase celeb/products data model:** Research assumes these tables exist with relevant fields (celeb_id, product_id, etc.) but their actual schema in the existing decoded-app database is unverified. Service layer design in Phase 1 depends on this.
-- **Admin dashboard integration contract:** The admin review UI is described as a separate frontend app. The API contract between editorial-ai-worker and that dashboard needs to be defined before Phase 5 build begins.
+- **Token usage field name verification:** Confirm `response.usage_metadata.prompt_token_count`, `candidates_token_count`, `total_token_count` are the exact field names in the currently-installed `google-genai` version. Run `print(dir(response.usage_metadata))` on first real E2E run before building the token collection layer. Handle gracefully if field names differ.
+- **`curation_input` canonical field name direction:** Research confirmed the mismatch exists (`seed_keyword` in API vs `keyword` in node) but the correct fix direction should be confirmed against the `TriggerRequest` schema and `EditorialPipelineState` TypedDict during Phase 1 implementation. Either side is fixable; pick the one that requires fewer cascading changes.
+- **Supabase `DATABASE_URL` port verification:** Confirm the `.env.local` connection string uses port 5432 (session pooler) not 6543 (transaction pooler). This is an operational check before the first E2E run, not a code change.
+- **google-genai retry exception type preservation:** Verify that the tenacity `@retry_on_api_error` decorator in service files uses `retry_if_exception_type` that will still fire correctly if observability instrumentation wraps service calls. Affects how deep Phase 2 instrumentation can reach into service methods.
 
 ## Sources
 
-### Primary (HIGH confidence)
-- [LangChain Blog: LangChain and LangGraph 1.0](https://blog.langchain.com/langchain-langgraph-1dot0/) — LangGraph 1.0.8 GA confirmation
-- [langchain-google-genai 4.0.0 Deprecation Discussion](https://github.com/langchain-ai/langchain-google/discussions/1422) — ChatVertexAI deprecation, migration path
-- [Vertex AI Model Versions](https://docs.cloud.google.com/vertex-ai/generative-ai/docs/learn/model-versions) — Gemini 2.5 Flash GA, Gemini 3 Flash preview
-- [Gemini Structured Output Issues](https://github.com/googleapis/google-cloud-java/issues/11782) — Official issue tracker confirming Flash malformed JSON issue
-- [LangGraph Interrupts - Official Documentation](https://docs.langchain.com/oss/python/langgraph/interrupts) — interrupt() and Command patterns
-- [Perplexity API Rate Limits](https://docs.perplexity.ai/guides/usage-tiers) — Official rate limit tiers
-- [LangChain Human-in-the-Loop Docs](https://docs.langchain.com/oss/python/langchain/human-in-the-loop) — HITL patterns
-- [Why Do Multi-Agent LLM Systems Fail? (arXiv)](https://arxiv.org/html/2503.13657v1) — Peer-reviewed failure mode analysis
-- [Vertex AI Structured Output Docs](https://docs.google.com/vertex-ai/generative-ai/docs/multimodal/control-generated-output) — OpenAPI schema limitations
-- [Supabase pgvector Docs](https://supabase.com/docs/guides/database/extensions/pgvector) — HNSW indexing
-- [LangGraph Graph API Overview](https://docs.langchain.com/oss/python/langgraph/graph-api) — StateGraph, edges, compilation
+### Primary (HIGH confidence — codebase analysis)
+- `src/editorial_ai/config.py` — Settings model, env vars, LangSmith configuration
+- `src/editorial_ai/graph.py` — Pipeline topology, node registration, `node_overrides` pattern
+- `src/editorial_ai/state.py` — `EditorialPipelineState` TypedDict, lean state principle
+- `src/editorial_ai/services/editorial_service.py` — native google-genai SDK usage pattern
+- `src/editorial_ai/nodes/curation.py` — `curation_input.keyword` field access (line 24, Pitfall #1)
+- `src/editorial_ai/api/routes/pipeline.py` — `seed_keyword` trigger field (line 32, Pitfall #1)
+- `src/editorial_ai/models/layout.py` — `MagazineLayout` Pydantic, 10 block types, `create_default_template()`
+- `admin/src/components/block-renderer.tsx` — `BLOCK_MAP` discriminated union dispatch
+- `admin/src/components/blocks/` (all 10 files) — current placeholder rendering vs required real rendering
+- `admin/src/lib/types.ts` — TypeScript types mirroring Python Pydantic models 1:1
+- `supabase/migrations/001_editorial_contents.sql` — current DB schema
+- `src/editorial_ai/checkpointer.py` — `AsyncPostgresSaver` setup, acknowledged pooler note
 
-### Secondary (MEDIUM confidence)
-- [LangGraph Best Practices - Swarnendu De](https://www.swarnendu.de/blog/langgraph-best-practices/) — Production patterns
-- [Mastering LangGraph State Management 2025](https://sparkco.ai/blog/mastering-langgraph-state-management-in-2025) — TypedDict and reducer patterns
-- [LangGraph Checkpointing Best Practices 2025](https://sparkco.ai/blog/mastering-langgraph-checkpointing-best-practices-for-2025) — MemorySaver vs Postgres
-- [LLM-as-a-Judge Complete Guide - Evidently AI](https://www.evidentlyai.com/llm-guide/llm-as-a-judge) — Judge patterns and calibration
-- [Evaluator Reflect-Refine Loop Patterns - AWS](https://docs.aws.amazon.com/prescriptive-guidance/latest/agentic-ai-patterns/evaluator-reflect-refine-loop-patterns.html) — Feedback loop architecture
-- [Gemini Structured Outputs: Good, Bad, Ugly](https://dylancastillo.co/posts/gemini-structured-outputs.html) — Flash reliability analysis
-- [AI Fashion Trends 2026 - Fashion Diffusion](https://www.fashiondiffusion.ai/blog/ai-fashion-trends-2026) — Fashion editorial AI use cases
-- [AI and Fashion E-Commerce Content - BoF](https://www.businessoffashion.com/articles/technology/bof-voices-ai-and-the-future-of-fashion-ecommerce-content/) — Zalando case study (70% AI-generated editorial)
+### Primary (HIGH confidence — official documentation)
+- [LangSmith: Trace LangGraph Applications](https://docs.langchain.com/langsmith/trace-with-langgraph) — auto-tracing via env vars, what is and is not captured
+- [LangChain: UsageMetadataCallbackHandler](https://python.langchain.com/api_reference/core/callbacks/langchain_core.callbacks.usage.UsageMetadataCallbackHandler.html) — callback system scope (LangChain wrappers only, not native SDKs)
+- [Gemini token counting docs](https://ai.google.dev/gemini-api/docs/tokens) — `usage_metadata` field definitions
+- [Motion (formerly Framer Motion) React upgrade guide](https://motion.dev/docs/react-upgrade-guide) — React 19 compatibility confirmation
 
-### Tertiary (LOW confidence)
-- [AI Agents for Content Generation Guide](https://kodexolabs.com/ai-agents-content-generation-guide/) — General content pipeline patterns, needs validation
-- [LLM Tool-Calling in Production: Infinite Loop Failure Mode](https://medium.com/@komalbaparmar007/llm-tool-calling-in-production-rate-limits-retries-and-the-infinite-loop-failure-mode-you-must-2a1e2a1e84c8) — Retry death spiral patterns
+### Secondary (MEDIUM-HIGH confidence — verified bug reports and community)
+- [Supabase + asyncpg prepared statement issues (GitHub #39227)](https://github.com/supabase/supabase/issues/39227) — Pitfall #2 source
+- [AsyncPostgresSaver InvalidSqlStatementName (LangGraph #2755)](https://github.com/langchain-ai/langgraph/issues/2755) — Pitfall #2 corroboration
+- [LangGraph checkpoint-postgres breaking change (GitHub #5862)](https://github.com/langchain-ai/langgraph/issues/5862) — Pitfall #3 source
+- [Token count broken (googleapis/python-genai #470)](https://github.com/googleapis/python-genai/issues/470) — Pitfall #4 source
+- [Thinking tokens not counted correctly (simonw/llm-gemini #75)](https://github.com/simonw/llm-gemini/issues/75) — Pitfall #4 corroboration (MEDIUM)
+- [LangSmith SDK Issue #1918](https://github.com/langchain-ai/langsmith-sdk/issues/1918) — confirms per-node token counts not natively available in external dashboard
+- [Supabase pooling and asyncpg fix](https://medium.com/@patrickduch93/supabase-pooling-and-asyncpg-dont-mix-here-s-the-real-fix-44f700b05249) — Pitfall #2 prevention pattern
 
 ---
-*Research completed: 2026-02-20*
+*Research completed: 2026-02-26*
+*Supersedes: v1.0 SUMMARY.md (2026-02-20)*
 *Ready for roadmap: yes*

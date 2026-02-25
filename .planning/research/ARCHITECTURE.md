@@ -1,585 +1,666 @@
 # Architecture Patterns
 
-**Domain:** Multi-Agent Editorial AI Content Pipeline
-**Researched:** 2026-02-20
-**Overall confidence:** MEDIUM-HIGH (LangGraph patterns well-documented; editorial-specific composition is opinionated inference)
+**Domain:** Pipeline Observability + Dynamic Magazine Rendering + E2E Setup for Editorial AI Worker v1.1
+**Researched:** 2026-02-26
+**Overall confidence:** HIGH (all three features integrate with well-understood existing components)
 
 ---
 
-## Recommended Architecture
-
-### High-Level System Diagram
+## Current Architecture Snapshot
 
 ```
-                        ┌──────────────┐
-                        │  Cron Trigger │  (weekly)
-                        │  / Admin API  │
-                        └──────┬───────┘
-                               │
-                               v
-┌──────────────────────────────────────────────────────────────────┐
-│                     LangGraph Orchestrator                       │
-│                                                                  │
-│  ┌──────────┐    ┌───────────┐    ┌─────────┐    ┌───────────┐ │
-│  │ Curation │───>│ Editorial │───>│ Review  │───>│  Admin    │ │
-│  │  Agent   │    │   Agent   │    │  Agent  │    │  Gate     │ │
-│  └────┬─────┘    └─────┬─────┘    └────┬────┘    └─────┬─────┘ │
-│       │                │               │               │        │
-│       │          ┌─────┴─────┐    feedback loop    interrupt()  │
-│       │          │ 5 Tool    │    (conditional      (HITL)      │
-│       │          │ Skills    │     edge back to                  │
-│       │          └───────────┘     Editorial)                   │
-│       │                                                         │
-│  ┌────┴─────┐                                                   │
-│  │  Source  │                                                   │
-│  │  Agent   │                                                   │
-│  └──────────┘                                                   │
-└──────────────────────────────────────────────────────────────────┘
-        │              │                │                │
-        v              v                v                v
-  ┌──────────┐  ┌───────────┐   ┌───────────┐   ┌──────────────┐
-  │ Supabase │  │ Vector DB │   │ Perplexity│   │  Vertex AI   │
-  │ (celeb,  │  │(embeddings│   │    API    │   │  (Gemini)    │
-  │ products,│  │ past posts│   │ (search)  │   │  LLM Engine  │
-  │  posts)  │  │ trends)   │   └───────────┘   └──────────────┘
-  └──────────┘  └───────────┘
+                    LangGraph StateGraph (7 nodes)
+  START -> curation -> source -> editorial -> enrich -> review -+-> admin_gate -> publish -> END
+                                    ^                           |       |
+                                    |     (revision_count < 3)  |       |
+                                    +---------------------------+       |
+                                    |       (revision_requested)        |
+                                    +-----------------------------------+
 ```
+
+**Backend:** FastAPI + LangGraph + Supabase (REST API) + AsyncPostgresSaver (checkpointing)
+**Frontend:** Next.js 15 + React 19 + shadcn/ui + Tailwind CSS 4 + block-based renderer (10 block types)
+**LLM:** Gemini 2.5 Flash via `langchain-google-genai`
+**State:** `EditorialPipelineState` (TypedDict, lean state principle -- IDs/references only)
+**Admin Dashboard:** `/admin/` directory, Next.js 15 with Turbopack, pages for content list + detail with block rendering + approve/reject flow
+
+---
+
+## Recommended Architecture: Three Feature Pillars
+
+### Overview
+
+The three v1.1 features integrate at different layers of the existing stack:
+
+```
+                          +--------------------------+
+                          |    Admin Dashboard       |
+                          |    (Next.js 15)          |
+                          +-----+----------+---------+
+                                |          |
+                  [Pipeline Timeline] [Enhanced Block Renderer]
+                                |          |
+                          +-----+----------+---------+
+                          |    FastAPI Admin API      |
+                          |    + /api/pipeline/runs   |
+                          +-----+----------+---------+
+                                |          |
+                    [Run Log API]   [Content API (existing)]
+                                |          |
+                          +-----+----------+---------+
+                          |    LangGraph Pipeline     |
+                          |    + node_wrapper()       |
+                          +-----+----------+---------+
+                                |          |
+                    [LangSmith]   [Supabase]
+                       (SaaS)    [+ pipeline_node_runs table]
+```
+
+---
+
+## Pillar 1: Pipeline Observability
+
+### Integration Strategy: Two-Tier Approach
+
+**Tier 1 (External/SaaS): LangSmith auto-tracing -- already partially configured.**
+
+The project already has LangSmith settings in `src/editorial_ai/config.py` (lines 38-44):
+- `langsmith_tracing: bool` (default False)
+- `langsmith_api_key: str | None`
+- `langsmith_project: str` (default "editorial-ai-worker")
+
+The `langsmith` package is already in dependencies (pyproject.toml: `langsmith>=0.7.5`).
+
+**What it gives for free when `LANGSMITH_TRACING=true`:**
+- Full trace tree per pipeline run (every node, every LLM call)
+- Token usage per LLM call
+- Latency per step
+- Input/output of each node
+- Conditional edge decisions
+- Async collection, typically 1-5ms overhead
+
+**For non-LangChain functions** (e.g., Supabase queries in `source_node`), use the `@traceable` decorator from `langsmith` to include them in the trace tree.
+
+**Confidence: HIGH** -- verified via [LangSmith docs](https://docs.langchain.com/langsmith/trace-with-langgraph). LangChain runnables within graph nodes auto-trace. LangSmith env vars are already defined in the Settings class.
+
+**Tier 2 (Internal/Supabase): Per-node execution logging for the admin dashboard.**
+
+LangSmith is great for developers but not for admin users. The admin dashboard needs its own observability data showing pipeline progress and per-node timing.
+
+### New Component: `node_wrapper` Decorator
+
+**File:** `src/editorial_ai/observability.py`
+
+```python
+import time
+import functools
+from datetime import datetime, timezone
+
+async def save_node_run(run_data: dict) -> None:
+    """Fire-and-forget save to pipeline_node_runs table."""
+    from editorial_ai.services.supabase_client import get_supabase_client
+    client = await get_supabase_client()
+    await client.table("pipeline_node_runs").insert(run_data).execute()
+
+def node_wrapper(node_name: str):
+    """Decorator that wraps a LangGraph node function with execution logging.
+
+    Captures: start time, duration, success/error status.
+    Writes to pipeline_node_runs table (fire-and-forget).
+    Never breaks the pipeline -- all observability errors are silently caught.
+    """
+    def decorator(fn):
+        @functools.wraps(fn)
+        async def wrapper(state):
+            thread_id = state.get("thread_id") or "unknown"
+            started_at = datetime.now(timezone.utc)
+            start = time.monotonic()
+            error_msg = None
+            try:
+                result = await fn(state)
+                return result
+            except Exception as e:
+                error_msg = f"{type(e).__name__}: {e!s}"
+                raise
+            finally:
+                duration_ms = int((time.monotonic() - start) * 1000)
+                run_data = {
+                    "thread_id": thread_id,
+                    "node_name": node_name,
+                    "started_at": started_at.isoformat(),
+                    "duration_ms": duration_ms,
+                    "status": "error" if error_msg else "success",
+                    "error_message": error_msg,
+                    "revision_count": state.get("revision_count", 0),
+                }
+                try:
+                    await save_node_run(run_data)
+                except Exception:
+                    pass  # observability must never break the pipeline
+        return wrapper
+    return decorator
+```
+
+### Where to Hook: `graph.py` `build_graph()`
+
+**Do NOT modify individual node files.** Instead, wrap at graph construction time in `src/editorial_ai/graph.py`:
+
+```python
+# In build_graph():
+from editorial_ai.observability import node_wrapper
+
+nodes: dict[str, Callable] = {
+    "curation": node_wrapper("curation")(curation_node),
+    "source": node_wrapper("source")(source_node),
+    "editorial": node_wrapper("editorial")(editorial_node),
+    "enrich": node_wrapper("enrich")(enrich_from_posts_node),
+    "review": node_wrapper("review")(review_node),
+    "admin_gate": node_wrapper("admin_gate")(admin_gate),
+    "publish": node_wrapper("publish")(publish_node),
+}
+```
+
+This approach:
+- Keeps node implementations pure (no observability coupling)
+- Makes the wrapper trivially removable or swappable
+- Follows the existing `node_overrides` pattern already in `build_graph()`
+- Tests can still use `node_overrides` to bypass wrapping
+
+### New Supabase Table: `pipeline_node_runs`
+
+```sql
+CREATE TABLE pipeline_node_runs (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    thread_id TEXT NOT NULL,
+    node_name TEXT NOT NULL,
+    started_at TIMESTAMPTZ NOT NULL,
+    duration_ms INTEGER NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('success', 'error')),
+    error_message TEXT,
+    revision_count INTEGER DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX idx_node_runs_thread ON pipeline_node_runs(thread_id);
+CREATE INDEX idx_node_runs_created ON pipeline_node_runs(created_at DESC);
+```
+
+### New API Endpoints
+
+Add to `src/editorial_ai/api/routes/pipeline.py`:
+
+```
+GET /api/pipeline/runs/{thread_id}  -> List of node execution records for a thread
+GET /api/pipeline/runs/recent       -> Recent pipeline runs with aggregated stats
+```
+
+### Admin Dashboard: Pipeline Timeline Component
+
+**File:** `admin/src/components/pipeline-timeline.tsx`
+
+New component on the content detail page showing node execution as a horizontal timeline:
+
+```
+[curation: 2.3s] -> [source: 1.1s] -> [editorial: 8.5s] -> [enrich: 3.2s] -> [review: 4.1s] -> [admin_gate: waiting]
+   OK                  OK               OK                   OK               OK
+```
+
+Visual: horizontal steps with colored status indicators (green=success, red=error, gray=pending/waiting).
+
+**Integration point:** Content detail page (`admin/src/app/contents/[id]/page.tsx`) already has the `thread_id` from the content object. Use it to fetch `/api/pipeline/runs/{thread_id}`.
+
+### Confidence Assessment
+
+| Decision | Confidence | Rationale |
+|----------|-----------|-----------|
+| LangSmith auto-trace via env vars | HIGH | Already configured in config.py, verified in official docs |
+| `node_wrapper` decorator pattern | HIGH | Standard Python pattern, no LangGraph API dependency |
+| Supabase table for admin-visible logs | HIGH | Consistent with existing data model (editorial_contents uses same Supabase pattern) |
+| Fire-and-forget save in finally block | MEDIUM | Could lose logs on process crash mid-save, but pipeline reliability > observability |
+
+---
+
+## Pillar 2: Dynamic Magazine Renderer
+
+### Current State Analysis
+
+The admin dashboard **already has** a fully functional block renderer:
+- `admin/src/components/block-renderer.tsx` -- main dispatcher using `BLOCK_MAP` record
+- `admin/src/components/blocks/` -- 10 individual block components (hero, headline, body_text, image_gallery, pull_quote, product_showcase, celeb_feature, divider, hashtag_bar, credits)
+- Content detail page (`admin/src/app/contents/[id]/page.tsx` line 106) already renders `<BlockRenderer blocks={content.layout_json?.blocks ?? []} />`
+- TypeScript types (`admin/src/lib/types.ts`) mirror Python Pydantic models 1:1
+
+**Key finding: The "dynamic magazine renderer" is essentially already built.** The existing block components use placeholder visuals (gray boxes with text labels instead of actual images). The work is enhancement, not creation.
+
+### What Needs Enhancement
+
+#### 1. Image Rendering (Currently Placeholder)
+
+`hero-block.tsx` renders a gray box with "Hero Image" text instead of the actual `block.image_url`. Same for `product-showcase-block.tsx` (blue boxes with "Product Photo") and `celeb-feature-block.tsx`.
+
+**Fix:** Render actual `<img>` or Next.js `<Image>` with fallback to current placeholder:
+
+```tsx
+// hero-block.tsx enhancement
+{block.image_url ? (
+  <img
+    src={block.image_url}
+    alt={block.overlay_title ?? "Hero"}
+    className="h-full w-full object-cover"
+  />
+) : (
+  <div className="flex h-full items-center justify-center text-sm text-slate-500">
+    No image available
+  </div>
+)}
+```
+
+Note: Use `<img>` not `next/image` for external URLs unless you configure `remotePatterns` in `next.config.ts`. The image URLs come from Supabase/external sources with unknown domains.
+
+#### 2. Gallery Layout Styles
+
+`image_gallery` block has `layout_style: "grid" | "carousel" | "masonry"` in the TypeScript type but the current component likely only renders grid. Carousel and masonry need implementation.
+
+**Recommendation:** CSS-only approach with Tailwind CSS 4:
+- **Grid:** Already works (CSS Grid)
+- **Carousel:** `overflow-x-auto scroll-snap-x snap-mandatory` with `snap-start` on children
+- **Masonry:** CSS `columns-2 gap-4` (native CSS columns) or CSS Grid with `masonry` layout
+
+No external library needed.
+
+#### 3. Magazine-Quality Typography and Spacing
+
+The current `max-w-3xl space-y-8` container (block-renderer.tsx line 39) is functional but not magazine-quality. Enhancements:
+- Hero block: full-bleed (break out of `max-w-3xl`)
+- Pull quotes: larger font, decorative left border or large quotation marks
+- Body text: proper leading (`leading-relaxed` or `leading-loose`), optional drop cap for first paragraph
+- Divider ornaments: the `style: "ornament"` variant needs visual implementation (currently just renders a line)
+- Credits: magazine-style footer with small caps
+
+#### 4. Responsive Preview Mode (New)
+
+Add device-width toggle in the content detail page for editors to preview how the magazine looks at different breakpoints.
+
+**New component:** `admin/src/components/preview-mode-toggle.tsx`
+
+```tsx
+// Wraps BlockRenderer in an iframe-like container with width constraints
+type PreviewMode = "mobile" | "tablet" | "desktop";
+// mobile: max-w-sm, tablet: max-w-2xl, desktop: full width
+```
+
+### Architecture Decision: CSS-Heavy vs Component Library
+
+**Recommendation: CSS-heavy with Tailwind CSS 4.**
+
+Rationale:
+- Already using Tailwind CSS 4 + shadcn/ui -- no new dependencies needed
+- Magazine layouts are inherently visual/CSS-heavy (typography, spacing, bleed)
+- Component libraries (MUI, Chakra) add abstraction layers that fight magazine styling
+- The block components are well-structured with clean TypeScript types matching Python Pydantic 1:1
+- shadcn/ui provides base components (Card, Badge, etc.) already in use
 
 ### Component Boundaries
 
-| Component | Responsibility | Communicates With | External Dependencies |
-|-----------|---------------|-------------------|----------------------|
-| **Curation Agent** (Node) | Selects trending topics, celeb/product combos for the week | Source Agent, Editorial Agent (via state) | Supabase (celeb, products), Vector DB (trend keywords) |
-| **Source Agent** (Node) | Gathers external references, verifies facts, enriches context | Curation Agent (reads curated topics from state) | Perplexity API, Vector DB (past posts for dedup) |
-| **Editorial Agent** (Node) | Generates structured content using 5 tool skills | Source Agent (reads enriched context from state) | Vertex AI (Gemini), tool invocations |
-| **Review Agent** (Node) | Quality gates: tone, accuracy, brand compliance, dedup check | Editorial Agent (reads draft from state) | Vector DB (similarity check), Vertex AI (evaluation) |
-| **Admin Gate** (Node) | Human-in-the-loop approval before publish | Review Agent (reads reviewed draft from state) | Admin Dashboard (external UI via API) |
-| **Publish/Finalize** (Node) | Writes approved post to Supabase, updates Vector DB | Admin Gate (reads approval from state) | Supabase (posts), Vector DB (new embedding) |
+**No new block components needed. Only enhancement of existing 10 blocks:**
+
+| Component | File | Status | Enhancement Needed |
+|-----------|------|--------|-------------------|
+| `block-renderer.tsx` | `admin/src/components/block-renderer.tsx` | EXISTS | Add preview mode wrapper |
+| `hero-block.tsx` | `admin/src/components/blocks/hero-block.tsx` | EXISTS | Real images, full-bleed option |
+| `body-text-block.tsx` | `admin/src/components/blocks/body-text-block.tsx` | EXISTS | Drop caps, magazine typography |
+| `image-gallery-block.tsx` | `admin/src/components/blocks/image-gallery-block.tsx` | EXISTS | Carousel + masonry layout styles |
+| `pull-quote-block.tsx` | `admin/src/components/blocks/pull-quote-block.tsx` | EXISTS | Decorative styling, larger font |
+| `product-showcase-block.tsx` | `admin/src/components/blocks/product-showcase-block.tsx` | EXISTS | Real product images + links |
+| `celeb-feature-block.tsx` | `admin/src/components/blocks/celeb-feature-block.tsx` | EXISTS | Real celebrity images, spotlight layout |
+| `divider-block.tsx` | `admin/src/components/blocks/divider-block.tsx` | EXISTS | Ornament style variant implementation |
+| `hashtag-bar-block.tsx` | `admin/src/components/blocks/hashtag-bar-block.tsx` | EXISTS | Interactive/pill styling |
+| `credits-block.tsx` | `admin/src/components/blocks/credits-block.tsx` | EXISTS | Magazine footer styling, small caps |
+
+**New frontend components:**
+
+| Component | Purpose |
+|-----------|---------|
+| `preview-mode-toggle.tsx` | Mobile/tablet/desktop width switcher |
+| `pipeline-timeline.tsx` | Node execution timeline (from Pillar 1) |
+
+### Data Flow: No Changes Required
+
+The data contract is already established and working:
+- Python: `MagazineLayout` Pydantic model -> JSON -> Supabase `editorial_contents.layout_json`
+- TypeScript: `MagazineLayout` interface mirrors Python model exactly
+- Block discriminated union: `type` field dispatches to React components via `BLOCK_MAP`
+
+**No API changes, no schema changes, no new data flow.** This is pure frontend enhancement work.
+
+### Confidence Assessment
+
+| Decision | Confidence | Rationale |
+|----------|-----------|-----------|
+| Block renderer already exists and works | HIGH | Verified by reading actual source code in all 10 block files |
+| CSS-only enhancement approach | HIGH | Tailwind 4 + existing shadcn/ui, no new deps needed |
+| Use `<img>` for external images (not next/image) | HIGH | External URLs from Supabase require `remotePatterns` config |
+| No new data contract needed | HIGH | Python and TS types already match 1:1 (verified both files) |
 
 ---
 
-## State Schema Design
+## Pillar 3: E2E Setup
 
-The state schema is the backbone of LangGraph orchestration. Every node reads from and writes partial updates to this shared state. Use `TypedDict` with `Annotated` reducers for fields that accumulate across nodes.
+### What "E2E Setup" Means in This Context
 
-**Confidence: HIGH** -- This pattern is directly from LangGraph official documentation.
+The pipeline requires multiple external services to run end-to-end:
+1. **Supabase REST API** -- for content CRUD (`editorial_contents` table)
+2. **Supabase Postgres** -- for checkpointing (AsyncPostgresSaver, port 5432)
+3. **Google AI** -- Gemini models for curation, editorial, review
+4. **LangSmith** -- optional, for observability tracing
 
-### Core State
+Currently, there is no validation that all services are reachable and properly configured before starting a pipeline run. A single missing env var (e.g., `GOOGLE_API_KEY`) causes a cryptic runtime error deep in the pipeline (at the first LLM call in `curation_node`).
 
-```python
-from typing import TypedDict, Annotated, Optional, Literal
-from langgraph.graph.message import add_messages
-import operator
+### Recommended Architecture: Startup Validation + Health Checks + E2E Smoke Test
 
-class EditorialPipelineState(TypedDict):
-    """Top-level state for the editorial pipeline graph."""
+#### 1. Environment Validation Module
 
-    # --- Curation Phase ---
-    curation_input: dict              # Trigger params (week, category filters)
-    curated_topics: list[dict]        # [{celeb_id, product_id, angle, trend_keywords}]
-
-    # --- Source Phase ---
-    enriched_contexts: list[dict]     # [{topic, sources, facts, past_post_overlap_score}]
-
-    # --- Editorial Phase ---
-    current_draft: Optional[dict]     # Structured JSON (Magazine Layout schema)
-    tool_calls_log: Annotated[list[dict], operator.add]  # Accumulates tool usage
-
-    # --- Review Phase ---
-    review_result: Optional[dict]     # {passed: bool, feedback: str, scores: dict}
-    revision_count: int               # Tracks feedback loop iterations
-
-    # --- Admin Gate ---
-    admin_decision: Optional[Literal["approved", "rejected", "revision_requested"]]
-    admin_feedback: Optional[str]
-
-    # --- Pipeline Meta ---
-    pipeline_status: Literal["curating", "sourcing", "drafting", "reviewing", "awaiting_approval", "published", "failed"]
-    error_log: Annotated[list[str], operator.add]  # Accumulates errors across nodes
-    messages: Annotated[list, add_messages]         # LLM conversation history
-```
-
-### Design Principles for State
-
-1. **Minimal and typed.** Every field has a clear owner (the node that writes it) and consumers (downstream nodes that read it). No kitchen-sink state objects.
-
-2. **Reducers only for accumulation.** Use `Annotated[list, operator.add]` only for fields that genuinely accumulate (error logs, tool call logs, messages). Regular fields use last-write-wins (default).
-
-3. **No transient values.** Intermediate computation stays inside node functions. Only persist what downstream nodes or the checkpointer need.
-
-4. **Status field for routing.** `pipeline_status` drives conditional edges. Every node updates it.
-
----
-
-## Data Flow
-
-### Primary Path (Happy Path)
-
-```
-Cron Trigger
-    │
-    v
-[Curation Agent]
-    │  Reads: Supabase (celeb, products), Vector DB (trends)
-    │  Writes: curated_topics, pipeline_status="sourcing"
-    v
-[Source Agent]
-    │  Reads: curated_topics, Perplexity API, Vector DB (dedup)
-    │  Writes: enriched_contexts, pipeline_status="drafting"
-    v
-[Editorial Agent]
-    │  Reads: enriched_contexts, curated_topics
-    │  Calls: 5 tool skills via Vertex AI (Gemini)
-    │  Writes: current_draft (Magazine Layout JSON), pipeline_status="reviewing"
-    v
-[Review Agent]
-    │  Reads: current_draft, enriched_contexts
-    │  Checks: tone, accuracy, brand voice, dedup via Vector DB
-    │  Writes: review_result, pipeline_status
-    │
-    ├── If review_result.passed == False AND revision_count < MAX_REVISIONS:
-    │       Writes: pipeline_status="drafting", revision_count += 1
-    │       Conditional edge -> back to [Editorial Agent]
-    │
-    └── If review_result.passed == True:
-            Writes: pipeline_status="awaiting_approval"
-            v
-        [Admin Gate]  <-- interrupt() here
-            │  Human reviews in Admin Dashboard
-            │  Resume with Command(resume={"decision": ..., "feedback": ...})
-            │  Writes: admin_decision, admin_feedback
-            │
-            ├── "approved" -> [Publish/Finalize]
-            ├── "revision_requested" -> [Editorial Agent] (with admin_feedback)
-            └── "rejected" -> END
-```
-
-### Feedback Loops
-
-There are two feedback loops in this architecture:
-
-1. **Review -> Editorial loop:** Automatic. The Review Agent scores the draft and, if below threshold, sends it back to Editorial with structured feedback. Bounded by `revision_count` (recommend max 3 revisions).
-
-2. **Admin -> Editorial loop:** Human-triggered. If the admin requests revision, the pipeline resumes at Editorial with `admin_feedback` injected into state. Also bounded.
-
-### Data Transformation at Each Stage
-
-| Stage | Input Shape | Output Shape |
-|-------|------------|--------------|
-| Curation | `{week, filters}` | `[{celeb_id, product_id, angle, trend_keywords}]` |
-| Source | `curated_topics[]` | `[{topic, sources[], facts[], overlap_score}]` |
-| Editorial | `enriched_contexts[]` | `{magazine_layout_json}` (structured output) |
-| Review | `current_draft` | `{passed, feedback, scores{tone, accuracy, brand, uniqueness}}` |
-| Admin Gate | `review_result + current_draft` | `{decision, feedback}` |
-| Publish | `current_draft + admin_decision` | Supabase row + Vector DB embedding |
-
----
-
-## Graph Construction Pattern
+**File:** `src/editorial_ai/preflight.py`
 
 ```python
-from langgraph.graph import StateGraph, START, END
-from langgraph.checkpoint.postgres import PostgresSaver  # production
-
-builder = StateGraph(EditorialPipelineState)
-
-# --- Add Nodes ---
-builder.add_node("curation", curation_agent)
-builder.add_node("source", source_agent)
-builder.add_node("editorial", editorial_agent)
-builder.add_node("review", review_agent)
-builder.add_node("admin_gate", admin_gate_node)
-builder.add_node("publish", publish_node)
-
-# --- Add Edges ---
-builder.add_edge(START, "curation")
-builder.add_edge("curation", "source")
-builder.add_edge("source", "editorial")
-builder.add_edge("editorial", "review")
-
-# Conditional: Review outcome
-builder.add_conditional_edges(
-    "review",
-    route_after_review,  # function that reads state
-    {
-        "revision": "editorial",    # feedback loop
-        "approve": "admin_gate",    # proceed to human gate
-        "fail": END,                # max revisions exceeded
-    }
-)
-
-# Conditional: Admin decision
-builder.add_conditional_edges(
-    "admin_gate",
-    route_after_admin,
-    {
-        "approved": "publish",
-        "revision_requested": "editorial",
-        "rejected": END,
-    }
-)
-
-builder.add_edge("publish", END)
-
-# --- Compile with Checkpointer ---
-checkpointer = PostgresSaver(conn_pool)  # Postgres for production
-graph = builder.compile(checkpointer=checkpointer)
+async def preflight_check() -> dict[str, dict]:
+    """Validate all required services are reachable.
+    Returns dict of service -> {status, message, latency_ms}.
+    """
+    results = {}
+    results["supabase_rest"] = await _check_supabase_rest()
+    results["postgres_checkpointer"] = await _check_postgres()
+    results["google_ai"] = await _check_google_ai()
+    if settings.langsmith_tracing:
+        results["langsmith"] = await _check_langsmith()
+    return results
 ```
 
-### Admin Gate Node with interrupt()
+Each check validates:
+- **supabase_rest:** `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` set, can `SELECT 1` from `editorial_contents`
+- **postgres_checkpointer:** `DATABASE_URL` set, can connect to Postgres pooler
+- **google_ai:** `GOOGLE_API_KEY` (or Vertex AI credentials) set, can list models
+- **langsmith:** `LANGSMITH_API_KEY` set, API reachable
+
+#### 2. Integration with Existing FastAPI Lifespan
+
+Modify `src/editorial_ai/api/app.py`:
 
 ```python
-from langgraph.types import interrupt, Command
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # NEW: preflight check before checkpointer setup
+    from editorial_ai.preflight import preflight_check
+    results = await preflight_check()
+    app.state.preflight = results
+    failed = [k for k, v in results.items() if v["status"] == "error"]
+    if failed:
+        logger.error("Preflight check failed for: %s", failed)
+        # Don't crash server -- allow health endpoint to report status
 
-def admin_gate_node(state: EditorialPipelineState):
-    """Pauses pipeline for human approval."""
+    async with create_checkpointer() as checkpointer:
+        await checkpointer.setup()
+        app.state.checkpointer = checkpointer
+        app.state.graph = build_graph(checkpointer=checkpointer)
+        yield
+```
 
-    # Surface draft + review to admin dashboard
-    admin_response = interrupt({
-        "draft": state["current_draft"],
-        "review_scores": state["review_result"]["scores"],
-        "review_feedback": state["review_result"].get("feedback", ""),
-        "prompt": "Please review and approve, reject, or request revision."
-    })
+#### 3. Enhanced Health Endpoint
 
+```python
+@app.get("/health")
+async def health():
+    preflight = getattr(app.state, "preflight", {})
+    failed = [k for k, v in preflight.items() if v.get("status") == "error"]
     return {
-        "admin_decision": admin_response["decision"],
-        "admin_feedback": admin_response.get("feedback"),
-        "pipeline_status": (
-            "published" if admin_response["decision"] == "approved"
-            else "drafting" if admin_response["decision"] == "revision_requested"
-            else "failed"
-        ),
+        "status": "ok" if not failed else "degraded",
+        "services": preflight,
     }
 ```
 
-**Resume from Admin Dashboard API:**
+#### 4. Required Environment Variables (Complete Verified List)
+
+Extracted from `src/editorial_ai/config.py` (Settings class):
+
+| Variable | Required | Used By | Default |
+|----------|----------|---------|---------|
+| `GOOGLE_API_KEY` | YES (unless Vertex AI) | Gemini LLM calls (curation, editorial, review) | None |
+| `GOOGLE_GENAI_USE_VERTEXAI` | NO | Switch to Vertex AI mode | None |
+| `GOOGLE_CLOUD_PROJECT` | If Vertex AI | Vertex AI auth | None |
+| `GOOGLE_CLOUD_LOCATION` | NO | Vertex AI region | "us-central1" |
+| `SUPABASE_URL` | YES | Content CRUD, source queries | None |
+| `SUPABASE_SERVICE_ROLE_KEY` | YES | Supabase auth (service role) | None |
+| `DATABASE_URL` | YES | AsyncPostgresSaver (Postgres session pooler, port 5432) | None |
+| `ADMIN_API_KEY` | YES | FastAPI API key authentication | None |
+| `LANGSMITH_TRACING` | NO | Enable LangSmith tracing | False |
+| `LANGSMITH_API_KEY` | If tracing | LangSmith auth | None |
+| `LANGSMITH_PROJECT` | NO | LangSmith project name | "editorial-ai-worker" |
+| `API_HOST` | NO | FastAPI bind host | "0.0.0.0" |
+| `API_PORT` | NO | FastAPI bind port | 8000 |
+
+Frontend (admin dashboard) env vars (from `admin/src/config.ts` and API routes):
+
+| Variable | Required | Used By | Notes |
+|----------|----------|---------|-------|
+| `NEXT_PUBLIC_API_URL` | YES | Admin dashboard API calls | Base URL for FastAPI backend |
+| `NEXT_PUBLIC_API_KEY` | YES | Admin dashboard auth | Matches `ADMIN_API_KEY` on backend |
+
+#### 5. E2E Smoke Test Script
+
+**File:** `scripts/e2e_smoke.py`
 
 ```python
-from langgraph.types import Command
+"""End-to-end smoke test: trigger pipeline, wait for admin_gate, approve, verify published."""
 
-# Admin dashboard calls this endpoint
-def handle_admin_decision(thread_id: str, decision: str, feedback: str = ""):
-    config = {"configurable": {"thread_id": thread_id}}
-    graph.invoke(
-        Command(resume={"decision": decision, "feedback": feedback}),
-        config=config
-    )
+async def run_e2e():
+    # 1. Preflight check
+    results = await preflight_check()
+    assert all(v["status"] == "ok" for v in results.values())
+
+    # 2. POST /api/pipeline/trigger with test keyword
+    response = await client.post("/api/pipeline/trigger", json={"seed_keyword": "e2e-test", "category": "fashion"})
+    thread_id = response.json()["thread_id"]
+
+    # 3. Poll /api/contents?status=pending until content appears
+    content = await poll_for_content(thread_id, timeout=120)
+
+    # 4. POST /api/contents/{id}/approve
+    await client.post(f"/api/contents/{content['id']}/approve", json={"feedback": "e2e auto-approve"})
+
+    # 5. Verify status transitions
+    final = await client.get(f"/api/contents/{content['id']}")
+    assert final.json()["status"] == "published"
+
+    # 6. Verify pipeline_node_runs has entries (if observability is implemented)
+    runs = await client.get(f"/api/pipeline/runs/{thread_id}")
+    assert len(runs.json()) >= 7  # all 7 nodes executed
 ```
+
+#### 6. `.env.example` Template
+
+Create `/.env.example` with all required variables documented:
+
+```bash
+# Required: Google AI
+GOOGLE_API_KEY=your-google-api-key
+
+# Required: Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+DATABASE_URL=postgresql://user:pass@db.your-project.supabase.co:5432/postgres
+
+# Required: API Authentication
+ADMIN_API_KEY=your-admin-api-key
+
+# Optional: LangSmith Observability
+LANGSMITH_TRACING=false
+LANGSMITH_API_KEY=
+LANGSMITH_PROJECT=editorial-ai-worker
+```
+
+### Confidence Assessment
+
+| Decision | Confidence | Rationale |
+|----------|-----------|-----------|
+| Preflight check pattern | HIGH | Standard pattern, no external deps, integrates with existing lifespan |
+| Env var list completeness | HIGH | Extracted from actual config.py source (line by line) |
+| E2E smoke test approach | MEDIUM | Depends on pipeline stability and LLM call timing |
+| `.env.example` template | HIGH | Standard practice for onboarding |
 
 ---
 
-## Editorial Agent -- Subgraph Pattern for Tool Skills
+## Complete Component Inventory (New vs Modified)
 
-The Editorial Agent is the most complex node. It has 5 tool skills (e.g., headline writing, body generation, product placement, image caption, SEO optimization). Two implementation options:
+### New Components
 
-### Option A: Single Node with Tool Binding (Recommended for Start)
+| Component | Layer | File Path | Purpose |
+|-----------|-------|-----------|---------|
+| `observability.py` | Backend | `src/editorial_ai/observability.py` | `node_wrapper` decorator + save logic |
+| `preflight.py` | Backend | `src/editorial_ai/preflight.py` | Service health validation at startup |
+| `pipeline_node_runs` | Database | Supabase SQL migration | Execution log table |
+| `pipeline-timeline.tsx` | Frontend | `admin/src/components/pipeline-timeline.tsx` | Node execution timeline visualization |
+| `preview-mode-toggle.tsx` | Frontend | `admin/src/components/preview-mode-toggle.tsx` | Device width switcher for preview |
+| `e2e_smoke.py` | Script | `scripts/e2e_smoke.py` | End-to-end validation script |
+| `.env.example` | Config | `.env.example` | Environment variable documentation |
 
-```python
-from langchain_google_vertexai import ChatVertexAI
+### Modified Components
 
-llm = ChatVertexAI(model="gemini-2.0-flash", temperature=0.7)
-editorial_llm = llm.bind_tools([
-    headline_tool,
-    body_generator_tool,
-    product_placement_tool,
-    image_caption_tool,
-    seo_optimizer_tool,
-])
-
-def editorial_agent(state: EditorialPipelineState):
-    """Single node that uses Gemini with bound tools to produce Magazine Layout."""
-    # LLM decides which tools to call and in what order
-    result = editorial_llm.invoke(state["messages"])
-    # ... process tool calls, build Magazine Layout JSON
-    return {"current_draft": magazine_layout, "pipeline_status": "reviewing"}
-```
-
-### Option B: Subgraph (When Complexity Grows)
-
-If the editorial phase needs its own internal routing (e.g., different flows for different content types), extract it into a subgraph with its own internal state:
-
-```python
-editorial_subgraph = StateGraph(EditorialInternalState)
-editorial_subgraph.add_node("plan", plan_content_structure)
-editorial_subgraph.add_node("generate_sections", generate_sections)
-editorial_subgraph.add_node("assemble", assemble_magazine_layout)
-# ... internal edges
-compiled_editorial = editorial_subgraph.compile()
-
-# Use as node in parent graph via wrapper function
-def editorial_agent(state: EditorialPipelineState):
-    internal_input = transform_to_editorial_input(state)
-    result = compiled_editorial.invoke(internal_input)
-    return transform_to_pipeline_output(result)
-```
-
-**Recommendation:** Start with Option A. Promote to Option B only when the editorial logic becomes too complex for a single node. Premature subgraph extraction adds overhead without benefit.
+| Component | File Path | Change Summary |
+|-----------|-----------|----------------|
+| `graph.py` | `src/editorial_ai/graph.py` | Wrap nodes with `node_wrapper()` in `build_graph()` |
+| `app.py` | `src/editorial_ai/api/app.py` | Add preflight check to lifespan, enhance `/health` |
+| `pipeline.py` (routes) | `src/editorial_ai/api/routes/pipeline.py` | Add `/runs/{thread_id}` and `/runs/recent` endpoints |
+| `hero-block.tsx` | `admin/src/components/blocks/hero-block.tsx` | Real image rendering with fallback |
+| `product-showcase-block.tsx` | `admin/src/components/blocks/product-showcase-block.tsx` | Real product images |
+| `celeb-feature-block.tsx` | `admin/src/components/blocks/celeb-feature-block.tsx` | Real celebrity images |
+| `image-gallery-block.tsx` | `admin/src/components/blocks/image-gallery-block.tsx` | Carousel + masonry layout implementations |
+| `body-text-block.tsx` | `admin/src/components/blocks/body-text-block.tsx` | Magazine typography (leading, drop cap) |
+| `pull-quote-block.tsx` | `admin/src/components/blocks/pull-quote-block.tsx` | Decorative styling (border, large font) |
+| `divider-block.tsx` | `admin/src/components/blocks/divider-block.tsx` | Ornament style variant |
+| `hashtag-bar-block.tsx` | `admin/src/components/blocks/hashtag-bar-block.tsx` | Pill/tag styling |
+| `credits-block.tsx` | `admin/src/components/blocks/credits-block.tsx` | Magazine footer styling |
+| Content detail page | `admin/src/app/contents/[id]/page.tsx` | Add timeline + preview toggle sections |
 
 ---
 
-## Patterns to Follow
+## Data Flow Changes
 
-### Pattern 1: Idempotent Nodes
+### Before (v1.0)
 
-**What:** Every node should be safe to re-execute. If a node fails partway, the checkpointer resumes from the beginning of that node.
-
-**When:** Always. This is a LangGraph requirement for interrupt() and checkpointer correctness.
-
-**Example:** The Publish node should check if the post already exists in Supabase before inserting to avoid duplicates on retry.
-
-### Pattern 2: Bounded Feedback Loops
-
-**What:** Every feedback loop (Review->Editorial, Admin->Editorial) must have a maximum iteration count stored in state.
-
-**When:** Any conditional edge that routes backward in the graph.
-
-**Why:** Unbounded loops can cause infinite LLM calls and runaway costs.
-
-```python
-def route_after_review(state: EditorialPipelineState) -> str:
-    if state["review_result"]["passed"]:
-        return "approve"
-    if state["revision_count"] >= 3:  # MAX_REVISIONS
-        return "fail"
-    return "revision"
+```
+Pipeline Node -> State Update -> Supabase (editorial_contents only)
+Admin Dashboard -> GET /api/contents -> Render blocks from layout_json (placeholder images)
 ```
 
-### Pattern 3: Structured Output Enforcement
+### After (v1.1)
 
-**What:** Use Gemini's structured output mode (or Pydantic model binding) to guarantee the Magazine Layout JSON schema is respected.
+```
+Pipeline Node -> node_wrapper() -> State Update + pipeline_node_runs INSERT (fire-and-forget)
+                                         |
+Admin Dashboard -> GET /api/contents/{id}       -> Render blocks with real images + magazine CSS
+               -> GET /api/pipeline/runs/{tid}  -> Render execution timeline
+               -> GET /health                   -> Show service status
 
-**When:** Editorial Agent output, Review Agent scoring output.
+Startup -> preflight_check() -> /health reports service status per dependency
+```
 
-**Why:** Downstream frontend consumes Magazine Layout JSON. Schema violations break the frontend.
+The only new data flow is `pipeline_node_runs` writes from the `node_wrapper`. Everything else is enhancement of existing flows.
 
-### Pattern 4: Error Boundaries per Node
+---
 
-**What:** Each node wraps its logic in try/except, writes errors to `error_log` in state, and sets `pipeline_status="failed"` on unrecoverable errors.
+## Suggested Build Order
 
-**When:** All nodes. Especially Source Agent (Perplexity API can fail) and Editorial Agent (LLM can produce invalid output).
+**Phase order is driven by dependencies and testing ability:**
 
-```python
-def source_agent(state: EditorialPipelineState):
-    try:
-        # ... Perplexity calls, Vector DB queries
-        return {"enriched_contexts": contexts, "pipeline_status": "drafting"}
-    except PerplexityAPIError as e:
-        return {
-            "error_log": [f"Source Agent failed: {str(e)}"],
-            "pipeline_status": "failed"
-        }
+### Phase 1: E2E Setup (Foundation)
+Without validated env vars and health checks, you cannot reliably test anything else. Also serves as documentation for onboarding.
+- `.env.example` file
+- `preflight.py` module
+- Enhanced `/health` endpoint
+- Basic `e2e_smoke.py` script (no observability assertions yet)
+
+### Phase 2: Pipeline Observability (Backend)
+The `node_wrapper` decorator + Supabase table + API endpoints. Pure backend work that can be validated via API calls alone.
+- `pipeline_node_runs` Supabase table creation
+- `observability.py` module
+- Wrap nodes in `graph.py`
+- `/api/pipeline/runs` endpoints
+
+### Phase 3: Magazine Renderer Enhancement (Frontend, parallelizable with Phase 2)
+Pure frontend CSS/component work. No backend dependency. Can be done in parallel with Phase 2 after the E2E foundation is in place.
+- Image rendering for hero, product, celeb blocks
+- Gallery carousel + masonry layouts
+- Typography and spacing improvements
+- Divider ornament variant
+
+### Phase 4: Dashboard Integration (Frontend, depends on Phase 2 + 3)
+Combines observability API data with enhanced renderer on the content detail page.
+- `pipeline-timeline.tsx` component
+- `preview-mode-toggle.tsx` component
+- Integration on content detail page
+- Update E2E smoke test with observability assertions
+
+### Dependency Graph
+
+```
+Phase 1: E2E Setup (preflight + env validation + .env.example)
+    |
+    +---------------------------+
+    |                           |
+    v                           v
+Phase 2: Observability     Phase 3: Magazine Renderer
+(node_wrapper + table +    (block CSS enhancements +
+ API endpoints)             real images)
+    |                           |
+    +---------------------------+
+    |
+    v
+Phase 4: Dashboard Integration
+(timeline + preview toggle on detail page)
 ```
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: God State
+### Anti-Pattern 1: Storing Observability Data in Pipeline State
 
-**What:** Putting every piece of intermediate data in the graph state.
+**What:** Adding `node_timings: list[dict]` to `EditorialPipelineState`.
+**Why bad:** Violates the lean state principle (state.py comment: "Lean: ID/references only, no payloads"). State is checkpointed to Postgres on every node transition. Observability data bloats checkpoints and couples observability to pipeline correctness.
+**Instead:** Write to separate `pipeline_node_runs` table via `node_wrapper`, completely decoupled from state.
 
-**Why bad:** State is persisted by the checkpointer on every node transition. Large state = slow checkpointing, high storage costs, and hard-to-debug serialization issues.
+### Anti-Pattern 2: Blocking Pipeline on Observability Writes
 
-**Instead:** Keep state minimal. Intermediate LLM reasoning stays inside node functions. Only persist what the next node needs.
+**What:** Awaiting `save_node_run(...)` in the critical path without error handling.
+**Why bad:** If Supabase is slow or temporarily down, observability failure kills the actual content pipeline.
+**Instead:** Fire-and-forget pattern with `try/except pass` in `node_wrapper`'s `finally` block. Observability must never break the pipeline.
 
-### Anti-Pattern 2: Unbounded Message Accumulation
+### Anti-Pattern 3: Building Custom Tracing When LangSmith is Available
 
-**What:** Using `add_messages` reducer and never trimming the messages list.
+**What:** Building per-LLM-call tracing, token counting, input/output logging from scratch.
+**Why bad:** LangSmith already does this automatically with `LANGSMITH_TRACING=true`. The project already has the dependency (`langsmith>=0.7.5`) and config.
+**Instead:** Use LangSmith for deep developer tracing. Use `pipeline_node_runs` only for admin-facing summary metrics (node name, duration, success/error).
 
-**Why bad:** Messages list grows with every LLM call across every node. Context window overflow, increased token costs.
+### Anti-Pattern 4: Adding Frontend-Only Props to Block Components
 
-**Instead:** Trim or summarize messages at node boundaries. Each agent should manage its own conversation window, not accumulate across the full pipeline.
+**What:** Adding `variant`, `theme`, `size` props to block components that don't exist in the Python `MagazineLayout` model.
+**Why bad:** Creates a divergence between the Python Pydantic model and TypeScript types. The 1:1 type parity between `layout.py` and `types.ts` is a valuable contract.
+**Instead:** Use CSS-only styling via Tailwind classes. The block data shape should remain identical to the Python model.
 
-### Anti-Pattern 3: Shared LLM Instance Across Agents
+### Anti-Pattern 5: Using next/image for External URLs Without Configuration
 
-**What:** Using one ChatVertexAI instance with the same system prompt for all agents.
-
-**Why bad:** Each agent has a different persona and task. Shared prompts cause role confusion and degrade output quality.
-
-**Instead:** Each node initializes its own LLM with its own system prompt and tool bindings.
-
-### Anti-Pattern 4: Polling for Admin Approval
-
-**What:** Building a loop node that repeatedly checks Supabase for admin decisions.
-
-**Why bad:** Wastes compute, adds complexity, can miss timing.
-
-**Instead:** Use `interrupt()` with the checkpointer. The pipeline is frozen until `Command(resume=...)` is called from the admin dashboard API. Zero compute while waiting.
-
----
-
-## External Integration Boundaries
-
-### Vertex AI (Gemini)
-
-- **Used by:** Curation Agent, Editorial Agent, Review Agent
-- **Pattern:** Each agent creates its own `ChatVertexAI` instance with specific model, temperature, and system prompt
-- **Structured output:** Use `.with_structured_output(PydanticModel)` for agents that need guaranteed JSON schemas
-
-### Supabase
-
-- **Used by:** Curation Agent (read celeb/products), Publish node (write posts)
-- **Pattern:** Thin service layer (`supabase_service.py`) wrapping Supabase client. Nodes call service functions, never raw Supabase queries
-- **Auth:** Service role key, not user JWT (this is a backend worker)
-
-### Vector DB
-
-- **Used by:** Curation Agent (trend keywords), Source Agent (dedup), Review Agent (similarity), Publish node (store new embedding)
-- **Pattern:** Separate `vector_service.py` with functions like `find_similar_posts()`, `store_post_embedding()`, `get_trending_keywords()`
-- **Embedding model:** Use Vertex AI text-embedding model for consistency
-
-### Perplexity API
-
-- **Used by:** Source Agent only
-- **Pattern:** Wrapped in `perplexity_service.py` with retry logic and rate limiting
-- **Timeout:** Set aggressive timeout (30s) -- if Perplexity is slow, degrade gracefully with cached/partial results
-
-### Admin Dashboard
-
-- **Used by:** Admin Gate node (via interrupt)
-- **Pattern:** Dashboard is a separate frontend app that calls the worker's API. The API endpoint accepts admin decisions and calls `graph.invoke(Command(resume=...), config)` to resume the pipeline
-- **No direct DB polling.** The interrupt/resume pattern handles coordination
-
----
-
-## Suggested Build Order
-
-Build order is driven by dependency chains. You cannot test downstream nodes without upstream nodes producing state.
-
-### Phase 1: Foundation (Build First)
-
-**What to build:**
-1. State schema (`EditorialPipelineState`)
-2. Graph skeleton (nodes as stubs, edges defined)
-3. Checkpointer setup (Postgres-backed)
-4. Supabase service layer (read celeb/products/posts)
-5. Vector DB service layer (basic CRUD for embeddings)
-
-**Why first:** Everything depends on state schema and service layers. Stub nodes let you validate the graph topology compiles and routes correctly before adding LLM logic.
-
-**Validation:** Graph compiles, stub nodes pass state through, checkpointer persists/resumes.
-
-### Phase 2: Data Nodes (Curation + Source)
-
-**What to build:**
-1. Curation Agent (reads Supabase, selects topics)
-2. Source Agent (calls Perplexity, queries Vector DB for dedup)
-3. Seed data in Supabase (celeb, products for testing)
-
-**Why second:** These nodes produce the input data that Editorial needs. They also exercise the service layers built in Phase 1.
-
-**Validation:** Given test input, Curation produces topic list; Source enriches with real Perplexity results.
-
-### Phase 3: Content Generation (Editorial Agent)
-
-**What to build:**
-1. Editorial Agent with Vertex AI (Gemini) integration
-2. 5 tool skill definitions
-3. Magazine Layout JSON schema (Pydantic model)
-4. Structured output enforcement
-
-**Why third:** Depends on enriched_contexts from Phase 2. This is the core value -- focus attention here.
-
-**Validation:** Given enriched context, produces valid Magazine Layout JSON matching schema.
-
-### Phase 4: Quality Loop (Review Agent + Feedback)
-
-**What to build:**
-1. Review Agent (tone, accuracy, brand, uniqueness scoring)
-2. Conditional edge routing (pass/revise/fail)
-3. Feedback loop with revision counter
-4. Vector DB similarity check for dedup
-
-**Why fourth:** Needs drafts from Phase 3 to review. The feedback loop is the first non-trivial graph topology.
-
-**Validation:** Reviews a draft, scores it, routes to revision or approval correctly. Loop terminates at max revisions.
-
-### Phase 5: Human Gate + Publish
-
-**What to build:**
-1. Admin Gate node with `interrupt()`
-2. Resume API endpoint
-3. Publish node (write to Supabase, store embedding in Vector DB)
-4. Admin Dashboard integration (or mock)
-
-**Why fifth:** Needs the full pipeline upstream to produce content worth approving. interrupt() requires the checkpointer from Phase 1.
-
-**Validation:** Pipeline pauses at admin gate, resumes on Command, publishes to Supabase.
-
-### Phase 6: Trigger + Operations
-
-**What to build:**
-1. Weekly cron trigger (Cloud Scheduler or similar)
-2. Error monitoring and alerting
-3. LangSmith or custom tracing integration
-4. Batch processing (multiple topics per run)
-
-**Why last:** Operational concerns. The pipeline must work end-to-end first.
-
-**Validation:** Cron triggers pipeline, processes multiple topics, errors are logged and alerted.
-
-### Build Order Dependency Diagram
-
-```
-Phase 1: Foundation
-    │
-    ├── State Schema ──────────────> used by ALL phases
-    ├── Graph Skeleton ────────────> used by ALL phases
-    ├── Checkpointer ──────────────> used by Phase 5 (interrupt)
-    ├── Supabase Service ──────────> used by Phase 2, 5
-    └── Vector DB Service ─────────> used by Phase 2, 3, 4, 5
-         │
-         v
-Phase 2: Data Nodes
-    │
-    ├── Curation Agent ────────────> produces curated_topics
-    └── Source Agent ──────────────> produces enriched_contexts
-         │
-         v
-Phase 3: Content Generation
-    │
-    └── Editorial Agent ───────────> produces current_draft
-         │
-         v
-Phase 4: Quality Loop
-    │
-    ├── Review Agent ──────────────> produces review_result
-    └── Feedback Loop ─────────────> routes back to Editorial
-         │
-         v
-Phase 5: Human Gate + Publish
-    │
-    ├── Admin Gate (interrupt) ────> pauses for human
-    └── Publish Node ──────────────> writes to Supabase + Vector DB
-         │
-         v
-Phase 6: Trigger + Operations
-    │
-    └── Cron, Monitoring, Tracing
-```
-
----
-
-## Scalability Considerations
-
-| Concern | Current (Weekly batch) | Growth (Daily) | High Scale (On-demand) |
-|---------|----------------------|----------------|----------------------|
-| LLM calls | ~20-50 per run | ~100-200 per run | Rate limiting on Vertex AI becomes critical |
-| State size | Small (single post) | Medium (batch of 5-10) | Consider map-reduce pattern for parallelism |
-| Checkpointer | SQLite OK for dev | Postgres required | Postgres with connection pooling |
-| Vector DB | Small index | Index grows, query stays fast | Partition by content type or date |
-| Admin approval | Async, hours OK | Same-day turnaround needed | Batch approval UI, partial auto-approve |
+**What:** Using `<Image>` from `next/image` for URLs coming from Supabase or external sources.
+**Why bad:** Next.js requires `remotePatterns` in `next.config.ts` for external image domains. The editorial pipeline can reference images from arbitrary domains (social media, product sites, etc.).
+**Instead:** Use standard `<img>` tags for external URLs. Only use `next/image` for static assets or known, configured domains.
 
 ---
 
 ## Sources
 
-- [LangGraph Interrupts - Official Documentation](https://docs.langchain.com/oss/python/langgraph/interrupts) -- HIGH confidence, interrupt() and Command patterns
-- [LangGraph Best Practices - Swarnendu De](https://www.swarnendu.de/blog/langgraph-best-practices/) -- MEDIUM confidence, production patterns
-- [LangGraph Multi-Agent Workflows - LangChain Blog](https://blog.langchain.com/langgraph-multi-agent-workflows/) -- HIGH confidence, official multi-agent patterns
-- [LangGraph Subgraphs - Official Documentation](https://docs.langchain.com/oss/python/langgraph/use-subgraphs) -- HIGH confidence, subgraph integration
-- [LangGraph Graph API Overview](https://docs.langchain.com/oss/python/langgraph/graph-api) -- HIGH confidence, StateGraph, edges, compilation
-- [Practical Guide for Production Agentic AI Workflows (arXiv)](https://arxiv.org/html/2512.08769v1) -- MEDIUM confidence, general multi-agent architecture best practices
-- [AI Agents for Content Generation Guide](https://kodexolabs.com/ai-agents-content-generation-guide/) -- LOW confidence, general content pipeline patterns
-- [Mastering LangGraph State Management 2025](https://sparkco.ai/blog/mastering-langgraph-state-management-in-2025) -- MEDIUM confidence, TypedDict and reducer patterns
+- [LangSmith: Trace LangGraph Applications](https://docs.langchain.com/langsmith/trace-with-langgraph) -- HIGH confidence, verified auto-tracing via env vars, per-node trace capture
+- [LangSmith Observability for LangGraph](https://docs.langchain.com/oss/python/langgraph/observability) -- HIGH confidence, LangGraph-specific observability integration
+- [LangChain Callbacks Concepts](https://python.langchain.com/docs/concepts/callbacks/) -- HIGH confidence, custom callback event dispatch for @traceable
+- [LangSmith for Agent Observability (Medium, Jan 2026)](https://ravjot03.medium.com/langsmith-for-agent-observability-tracing-langgraph-tool-calling-end-to-end-2a97d0024dfb) -- MEDIUM confidence, practical example of LangSmith + LangGraph tracing
+- [Dynamic Layouts in Next.js 15 with CMS Blocks (Medium)](https://medium.com/@sureshdotariya/dynamic-layouts-in-next-js-15-contentful-cms-empowering-non-devs-with-cms-blocks-dca480afef37) -- MEDIUM confidence, block-based rendering patterns for Next.js 15
+- [Render Block Components in Next.js (DEV Community)](https://dev.to/aswanth_raveendranek_a2a/render-block-component-in-next-js-and-headless-cms-24f3) -- MEDIUM confidence, block renderer dispatch pattern
+- Codebase analysis: `config.py` (LangSmith settings lines 38-44), `graph.py` (node registration + override pattern), `block-renderer.tsx` (existing 10-block BLOCK_MAP renderer), `types.ts` (1:1 Python-TypeScript type parity), `layout.py` (10 Pydantic block models with discriminated union)
