@@ -8,6 +8,11 @@ from editorial_ai.models.curation import (
     CurationResult,
     GroundingSource,
 )
+from editorial_ai.models.editorial import (
+    CelebMention,
+    EditorialContent,
+    ProductMention,
+)
 from editorial_ai.models.layout import (
     BodyTextBlock,
     CelebFeatureBlock,
@@ -36,12 +41,14 @@ __all__ = [
     "BrandReference",
     "Celeb",
     "CelebFeatureBlock",
+    "CelebMention",
     "CelebItem",
     "CelebReference",
     "CreditEntry",
     "CreditsBlock",
     "CuratedTopic",
     "CurationResult",
+    "EditorialContent",
     "DividerBlock",
     "GroundingSource",
     "HashtagBarBlock",
@@ -55,6 +62,7 @@ __all__ = [
     "Post",
     "Product",
     "ProductItem",
+    "ProductMention",
     "ProductShowcaseBlock",
     "PullQuoteBlock",
     "create_default_template",
