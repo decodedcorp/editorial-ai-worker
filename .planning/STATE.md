@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 9 of 13 (E2E Execution Foundation)
-Plan: 1 of 3 completed
+Plan: 2 of 3 completed
 Status: In progress
-Last activity: 2026-02-26 — Completed 09-01-PLAN.md
+Last activity: 2026-02-26 — Completed 09-02-PLAN.md
 
-Progress: [#########.........] 64% (23/36 plans — v1.0 complete, v1.1 in progress)
+Progress: [##########........] 67% (24/36 plans — v1.0 complete, v1.1 in progress)
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Progress: [#########.........] 64% (23/36 plans — v1.0 complete, v1.1 in progr
 - [09-01]: Health check returns 200 with status field (healthy/degraded/unhealthy) for diagnostic reading
 - [09-01]: seed_keyword with keyword fallback for backward compatibility
 - [09-01]: Env validation runs before checkpointer setup (fail-fast pattern)
+- [09-02]: Text IDs (post-001, sol-001) for deterministic ON CONFLICT; matched source_node query columns exactly
 
 ### Pending Todos
 
@@ -61,5 +62,5 @@ Progress: [#########.........] 64% (23/36 plans — v1.0 complete, v1.1 in progr
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 09-01-PLAN.md
+Stopped at: Completed 09-02-PLAN.md
 Resume file: None
