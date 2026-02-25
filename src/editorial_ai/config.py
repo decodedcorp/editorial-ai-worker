@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     nano_banana_model: str = "gemini-2.5-flash-preview-image-generation"
     editorial_max_repair_attempts: int = 2
 
+    # Admin API
+    admin_api_key: str | None = Field(default=None, alias="ADMIN_API_KEY")
+    api_host: str = Field(default="0.0.0.0", alias="API_HOST")
+    api_port: int = Field(default=8000, alias="API_PORT")
+
     # Supabase (REST API)
     supabase_url: str | None = Field(default=None, alias="SUPABASE_URL")
     supabase_service_role_key: str | None = Field(
