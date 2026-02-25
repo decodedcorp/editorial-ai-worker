@@ -62,11 +62,11 @@ Plans:
   1. Curation 노드 실행 시 Perplexity API를 호출하여 패션 트렌드 키워드 목록을 반환한다
   2. 수집된 키워드가 파이프라인 상태(`curated_topics`)에 구조화된 형태로 저장된다
   3. Perplexity API 실패 시 재시도 로직(exponential backoff)이 동작하고, 최종 실패 시 에러 상태가 기록된다
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: Perplexity service layer (API client, retry logic, timeout handling)
-- [ ] 03-02: Curation agent node (trend keyword collection + state writing)
+- [ ] 03-01-PLAN.md — Curation Pydantic models, prompt templates, CurationService (Gemini + Google Search Grounding, two-step pattern, retry logic)
+- [ ] 03-02-PLAN.md — Curation LangGraph node (state I/O, error handling) + graph wiring
 
 ### Phase 4: Editorial Agent - Generation + Layout
 **Goal**: 큐레이션된 키워드와 수집 자료를 입력받아 Magazine Layout JSON 형식의 에디토리얼 초안을 생성하는 상태
