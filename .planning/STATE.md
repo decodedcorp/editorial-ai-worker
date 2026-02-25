@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** 키워드 하나로 셀럽/상품/레퍼런스가 조합된 에디토리얼 콘텐츠가 자동 생성되고, 검수 루프를 거쳐 관리자가 승인하면 발행
-**Current focus:** Phase 6 complete. Review Agent + Feedback Loop fully implemented. Ready for Phase 7.
+**Current focus:** Phase 7 in progress. Content service, admin gate, and publish node complete. FastAPI admin API next.
 
 ## Current Position
 
-Phase: 6 of 8 (Review Agent - Feedback Loop) -- COMPLETE
-Plan: 3 of 3 in phase 6
-Status: Phase complete
-Last activity: 2026-02-25 — Completed 06-03-PLAN.md
+Phase: 7 of 8 (Admin Backend + HITL)
+Plan: 1 of 3 in phase 7
+Status: In progress
+Last activity: 2026-02-25 — Completed 07-01-PLAN.md
 
-Progress: [████████████████░░░░░░] 16/22 (73%)
+Progress: [█████████████████░░░░░] 17/22 (77%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
+- Total plans completed: 17
 - Average duration: ~2.5m
-- Total execution time: ~0.68 hours
+- Total execution time: ~0.73 hours
 
 **By Phase:**
 
@@ -33,9 +33,10 @@ Progress: [████████████████░░░░░░] 1
 | 4 | 3/3 | ~8m | ~2.7m |
 | 5 | 3/3 | ~6m | ~2m |
 | 6 | 3/3 | ~6m | ~2m |
+| 7 | 1/3 | ~3m | ~3m |
 
 **Recent Trend:**
-- Last 5 plans: 2m, 2m, 2m, 2m, 2m
+- Last 5 plans: 2m, 2m, 2m, 2m, 3m
 - Trend: stable
 
 *Updated after each plan completion*
@@ -90,6 +91,10 @@ Recent decisions affecting current work:
 - [06-03]: Non-escalation failure does NOT set pipeline_status (route_after_review handles routing)
 - [06-03]: Escalation sets pipeline_status='failed' as terminal state with error_log for audit
 - [06-03]: stub_review kept importable for backward compat (tests use via node_overrides)
+- [07-01]: Upsert on thread_id for idempotent save before interrupt (safe on node re-execution)
+- [07-01]: admin_gate stores content_id in current_draft_id state field for publish_node access
+- [07-01]: Content saved BEFORE interrupt so admin can view it; upsert prevents duplicates
+- [07-01]: content_service returns raw dicts (no Pydantic model for pipeline-internal table)
 
 ### Pending Todos
 
@@ -103,5 +108,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 06-03-PLAN.md (Review Node Graph Wiring) -- Phase 6 complete
+Stopped at: Completed 07-01-PLAN.md (Content Service + Admin Gate + Publish Node)
 Resume file: None
