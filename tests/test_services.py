@@ -7,9 +7,13 @@ import pytest
 from editorial_ai.models.celeb import Celeb
 from editorial_ai.models.post import Post
 from editorial_ai.models.product import Product
-from editorial_ai.services.celeb_service import get_celeb_by_id, search_celebs
+from editorial_ai.services.celeb_service import get_celeb_by_id, search_celebs, search_celebs_multi
 from editorial_ai.services.post_service import get_post_by_id, list_posts
-from editorial_ai.services.product_service import get_product_by_id, search_products
+from editorial_ai.services.product_service import (
+    get_product_by_id,
+    search_products,
+    search_products_multi,
+)
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -60,6 +64,14 @@ def _mock_response(data: dict | list | None) -> MagicMock:
     resp = MagicMock()
     resp.data = data
     return resp
+
+
+def _build_mock_client_or(response_data: dict | list | None) -> MagicMock:
+    """Build mock client with or_() chain support for multi-column search."""
+    mock_client = _build_mock_client(response_data)
+    builder = mock_client.table.return_value
+    builder.or_.return_value = builder  # Add or_ to the chain
+    return mock_client
 
 
 def _build_mock_client(response_data: dict | list | None) -> MagicMock:
@@ -197,6 +209,59 @@ async def test_list_posts_empty(mock_get_client: AsyncMock) -> None:
     mock_get_client.return_value = _build_mock_client([])
     results = await list_posts()
     assert results == []
+
+
+# ---------------------------------------------------------------------------
+# Multi-column search tests (search_celebs_multi / search_products_multi)
+# ---------------------------------------------------------------------------
+
+
+@patch("editorial_ai.services.celeb_service.get_supabase_client")
+async def test_search_celebs_multi_returns_results(mock_get_client: AsyncMock) -> None:
+    mock_get_client.return_value = _build_mock_client_or([SAMPLE_CELEB])
+    results = await search_celebs_multi(["김태희"])
+    assert len(results) == 1
+    assert results[0].name == "김태희"
+
+
+@patch("editorial_ai.services.celeb_service.get_supabase_client")
+async def test_search_celebs_multi_empty_queries(mock_get_client: AsyncMock) -> None:
+    mock_get_client.return_value = _build_mock_client_or([SAMPLE_CELEB])
+    results = await search_celebs_multi([])
+    assert results == []
+
+
+@patch("editorial_ai.services.celeb_service.get_supabase_client")
+async def test_search_celebs_multi_deduplicates(mock_get_client: AsyncMock) -> None:
+    mock_get_client.return_value = _build_mock_client_or([SAMPLE_CELEB])
+    # Two queries both return same celeb -> should deduplicate to 1
+    results = await search_celebs_multi(["김태희", "Kim Tae-hee"])
+    assert len(results) == 1
+    assert results[0].id == "celeb-1"
+
+
+@patch("editorial_ai.services.product_service.get_supabase_client")
+async def test_search_products_multi_returns_results(mock_get_client: AsyncMock) -> None:
+    mock_get_client.return_value = _build_mock_client_or([SAMPLE_PRODUCT])
+    results = await search_products_multi(["Trench"])
+    assert len(results) == 1
+    assert results[0].name == "Classic Trench Coat"
+
+
+@patch("editorial_ai.services.product_service.get_supabase_client")
+async def test_search_products_multi_empty_queries(mock_get_client: AsyncMock) -> None:
+    mock_get_client.return_value = _build_mock_client_or([SAMPLE_PRODUCT])
+    results = await search_products_multi([])
+    assert results == []
+
+
+@patch("editorial_ai.services.product_service.get_supabase_client")
+async def test_search_products_multi_deduplicates(mock_get_client: AsyncMock) -> None:
+    mock_get_client.return_value = _build_mock_client_or([SAMPLE_PRODUCT])
+    # Two queries both return same product -> should deduplicate to 1
+    results = await search_products_multi(["Trench", "Burberry"])
+    assert len(results) == 1
+    assert results[0].id == "prod-1"
 
 
 # ---------------------------------------------------------------------------
