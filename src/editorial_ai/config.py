@@ -16,6 +16,15 @@ class Settings(BaseSettings):
     )
     default_model: str = "gemini-2.5-flash"
 
+    # Supabase (REST API)
+    supabase_url: str | None = Field(default=None, alias="SUPABASE_URL")
+    supabase_service_role_key: str | None = Field(
+        default=None, alias="SUPABASE_SERVICE_ROLE_KEY"
+    )
+
+    # Postgres (for checkpointer — Supabase session pooler, port 5432)
+    database_url: str | None = Field(default=None, alias="DATABASE_URL")
+
     # LangSmith
     langsmith_tracing: bool = Field(default=False, alias="LANGSMITH_TRACING")
     langsmith_api_key: str | None = Field(default=None, alias="LANGSMITH_API_KEY")
