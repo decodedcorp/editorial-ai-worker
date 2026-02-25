@@ -77,12 +77,12 @@ Plans:
   2. 생성된 초안이 Magazine Layout JSON Pydantic 스키마를 통과한다 (validation error 없음)
   3. Layout JSON에 타이틀, 본문 섹션, 이미지 플레이스홀더 등 에디토리얼에 필요한 구조가 포함된다
   4. Gemini structured output 실패 시 OutputFixingParser가 동작하여 복구를 시도한다
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: Magazine Layout JSON schema design (Pydantic models, versioning)
-- [ ] 04-02: Editorial agent node (prompt engineering, structured output generation)
-- [ ] 04-03: Output validation + repair pipeline (Pydantic validation, OutputFixingParser)
+- [ ] 04-01-PLAN.md — Magazine Layout JSON Pydantic schema (block types, versioning, editorial content model, default template, tests)
+- [ ] 04-02-PLAN.md — EditorialService (content generation, Nano Banana layout image, Vision AI parsing, output repair loop, template fallback, tests)
+- [ ] 04-03-PLAN.md — Editorial LangGraph node (state wiring, graph integration, replace stub_editorial)
 
 ### Phase 5: Editorial Agent - DB Tools
 **Goal**: Editorial Agent가 Supabase에서 관련 셀럽/인플루언서와 상품/브랜드를 검색하여 초안에 반영하는 상태
@@ -160,7 +160,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 1. Graph Skeleton + LLM Integration | 3/3 | Complete | 2026-02-25 |
 | 2. Data Layer | 2/2 | Complete | 2026-02-25 |
 | 3. Curation Agent | 2/2 | Complete | 2026-02-25 |
-| 4. Editorial Agent - Generation + Layout | 0/3 | Not started | - |
+| 4. Editorial Agent - Generation + Layout | 0/3 | Planned | - |
 | 5. Editorial Agent - DB Tools | 0/3 | Not started | - |
 | 6. Review Agent + Feedback Loop | 0/3 | Not started | - |
 | 7. Admin Backend + HITL | 0/3 | Not started | - |
