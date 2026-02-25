@@ -49,6 +49,11 @@ def stub_admin_gate(state: EditorialPipelineState) -> dict:
     }
 
 
+def stub_enrich(state: EditorialPipelineState) -> dict:
+    """Stub: Phase 5에서 구현. DB 데이터 enrichment."""
+    return {}
+
+
 def stub_publish(state: EditorialPipelineState) -> dict:
     """Stub: Phase 6에서 구현. 콘텐츠 발행."""
     return {
