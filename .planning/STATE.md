@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 9 of 13 (E2E Execution Foundation)
-Plan: — (awaiting plan-phase)
-Status: Ready to plan
-Last activity: 2026-02-26 — v1.1 roadmap created (Phases 9-13)
+Plan: 1 of 3 completed
+Status: In progress
+Last activity: 2026-02-26 — Completed 09-01-PLAN.md
 
-Progress: [########..........] 62% (22/TBD plans — v1.0 complete, v1.1 planning)
+Progress: [#########.........] 64% (23/36 plans — v1.0 complete, v1.1 in progress)
 
 ## Performance Metrics
 
@@ -44,6 +44,9 @@ Progress: [########..........] 62% (22/TBD plans — v1.0 complete, v1.1 plannin
 - [v1.1]: E2E 실행 검증 최우선, 관측성 백엔드 -> 대시보드 순서, ADV 기능은 파이프라인 실행 데이터 확보 후 진행
 - [v1.1]: 관측성은 LangChain callbacks가 아닌 커스텀 node_wrapper 패턴 (google-genai SDK 직접 사용 때문)
 - [v1.1]: 매거진 렌더러는 기존 10개 블록 컴포넌트 업그레이드 (새 아키텍처 아님)
+- [09-01]: Health check returns 200 with status field (healthy/degraded/unhealthy) for diagnostic reading
+- [09-01]: seed_keyword with keyword fallback for backward compatibility
+- [09-01]: Env validation runs before checkpointer setup (fail-fast pattern)
 
 ### Pending Todos
 
@@ -51,12 +54,12 @@ Progress: [########..........] 62% (22/TBD plans — v1.0 complete, v1.1 plannin
 
 ### Blockers/Concerns
 
-- seed_keyword vs keyword 필드명 불일치 -- Phase 9에서 수정 필수
+- ~~seed_keyword vs keyword 필드명 불일치~~ -- RESOLVED in 09-01
 - Supabase DATABASE_URL 포트 확인 필요 (5432 session pooler, not 6543 transaction pooler)
 - google-genai response.usage_metadata 필드명 검증 필요 (Phase 10 구현 시)
 
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: v1.1 roadmap created, Phase 9 ready to plan
+Stopped at: Completed 09-01-PLAN.md
 Resume file: None
