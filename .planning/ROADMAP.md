@@ -93,12 +93,12 @@ Plans:
   2. Editorial Agent가 키워드 기반으로 관련 상품/브랜드를 Supabase에서 검색하여 초안에 포함시킨다
   3. Tool 호출 결과가 Layout JSON 내에 셀럽/상품 참조(ID 포함)로 구조화되어 있다
   4. DB에 매칭되는 셀럽/상품이 없을 때 graceful하게 처리된다 (에러 없이 빈 결과 반환)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: Celeb/influencer search tool (Supabase query + LangChain tool binding)
-- [ ] 05-02: Product/brand search tool (Supabase query + LangChain tool binding)
-- [ ] 05-03: Tool integration into Editorial Agent (bind_tools, tool result injection into draft)
+- [ ] 05-01-PLAN.md — Multi-column OR search for celeb/product services + enrich prompts
+- [ ] 05-02-PLAN.md — Enrich service (keyword expansion, DB search orchestration, content re-generation, layout rebuild)
+- [ ] 05-03-PLAN.md — Enrich LangGraph node + graph wiring (editorial -> enrich -> review)
 
 ### Phase 6: Review Agent + Feedback Loop
 **Goal**: 생성된 에디토리얼 초안을 자동 품질 평가하고, 실패 시 구조화된 피드백으로 재생성을 요청하며, 최대 재시도 제한이 동작하는 상태
