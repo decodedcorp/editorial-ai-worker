@@ -42,7 +42,5 @@ class Settings(BaseSettings):
         default="editorial-ai-worker", alias="LANGSMITH_PROJECT"
     )
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "populate_by_name": True}
-
-
+    model_config = {"env_file": (".env", ".env.local"), "env_file_encoding": "utf-8", "populate_by_name": True, "extra": "ignore"}
 settings = Settings()

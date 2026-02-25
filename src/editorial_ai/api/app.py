@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+import traceback
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from editorial_ai.api.routes import admin, pipeline
 from editorial_ai.checkpointer import create_checkpointer
@@ -22,6 +25,22 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Editorial AI Admin API", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc), "traceback": traceback.format_exc()},
+    )
+
 
 app.include_router(admin.router, prefix="/api/contents", tags=["contents"])
 app.include_router(pipeline.router, prefix="/api/pipeline", tags=["pipeline"])

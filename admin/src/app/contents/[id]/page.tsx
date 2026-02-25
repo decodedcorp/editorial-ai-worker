@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 
 import { apiGet } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
-import { ContentStatusBadge } from "@/components/content-status-badge";
 import { BlockRenderer } from "@/components/block-renderer";
 import { JsonPanel } from "@/components/json-panel";
 import { ActionBar } from "./actions";
