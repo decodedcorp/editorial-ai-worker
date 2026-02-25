@@ -41,11 +41,11 @@
 
 ### E2E 실행 환경
 
-- [ ] **E2E-01**: 필수 환경변수(GOOGLE_API_KEY, SUPABASE_URL 등) 누락 시 시작 단계에서 명확한 에러와 함께 fail-fast
-- [ ] **E2E-02**: GET /health 엔드포인트로 Supabase 연결 + 테이블 존재 + 체크포인터 연결 검증
-- [ ] **E2E-03**: curation_input seed_keyword/keyword 필드명 불일치 수정
-- [ ] **E2E-04**: Admin 대시보드에 '새 콘텐츠 생성' 버튼 + 키워드 입력 폼 (파이프라인 트리거)
-- [ ] **E2E-05**: 셀럽/상품 샘플 데이터 SQL seed 스크립트
+- [x] **E2E-01**: 필수 환경변수(GOOGLE_API_KEY, SUPABASE_URL 등) 누락 시 시작 단계에서 명확한 에러와 함께 fail-fast
+- [x] **E2E-02**: GET /health 엔드포인트로 Supabase 연결 + 테이블 존재 + 체크포인터 연결 검증
+- [x] **E2E-03**: curation_input seed_keyword/keyword 필드명 불일치 수정
+- [x] **E2E-04**: Admin 대시보드에 '새 콘텐츠 생성' 버튼 + 키워드 입력 폼 (파이프라인 트리거)
+- [x] **E2E-05**: 셀럽/상품 샘플 데이터 SQL seed 스크립트
 
 ### 파이프라인 관측성
 

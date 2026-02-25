@@ -143,7 +143,7 @@ Plans:
 
 **Milestone Goal:** v1.0 파이프라인을 실제 환경에서 실행 검증하고, 노드별 상세 로그를 수집하여 Admin에 표시하며, Layout JSON을 실제 매거진 형태로 렌더링한다.
 
-- [ ] **Phase 9: E2E Execution Foundation** - 실제 환경에서 파이프라인이 처음부터 끝까지 동작하는 상태 확보
+- [x] **Phase 9: E2E Execution Foundation** - 실제 환경에서 파이프라인이 처음부터 끝까지 동작하는 상태 확보
 - [ ] **Phase 10: Pipeline Observability Backend** - 노드별 실행 메트릭 수집, 저장, API 제공
 - [ ] **Phase 11: Magazine Renderer Enhancement** - Layout JSON을 매거진 품질로 렌더링하는 블록 컴포넌트 고도화
 - [ ] **Phase 12: Observability Dashboard** - Admin UI에 파이프라인 실행 로그와 진행 상태 표시
@@ -161,7 +161,12 @@ Plans:
   3. Admin 대시보드에서 '새 콘텐츠 생성' 버튼을 클릭하고 키워드를 입력하면 파이프라인이 트리거되어 pending 콘텐츠가 생성된다
   4. 셀럽/상품 샘플 데이터가 SQL 스크립트로 제공되어, 빈 DB에서도 파이프라인이 유의미한 콘텐츠를 생성한다
   5. seed_keyword 필드명 불일치가 해소되어 curation 노드가 키워드를 정상적으로 수신한다
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [x] 09-01-PLAN.md — Backend prerequisites (seed_keyword fix, env validation, rich health check)
+- [x] 09-02-PLAN.md — Sample data SQL seed script (posts, spots, solutions, celebs, products)
+- [x] 09-03-PLAN.md — Content creation trigger UI (modal, progress polling, pipeline status endpoint)
 
 ### Phase 10: Pipeline Observability Backend
 **Goal**: 파이프라인 실행 시 각 노드의 토큰 사용량, 처리 시간, 상태가 자동 수집되어 API로 조회 가능한 상태
@@ -220,7 +225,7 @@ Phases execute in numeric order: 9 -> 10 -> 11 (parallelizable with 10) -> 12 ->
 | 6. Review Agent + Feedback Loop | v1.0 | 3/3 | Complete | 2026-02-25 |
 | 7. Admin Backend + HITL | v1.0 | 3/3 | Complete | 2026-02-25 |
 | 8. Admin Dashboard UI | v1.0 | 3/3 | Complete | 2026-02-26 |
-| 9. E2E Execution Foundation | v1.1 | 0/TBD | Not started | - |
+| 9. E2E Execution Foundation | v1.1 | 3/3 | Complete | 2026-02-26 |
 | 10. Pipeline Observability Backend | v1.1 | 0/TBD | Not started | - |
 | 11. Magazine Renderer Enhancement | v1.1 | 0/TBD | Not started | - |
 | 12. Observability Dashboard | v1.1 | 0/TBD | Not started | - |
