@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 async def curation_node(state: EditorialPipelineState) -> dict:
     """LangGraph node: curate trending topics from a seed keyword.
 
-    Reads state["curation_input"]["keyword"], calls CurationService.curate_seed(),
+    Reads state["curation_input"]["seed_keyword"], calls CurationService.curate_seed(),
     and writes curated_topics + pipeline_status back to state.
     """
     curation_input = state.get("curation_input") or {}
-    keyword = curation_input.get("keyword")
+    keyword = curation_input.get("seed_keyword") or curation_input.get("keyword")
 
     if not keyword:
         return {

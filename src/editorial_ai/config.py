@@ -43,4 +43,19 @@ class Settings(BaseSettings):
     )
 
     model_config = {"env_file": (".env", ".env.local"), "env_file_encoding": "utf-8", "populate_by_name": True, "extra": "ignore"}
+
+    def validate_required_for_server(self) -> list[str]:
+        """Return list of missing required env vars for server mode."""
+        missing: list[str] = []
+        if not self.supabase_url:
+            missing.append("SUPABASE_URL")
+        if not self.supabase_service_role_key:
+            missing.append("SUPABASE_SERVICE_ROLE_KEY")
+        if not self.database_url:
+            missing.append("DATABASE_URL")
+        if not self.google_api_key and not self.google_genai_use_vertexai:
+            missing.append(
+                "GOOGLE_API_KEY (or set GOOGLE_GENAI_USE_VERTEXAI=true with GOOGLE_CLOUD_PROJECT)"
+            )
+        return missing
 settings = Settings()
