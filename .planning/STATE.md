@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** 키워드 하나로 셀럽/상품/레퍼런스가 조합된 에디토리얼 콘텐츠가 자동 생성되고, 검수 루프를 거쳐 관리자가 승인하면 발행
-**Current focus:** Phase 7 complete. Full HITL loop wired: admin_gate interrupt, approve/reject/revision flows, publish node. Ready for Phase 8 dashboard.
+**Current focus:** Phase 8 in progress. Admin dashboard scaffold complete (Next.js 15 + shadcn/ui + BFF proxy). Building content list and detail pages next.
 
 ## Current Position
 
-Phase: 7 of 8 (Admin Backend + HITL)
-Plan: 3 of 3 in phase 7
-Status: Phase complete
-Last activity: 2026-02-25 — Completed 07-03-PLAN.md
+Phase: 8 of 8 (Admin Dashboard UI)
+Plan: 1 of 3 in phase 8
+Status: In progress
+Last activity: 2026-02-25 — Completed 08-01-PLAN.md
 
-Progress: [███████████████████░░░] 19/22 (86%)
+Progress: [████████████████████░░] 20/22 (91%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 19
+- Total plans completed: 20
 - Average duration: ~2.5m
 - Total execution time: ~0.85 hours
 
@@ -34,9 +34,10 @@ Progress: [███████████████████░░░] 1
 | 5 | 3/3 | ~6m | ~2m |
 | 6 | 3/3 | ~6m | ~2m |
 | 7 | 3/3 | ~10m | ~3.3m |
+| 8 | 1/3 | ~3m | ~3m |
 
 **Recent Trend:**
-- Last 5 plans: 2m, 2m, 3m, 3m, 4m
+- Last 5 plans: 2m, 3m, 3m, 4m, 3m
 - Trend: stable
 
 *Updated after each plan completion*
@@ -102,6 +103,9 @@ Recent decisions affecting current work:
 - [07-03]: Sync graph tests use _ALL_STUBS dict override (real admin_gate/publish are async)
 - [07-03]: Integration tests use custom stubs producing minimal state for admin_gate
 - [07-fix]: thread_id added to EditorialPipelineState; API trigger passes it, admin_gate reads from state
+- [08-01]: Snake_case TypeScript fields to match FastAPI JSON responses (no camelCase conversion)
+- [08-01]: BFF proxy pattern: X-API-Key injected server-side, never exposed to browser
+- [08-01]: Next.js 15 async params pattern (params: Promise<{ id: string }>) for dynamic routes
 
 ### Pending Todos
 
@@ -115,5 +119,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 07-03-PLAN.md (Graph Wiring + Interrupt/Resume Tests)
+Stopped at: Completed 08-01-PLAN.md (Project Scaffold and Infrastructure)
 Resume file: None
