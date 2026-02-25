@@ -48,6 +48,10 @@ class TriggerRequest(BaseModel):
 
     seed_keyword: str
     category: str = "fashion"
+    tone: str | None = None
+    style: str | None = None
+    target_celeb: str | None = None
+    target_brand: str | None = None
 
 
 class TriggerResponse(BaseModel):
