@@ -6,12 +6,14 @@ The factory returns an async context manager -- caller manages lifecycle.
 
 from __future__ import annotations
 
+from contextlib import AbstractAsyncContextManager
+
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 
 from editorial_ai.config import settings
 
 
-def create_checkpointer() -> AsyncPostgresSaver:
+def create_checkpointer() -> AbstractAsyncContextManager[AsyncPostgresSaver]:
     """Create an AsyncPostgresSaver from DATABASE_URL.
 
     Returns an async context manager. Usage::
