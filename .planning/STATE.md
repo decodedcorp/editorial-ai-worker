@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 9 of 13 (E2E Execution Foundation)
-Plan: 2 of 3 completed
-Status: In progress
-Last activity: 2026-02-26 — Completed 09-02-PLAN.md
+Plan: 3 of 3 completed
+Status: Phase complete
+Last activity: 2026-02-26 — Completed 09-03-PLAN.md
 
-Progress: [##########........] 67% (24/36 plans — v1.0 complete, v1.1 in progress)
+Progress: [###########.......] 69% (25/36 plans — v1.0 complete, phase 9 complete)
 
 ## Performance Metrics
 
@@ -48,6 +48,9 @@ Progress: [##########........] 67% (24/36 plans — v1.0 complete, v1.1 in progr
 - [09-01]: seed_keyword with keyword fallback for backward compatibility
 - [09-01]: Env validation runs before checkpointer setup (fail-fast pattern)
 - [09-02]: Text IDs (post-001, sol-001) for deterministic ON CONFLICT; matched source_node query columns exactly
+- [09-03]: Non-blocking pipeline trigger via asyncio.create_task for immediate thread_id return
+- [09-03]: BFF proxy pattern for API key hiding; 3s polling with 180s timeout
+- [09-03]: Modal phase state machine: form -> running -> success|error
 
 ### Pending Todos
 
@@ -62,5 +65,5 @@ Progress: [##########........] 67% (24/36 plans — v1.0 complete, v1.1 in progr
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 09-02-PLAN.md
+Stopped at: Completed 09-03-PLAN.md (Phase 9 complete)
 Resume file: None
