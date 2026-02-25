@@ -42,7 +42,7 @@ def stub_review(state: EditorialPipelineState) -> dict:
 
 
 def stub_admin_gate(state: EditorialPipelineState) -> dict:
-    """Stub: Phase 5에서 구현. 관리자 승인 게이트."""
+    """Stub kept for backward compatibility. Real implementation in nodes/admin_gate.py."""
     return {
         "pipeline_status": "published",
         "admin_decision": "approved",
@@ -55,7 +55,7 @@ def stub_enrich(state: EditorialPipelineState) -> dict:
 
 
 def stub_publish(state: EditorialPipelineState) -> dict:
-    """Stub: Phase 6에서 구현. 콘텐츠 발행."""
+    """Stub kept for backward compatibility. Real implementation in nodes/publish.py."""
     return {
         "pipeline_status": "published",
     }

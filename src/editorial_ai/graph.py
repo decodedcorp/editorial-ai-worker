@@ -1,9 +1,11 @@
 """Editorial pipeline graph definition.
 
-Defines the StateGraph topology with stub nodes and conditional edges.
+Defines the StateGraph topology with real node implementations and conditional edges.
 The graph follows: curation -> source -> editorial -> enrich -> review -> admin_gate -> publish
 with conditional routing after review (retry/fail) and admin_gate (revision/reject).
 Review node performs LLM-as-a-Judge evaluation (Phase 6).
+Admin gate uses LangGraph interrupt() for human-in-the-loop approval (Phase 7).
+Publish node finalizes approved content in Supabase (Phase 7).
 """
 
 from __future__ import annotations
@@ -15,16 +17,18 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
+from editorial_ai.nodes.admin_gate import admin_gate
 from editorial_ai.nodes.curation import curation_node
 from editorial_ai.nodes.editorial import editorial_node
 from editorial_ai.nodes.enrich import enrich_editorial_node
+from editorial_ai.nodes.publish import publish_node
 from editorial_ai.nodes.review import review_node
 from editorial_ai.nodes.stubs import (
-    stub_admin_gate,
+    stub_admin_gate,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_curation,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_editorial,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_enrich,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
-    stub_publish,
+    stub_publish,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_review,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_source,
 )
@@ -73,8 +77,8 @@ def build_graph(
         "editorial": editorial_node,
         "enrich": enrich_editorial_node,  # Phase 5: DB enrichment
         "review": review_node,
-        "admin_gate": stub_admin_gate,
-        "publish": stub_publish,
+        "admin_gate": admin_gate,
+        "publish": publish_node,
     }
     if node_overrides:
         nodes.update(node_overrides)
