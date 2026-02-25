@@ -39,12 +39,7 @@ async def admin_gate(state: EditorialPipelineState) -> dict:
     review_summary = review_result.get("summary", "")
 
     # 1. Save to Supabase (upsert on thread_id -- safe on re-execution)
-    # NOTE: thread_id comes from the LangGraph config, but the node doesn't
-    # have direct access to config. We use a deterministic thread identifier
-    # derived from the keyword + title as a fallback. The API layer sets the
-    # real thread_id when triggering the pipeline.
-    # For now, use keyword as thread identifier (will be replaced by real
-    # thread_id when the API layer passes it through state).
+    # thread_id is set by the API trigger in pipeline state; keyword fallback for CLI usage
     thread_id = state.get("thread_id") or keyword or "unknown"
 
     saved = await save_pending_content(

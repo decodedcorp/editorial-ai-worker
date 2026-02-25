@@ -32,9 +32,9 @@
 
 ### Admin
 
-- [ ] **ADMN-01**: 검수 통과 콘텐츠를 Supabase에 pending 상태로 저장
-- [ ] **ADMN-02**: 콘텐츠 프리뷰 + 승인/반려 API
-- [ ] **ADMN-03**: Human-in-the-loop: interrupt() 패턴으로 관리자 승인 대기
+- [x] **ADMN-01**: 검수 통과 콘텐츠를 Supabase에 pending 상태로 저장
+- [x] **ADMN-02**: 콘텐츠 프리뷰 + 승인/반려 API
+- [x] **ADMN-03**: Human-in-the-loop: interrupt() 패턴으로 관리자 승인 대기
 - [ ] **ADMN-04**: 간단한 Admin 대시보드 UI (프리뷰 + 승인/반려)
 
 ## v2 Requirements
@@ -92,9 +92,9 @@
 | REVW-01 | Phase 6 | Complete |
 | REVW-02 | Phase 6 | Complete |
 | REVW-03 | Phase 6 | Complete |
-| ADMN-01 | Phase 7 | Pending |
-| ADMN-02 | Phase 7 | Pending |
-| ADMN-03 | Phase 7 | Pending |
+| ADMN-01 | Phase 7 | Complete |
+| ADMN-02 | Phase 7 | Complete |
+| ADMN-03 | Phase 7 | Complete |
 | ADMN-04 | Phase 8 | Pending |
 
 **Coverage:**
@@ -104,4 +104,4 @@
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-25 after Phase 6 completion*
+*Last updated: 2026-02-25 after Phase 7 completion*

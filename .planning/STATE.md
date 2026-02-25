@@ -101,6 +101,7 @@ Recent decisions affecting current work:
 - [07-02]: Added list_contents with optional status filter and count for paginated list endpoint
 - [07-03]: Sync graph tests use _ALL_STUBS dict override (real admin_gate/publish are async)
 - [07-03]: Integration tests use custom stubs producing minimal state for admin_gate
+- [07-fix]: thread_id added to EditorialPipelineState; API trigger passes it, admin_gate reads from state
 
 ### Pending Todos
 

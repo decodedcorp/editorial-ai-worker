@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Editorial Agent - Generation + Layout** - 에디토리얼 초안 생성 및 Magazine Layout JSON 구조화 출력
 - [x] **Phase 5: Editorial Agent - DB Tools** - 셀럽/인플루언서 및 상품/브랜드 검색 Tool 스킬
 - [x] **Phase 6: Review Agent + Feedback Loop** - LLM-as-a-Judge 품질 평가 및 반려 피드백 루프
-- [ ] **Phase 7: Admin Backend + HITL** - 콘텐츠 저장, 승인/반려 API, Human-in-the-loop interrupt 패턴
+- [x] **Phase 7: Admin Backend + HITL** - 콘텐츠 저장, 승인/반려 API, Human-in-the-loop interrupt 패턴
 - [ ] **Phase 8: Admin Dashboard UI** - 콘텐츠 프리뷰 + 승인/반려 프론트엔드
 
 ## Phase Details
@@ -130,9 +130,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — Content service + admin_gate node (interrupt pattern, content snapshot to Supabase) + publish node
-- [ ] 07-02-PLAN.md — FastAPI admin API (app scaffold, content list/detail, approve/reject, pipeline trigger endpoints)
-- [ ] 07-03-PLAN.md — Graph wiring + interrupt/resume integration tests (replace stubs, end-to-end flow)
+- [x] 07-01-PLAN.md — Content service + admin_gate node (interrupt pattern, content snapshot to Supabase) + publish node
+- [x] 07-02-PLAN.md — FastAPI admin API (app scaffold, content list/detail, approve/reject, pipeline trigger endpoints)
+- [x] 07-03-PLAN.md — Graph wiring + interrupt/resume integration tests (replace stubs, end-to-end flow)
 
 ### Phase 8: Admin Dashboard UI
 **Goal**: 관리자가 웹 브라우저에서 콘텐츠를 프리뷰하고 승인/반려할 수 있는 대시보드가 동작하는 상태
@@ -163,5 +163,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 4. Editorial Agent - Generation + Layout | 3/3 | Complete | 2026-02-25 |
 | 5. Editorial Agent - DB Tools | 3/3 | Complete | 2026-02-25 |
 | 6. Review Agent + Feedback Loop | 3/3 | Complete | 2026-02-25 |
-| 7. Admin Backend + HITL | 0/3 | Not started | - |
+| 7. Admin Backend + HITL | 3/3 | Complete | 2026-02-25 |
 | 8. Admin Dashboard UI | 0/3 | Not started | - |
