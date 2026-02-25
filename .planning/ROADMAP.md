@@ -48,11 +48,11 @@ Plans:
   2. 서비스 레이어 함수들이 단위 테스트로 검증되어 있다
   3. `AsyncPostgresSaver` 체크포인터가 설정되어 그래프 실행 중단/재개 시 상태가 복원된다
   4. 체크포인터가 lean state 원칙을 따라 ID/참조만 저장하고 전체 페이로드는 Supabase에 저장된다
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: Supabase service layer (celeb, product, post CRUD + connection config)
-- [ ] 02-02: Postgres checkpointer setup (AsyncPostgresSaver, lean state validation)
+- [ ] 02-01-PLAN.md — Supabase service layer (config extension, client factory, Pydantic models, service functions, unit tests)
+- [ ] 02-02-PLAN.md — Postgres checkpointer setup (AsyncPostgresSaver factory, build_graph checkpointer param, MemorySaver tests, lean state validation)
 
 ### Phase 3: Curation Agent
 **Goal**: 트리거 시 Perplexity API에서 패션 트렌드 키워드를 수집하여 파이프라인 상태로 전달하는 에이전트가 동작하는 상태
