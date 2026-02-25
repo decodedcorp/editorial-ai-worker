@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** 키워드 하나로 셀럽/상품/레퍼런스가 조합된 에디토리얼 콘텐츠가 자동 생성되고, 검수 루프를 거쳐 관리자가 승인하면 발행
-**Current focus:** Phase 5 in progress - Editorial Agent DB Tools
+**Current focus:** Phase 5 complete - Editorial Agent DB Tools. Ready for Phase 6.
 
 ## Current Position
 
 Phase: 5 of 8 (Editorial Agent - DB Tools)
-Plan: 2 of 3 in phase 5
-Status: In progress
-Last activity: 2026-02-25 — Completed 05-02-PLAN.md
+Plan: 3 of 3 in phase 5
+Status: Phase complete
+Last activity: 2026-02-25 — Completed 05-03-PLAN.md
 
-Progress: [███████████░░░░░░░░░░░] 12/22 (55%)
+Progress: [██████████████░░░░░░░░] 13/22 (59%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 12
-- Average duration: ~2.8m
-- Total execution time: ~0.56 hours
+- Total plans completed: 13
+- Average duration: ~2.7m
+- Total execution time: ~0.59 hours
 
 **By Phase:**
 
@@ -31,10 +31,10 @@ Progress: [███████████░░░░░░░░░░░] 1
 | 2 | 2/2 | ~6m | ~3m |
 | 3 | 2/2 | ~7m | ~3.5m |
 | 4 | 3/3 | ~8m | ~2.7m |
-| 5 | 2/3 | ~4m | ~2m |
+| 5 | 3/3 | ~6m | ~2m |
 
 **Recent Trend:**
-- Last 5 plans: 2m, 4m, 2m, 2m, 2m
+- Last 5 plans: 4m, 2m, 2m, 2m, 2m
 - Trend: stable
 
 *Updated after each plan completion*
@@ -76,6 +76,7 @@ Recent decisions affecting current work:
 - [04-03]: current_draft as dict|None in state (full layout JSON deferred to Supabase in Phase 7)
 - [04-03]: Trend context built from all topic backgrounds + keywords, concatenated
 - [04-03]: Primary keyword from first curated topic, fallback to curation_input seed
+- [05-03]: Enrich node is transparent -- does not change pipeline_status (only modifies current_draft)
 
 ### Pending Todos
 
@@ -89,5 +90,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 05-02-PLAN.md (Enrich Service Orchestration)
+Stopped at: Completed 05-03-PLAN.md (Enrich Node + Graph Wiring) — Phase 5 complete
 Resume file: None
