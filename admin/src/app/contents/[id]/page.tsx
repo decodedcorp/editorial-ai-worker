@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 
 import { apiGet } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import { ContentStatusBadge } from "@/components/content-status-badge";
 import { BlockRenderer } from "@/components/block-renderer";
 import { JsonPanel } from "@/components/json-panel";
+import { ActionBar } from "./actions";
 import type { ContentItem } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -47,21 +47,15 @@ export default async function ContentDetailPage({ params }: ContentDetailPagePro
 
   return (
     <div className="space-y-8">
+      {/* Action Bar */}
+      <ActionBar contentId={content.id} initialStatus={content.status} />
+
       {/* Header */}
       <div>
-        <Link
-          href="/contents"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" />
-          Back to list
-        </Link>
-
-        <div className="mt-4 flex flex-wrap items-start gap-3">
+        <div className="flex flex-wrap items-start gap-3">
           <h1 className="text-2xl font-bold tracking-tight">
             {content.title}
           </h1>
-          <ContentStatusBadge status={content.status} />
         </div>
 
         <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
