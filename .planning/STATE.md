@@ -9,28 +9,29 @@ See: .planning/PROJECT.md (updated 2026-02-20)
 
 ## Current Position
 
-Phase: 1 of 8 (Graph Skeleton + LLM Integration) - COMPLETE
-Plan: 3 of 3 in phase 1 — Phase complete
-Status: Phase 1 complete, ready for Phase 2
-Last activity: 2026-02-25 — Completed 01-03-PLAN.md
+Phase: 2 of 8 (Data Layer)
+Plan: 1 of 2 in phase 2 — In progress
+Status: 02-01 complete, 02-02 remaining
+Last activity: 2026-02-25 — Completed 02-01-PLAN.md
 
-Progress: [███░░░░░░░░░░░░░░░░░░░] 3/22 (14%)
+Progress: [████░░░░░░░░░░░░░░░░░░] 4/22 (18%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: ~3m
-- Total execution time: ~0.15 hours
+- Total plans completed: 4
+- Average duration: ~3.5m
+- Total execution time: ~0.23 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 | 3/3 | ~9m | ~3m |
+| 2 | 1/2 | ~4m | ~4m |
 
 **Recent Trend:**
-- Last 5 plans: 3m, 3m, 2m
+- Last 5 plans: 3m, 3m, 2m, 4m
 - Trend: stable
 
 *Updated after each plan completion*
@@ -51,19 +52,22 @@ Recent decisions affecting current work:
 - [01-02]: Lean state principle - IDs/references only, Annotated reducers for accumulative lists only
 - [01-03]: Settings-based backend switching: GOOGLE_API_KEY → Developer API, GOOGLE_GENAI_USE_VERTEXAI=true → Vertex AI
 - [01-03]: Factory function pattern for per-node LLM customization (model, temperature)
+- [02-01]: Pydantic models created with domain-reasonable defaults (schema discovery deferred — no Supabase credentials)
+- [02-01]: MagicMock for sync client methods, AsyncMock for execute() in service tests
 
 ### Pending Todos
 
-- None blocking — Phase 1 fully complete
-- Phase 2 can begin: Supabase service layer + Postgres checkpointer
+- Verify Pydantic model schemas against live Supabase tables when credentials are configured
+- Phase 2 Plan 02: Postgres checkpointer integration
 
 ### Blockers/Concerns
 
 - Magazine Layout JSON schema contract with decoded-editorial frontend is undefined (must resolve in Phase 4)
-- Supabase celeb/products 테이블 실제 스키마 확인 필요 (Phase 2에서 확인)
+- Supabase celeb/products 테이블 실제 스키마 확인 필요 (credentials not yet in .env.local)
+- USER-SETUP required: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DATABASE_URL (see .planning/phases/02-data-layer/02-USER-SETUP.md)
 
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 01-03-PLAN.md (Phase 1 complete)
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None
