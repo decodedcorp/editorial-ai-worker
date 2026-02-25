@@ -79,10 +79,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | Phase 1 | Pending |
-| FOUND-02 | Phase 1 | Pending |
-| FOUND-03 | Phase 2 | Pending |
-| FOUND-04 | Phase 2 | Pending |
+| FOUND-01 | Phase 1 | Complete |
+| FOUND-02 | Phase 1 | Complete |
+| FOUND-03 | Phase 2 | Complete |
+| FOUND-04 | Phase 2 | Complete |
 | CURE-01 | Phase 3 | Pending |
 | CURE-02 | Phase 3 | Pending |
 | EDIT-01 | Phase 4 | Pending |

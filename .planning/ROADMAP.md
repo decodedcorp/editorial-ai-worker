@@ -13,7 +13,7 @@
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Graph Skeleton + LLM Integration** - LangGraph StateGraph 스켈레톤과 Vertex AI(Gemini) 연동
-- [ ] **Phase 2: Data Layer** - Supabase 서비스 레이어와 Postgres 체크포인터 구축
+- [x] **Phase 2: Data Layer** - Supabase 서비스 레이어와 Postgres 체크포인터 구축
 - [ ] **Phase 3: Curation Agent** - Perplexity API 기반 트렌드 키워드 수집 에이전트
 - [ ] **Phase 4: Editorial Agent - Generation + Layout** - 에디토리얼 초안 생성 및 Magazine Layout JSON 구조화 출력
 - [ ] **Phase 5: Editorial Agent - DB Tools** - 셀럽/인플루언서 및 상품/브랜드 검색 Tool 스킬
@@ -51,8 +51,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Supabase service layer (config extension, client factory, Pydantic models, service functions, unit tests)
-- [ ] 02-02-PLAN.md — Postgres checkpointer setup (AsyncPostgresSaver factory, build_graph checkpointer param, MemorySaver tests, lean state validation)
+- [x] 02-01-PLAN.md — Supabase service layer (config extension, client factory, Pydantic models, service functions, unit tests)
+- [x] 02-02-PLAN.md — Postgres checkpointer setup (AsyncPostgresSaver factory, build_graph checkpointer param, MemorySaver tests, lean state validation)
 
 ### Phase 3: Curation Agent
 **Goal**: 트리거 시 Perplexity API에서 패션 트렌드 키워드를 수집하여 파이프라인 상태로 전달하는 에이전트가 동작하는 상태
@@ -158,7 +158,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Graph Skeleton + LLM Integration | 3/3 | Complete | 2026-02-25 |
-| 2. Data Layer | 0/2 | Not started | - |
+| 2. Data Layer | 2/2 | Complete | 2026-02-25 |
 | 3. Curation Agent | 0/2 | Not started | - |
 | 4. Editorial Agent - Generation + Layout | 0/3 | Not started | - |
 | 5. Editorial Agent - DB Tools | 0/3 | Not started | - |
