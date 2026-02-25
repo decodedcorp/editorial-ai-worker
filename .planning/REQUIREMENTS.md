@@ -129,31 +129,31 @@
 | ADMN-02 | Phase 7 | Complete |
 | ADMN-03 | Phase 7 | Complete |
 | ADMN-04 | Phase 8 | Complete |
-| E2E-01 | TBD | Pending |
-| E2E-02 | TBD | Pending |
-| E2E-03 | TBD | Pending |
-| E2E-04 | TBD | Pending |
-| E2E-05 | TBD | Pending |
-| OBS-01 | TBD | Pending |
-| OBS-02 | TBD | Pending |
-| OBS-03 | TBD | Pending |
-| OBS-04 | TBD | Pending |
-| OBS-05 | TBD | Pending |
-| OBS-06 | TBD | Pending |
-| MAG-01 | TBD | Pending |
-| MAG-02 | TBD | Pending |
-| MAG-03 | TBD | Pending |
-| MAG-04 | TBD | Pending |
-| ADV-01 | TBD | Pending |
-| ADV-02 | TBD | Pending |
-| ADV-03 | TBD | Pending |
+| E2E-01 | Phase 9 | Pending |
+| E2E-02 | Phase 9 | Pending |
+| E2E-03 | Phase 9 | Pending |
+| E2E-04 | Phase 9 | Pending |
+| E2E-05 | Phase 9 | Pending |
+| OBS-01 | Phase 10 | Pending |
+| OBS-02 | Phase 10 | Pending |
+| OBS-03 | Phase 10 | Pending |
+| OBS-04 | Phase 12 | Pending |
+| OBS-05 | Phase 12 | Pending |
+| OBS-06 | Phase 12 | Pending |
+| MAG-01 | Phase 11 | Pending |
+| MAG-02 | Phase 11 | Pending |
+| MAG-03 | Phase 11 | Pending |
+| MAG-04 | Phase 11 | Pending |
+| ADV-01 | Phase 13 | Pending |
+| ADV-02 | Phase 13 | Pending |
+| ADV-03 | Phase 13 | Pending |
 
 **Coverage:**
 - v1.0 requirements: 17 total (all complete)
 - v1.1 requirements: 18 total
-- Mapped to phases: 0 (awaiting roadmap)
-- Unmapped: 18
+- Mapped to phases: 18/18
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-26 after v1.1 milestone requirements*
+*Last updated: 2026-02-26 after v1.1 roadmap creation*
