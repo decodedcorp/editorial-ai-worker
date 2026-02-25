@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** 키워드 하나로 셀럽/상품/레퍼런스가 조합된 에디토리얼 콘텐츠가 자동 생성되고, 검수 루프를 거쳐 관리자가 승인하면 발행
-**Current focus:** Phase 6 in progress -- Review Agent Feedback Loop.
+**Current focus:** Phase 6 in progress -- Review Agent Feedback Loop. Plan 06-02 complete, 06-03 next.
 
 ## Current Position
 
 Phase: 6 of 8 (Review Agent - Feedback Loop)
-Plan: 1 of 3 in phase 6
+Plan: 2 of 3 in phase 6
 Status: In progress
-Last activity: 2026-02-25 — Completed 06-01-PLAN.md
+Last activity: 2026-02-25 — Completed 06-02-PLAN.md
 
-Progress: [██████████████░░░░░░░░] 14/22 (64%)
+Progress: [███████████████░░░░░░░] 15/22 (68%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: ~2.6m
-- Total execution time: ~0.63 hours
+- Total plans completed: 15
+- Average duration: ~2.5m
+- Total execution time: ~0.65 hours
 
 **By Phase:**
 
@@ -32,7 +32,7 @@ Progress: [██████████████░░░░░░░░] 1
 | 3 | 2/2 | ~7m | ~3.5m |
 | 4 | 3/3 | ~8m | ~2.7m |
 | 5 | 3/3 | ~6m | ~2m |
-| 6 | 1/3 | ~2m | ~2m |
+| 6 | 2/3 | ~4m | ~2m |
 
 **Recent Trend:**
 - Last 5 plans: 2m, 2m, 2m, 2m, 2m
@@ -82,6 +82,10 @@ Recent decisions affecting current work:
 - [06-01]: LLM evaluates 3 criteria only (hallucination, fact_accuracy, content_completeness); format handled by Pydantic
 - [06-01]: Overall pass requires ALL criteria to pass; any failure = overall fail
 - [06-01]: Temperature 0.0 for LLM evaluation for deterministic scoring
+- [06-02]: Feedback prepended BEFORE main prompt for maximum LLM attention
+- [06-02]: Only failed criteria in feedback (passed criteria are noise)
+- [06-02]: Previous draft summarized by title only to avoid reproducing same mistakes
+- [06-02]: Keyword-only optional params for backward-compatible feedback API extension
 
 ### Pending Todos
 
@@ -95,5 +99,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 06-01-PLAN.md (Review Models, Prompt & Service)
+Stopped at: Completed 06-02-PLAN.md (Editorial Feedback Injection)
 Resume file: None
