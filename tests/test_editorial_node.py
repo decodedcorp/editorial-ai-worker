@@ -122,6 +122,54 @@ class TestEditorialNodeServiceError:
         assert result["current_draft"] is None
 
 
+class TestEditorialNodeFeedbackInjection:
+    @patch(_PATCH_CLIENT)
+    @patch(_PATCH_SERVICE)
+    async def test_editorial_node_passes_feedback_to_service(
+        self, mock_service_cls: MagicMock, mock_client_fn: MagicMock
+    ) -> None:
+        """When feedback_history is present, node passes it to create_editorial."""
+        mock_instance = MagicMock()
+        mock_instance.create_editorial = AsyncMock(return_value=_sample_layout())
+        mock_service_cls.return_value = mock_instance
+
+        feedback = [
+            {
+                "criteria": [
+                    {"criterion": "hallucination", "passed": False, "reason": "unverified claim"},
+                ],
+                "suggestions": ["Remove unverified claims"],
+            }
+        ]
+        draft = {"title": "Old Draft Title", "keyword": "Y2K", "blocks": []}
+
+        result = await editorial_node(
+            _base_state(feedback_history=feedback, current_draft=draft)
+        )
+
+        assert result["pipeline_status"] == "reviewing"
+        call_kwargs = mock_instance.create_editorial.call_args
+        assert call_kwargs.kwargs["feedback_history"] == feedback
+        assert call_kwargs.kwargs["previous_draft"] == draft
+
+    @patch(_PATCH_CLIENT)
+    @patch(_PATCH_SERVICE)
+    async def test_editorial_node_no_feedback_first_run(
+        self, mock_service_cls: MagicMock, mock_client_fn: MagicMock
+    ) -> None:
+        """First run (empty feedback_history) passes feedback_history=None."""
+        mock_instance = MagicMock()
+        mock_instance.create_editorial = AsyncMock(return_value=_sample_layout())
+        mock_service_cls.return_value = mock_instance
+
+        result = await editorial_node(_base_state(feedback_history=[]))
+
+        assert result["pipeline_status"] == "reviewing"
+        call_kwargs = mock_instance.create_editorial.call_args
+        assert call_kwargs.kwargs["feedback_history"] is None
+        assert call_kwargs.kwargs["previous_draft"] is None
+
+
 class TestEditorialNodeTrendContext:
     @patch(_PATCH_CLIENT)
     @patch(_PATCH_SERVICE)

@@ -55,9 +55,18 @@ async def editorial_node(state: EditorialPipelineState) -> dict:
         curation_input = state.get("curation_input") or {}
         primary_keyword = curation_input.get("keyword", "editorial")
 
+    # Read feedback for retry iterations
+    feedback_history = state.get("feedback_history") or []
+    previous_draft = state.get("current_draft") if feedback_history else None
+
     try:
         service = EditorialService(get_genai_client())
-        layout = await service.create_editorial(primary_keyword, trend_context)
+        layout = await service.create_editorial(
+            primary_keyword,
+            trend_context,
+            feedback_history=feedback_history if feedback_history else None,
+            previous_draft=previous_draft,
+        )
         return {
             "current_draft": layout.model_dump(),
             "pipeline_status": "reviewing",
