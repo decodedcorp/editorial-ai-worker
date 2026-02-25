@@ -14,9 +14,10 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
+from editorial_ai.nodes.curation import curation_node
 from editorial_ai.nodes.stubs import (
     stub_admin_gate,
-    stub_curation,
+    stub_curation,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_editorial,
     stub_publish,
     stub_review,
@@ -62,7 +63,7 @@ def build_graph(
         Compiled StateGraph ready for invocation.
     """
     nodes: dict[str, Callable[..., Any]] = {
-        "curation": stub_curation,
+        "curation": curation_node,
         "source": stub_source,
         "editorial": stub_editorial,
         "review": stub_review,
