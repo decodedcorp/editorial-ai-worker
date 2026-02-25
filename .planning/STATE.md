@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** 키워드 하나로 셀럽/상품/레퍼런스가 조합된 에디토리얼 콘텐츠가 자동 생성되고, 검수 루프를 거쳐 관리자가 승인하면 발행
-**Current focus:** Phase 2 complete, ready for Phase 3
+**Current focus:** Phase 3 in progress — Curation Agent
 
 ## Current Position
 
-Phase: 2 of 8 (Data Layer) - COMPLETE
-Plan: 2 of 2 in phase 2 — Phase complete
-Status: Phase 2 complete, ready for Phase 3
-Last activity: 2026-02-25 — Phase 2 verified and complete
+Phase: 3 of 8 (Curation Agent) - In progress
+Plan: 1 of 2 in phase 3 — Plan 03-01 complete
+Status: In progress
+Last activity: 2026-02-25 — Completed 03-01-PLAN.md
 
-Progress: [█████░░░░░░░░░░░░░░░░░] 5/22 (23%)
+Progress: [██████░░░░░░░░░░░░░░░░] 6/22 (27%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: ~3.2m
-- Total execution time: ~0.27 hours
+- Total plans completed: 6
+- Average duration: ~3.5m
+- Total execution time: ~0.35 hours
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [█████░░░░░░░░░░░░░░░░░] 5
 |-------|-------|-------|----------|
 | 1 | 3/3 | ~9m | ~3m |
 | 2 | 2/2 | ~6m | ~3m |
+| 3 | 1/2 | ~5m | ~5m |
 
 **Recent Trend:**
-- Last 5 plans: 3m, 3m, 2m, 4m, 2m
-- Trend: stable/improving
+- Last 5 plans: 3m, 2m, 4m, 2m, 5m
+- Trend: stable
 
 *Updated after each plan completion*
 
@@ -56,6 +57,10 @@ Recent decisions affecting current work:
 - [02-01]: MagicMock for sync client methods, AsyncMock for execute() in service tests
 - [02-02]: create_checkpointer() returns async context manager; caller manages lifecycle
 - [02-02]: Lean state validated at <10KB threshold via MemorySaver test
+- [03-01]: Native google-genai SDK (not langchain-google-genai) for grounding metadata access
+- [03-01]: Two-step Gemini pattern: grounded search -> structured JSON extraction (cannot combine)
+- [03-01]: Sequential sub-topic processing to avoid rate limits
+- [03-01]: Relevance threshold 0.6 (configurable) for topic filtering
 
 ### Pending Todos
 
@@ -70,5 +75,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 02-02-PLAN.md (Phase 2 complete)
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
