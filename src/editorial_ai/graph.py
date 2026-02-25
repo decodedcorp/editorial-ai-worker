@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
+from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
@@ -47,12 +48,15 @@ def route_after_admin(state: EditorialPipelineState) -> str:
 def build_graph(
     *,
     node_overrides: dict[str, Callable[..., Any]] | None = None,
+    checkpointer: BaseCheckpointSaver | None = None,
 ) -> CompiledStateGraph:
     """Build and compile the editorial pipeline graph.
 
     Args:
         node_overrides: Optional dict mapping node names to replacement functions.
             Useful for testing with mock nodes.
+        checkpointer: Optional checkpoint saver for state persistence.
+            When provided, graph state is saved after each node execution.
 
     Returns:
         Compiled StateGraph ready for invocation.
@@ -90,7 +94,7 @@ def build_graph(
     # Terminal edge
     builder.add_edge("publish", END)
 
-    return builder.compile()
+    return builder.compile(checkpointer=checkpointer)
 
 
 # Default compiled graph for production use
