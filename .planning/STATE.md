@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** 키워드 하나로 셀럽/상품/레퍼런스가 조합된 에디토리얼 콘텐츠가 자동 생성되고, 검수 루프를 거쳐 관리자가 승인하면 발행
-**Current focus:** Phase 3 complete, ready for Phase 4
+**Current focus:** Phase 4 in progress — Editorial Agent Generation + Layout
 
 ## Current Position
 
-Phase: 3 of 8 (Curation Agent) - COMPLETE
-Plan: 2 of 2 in phase 3 — Phase complete
-Status: Phase 3 complete, ready for Phase 4
-Last activity: 2026-02-25 — Phase 3 verified and complete
+Phase: 4 of 8 (Editorial Agent - Generation + Layout)
+Plan: 1 of 4 in phase 4 — Complete
+Status: In progress
+Last activity: 2026-02-25 — Completed 04-01-PLAN.md
 
-Progress: [███████░░░░░░░░░░░░░░░] 7/22 (32%)
+Progress: [████████░░░░░░░░░░░░░░] 8/22 (36%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: ~3.3m
-- Total execution time: ~0.38 hours
+- Total plans completed: 8
+- Average duration: ~3.1m
+- Total execution time: ~0.41 hours
 
 **By Phase:**
 
@@ -30,9 +30,10 @@ Progress: [███████░░░░░░░░░░░░░░░] 7
 | 1 | 3/3 | ~9m | ~3m |
 | 2 | 2/2 | ~6m | ~3m |
 | 3 | 2/2 | ~7m | ~3.5m |
+| 4 | 1/4 | ~2m | ~2m |
 
 **Recent Trend:**
-- Last 5 plans: 2m, 4m, 2m, 5m, 2m
+- Last 5 plans: 4m, 2m, 5m, 2m, 2m
 - Trend: stable
 
 *Updated after each plan completion*
@@ -63,6 +64,10 @@ Recent decisions affecting current work:
 - [03-01]: Relevance threshold 0.6 (configurable) for topic filtering
 - [03-02]: Real async curation_node as default in build_graph; stub kept for backward compat
 - [03-02]: Sync graph tests use stub_curation override rather than converting to async
+- [04-01]: Block-based schema with 10 types and discriminated union for MagazineLayout
+- [04-01]: Separate EditorialContent (Gemini output) from MagazineLayout (renderer contract)
+- [04-01]: list[KeyValuePair] instead of dict[str, str] for Gemini compatibility
+- [04-01]: CreditEntry shared between layout and editorial models
 
 ### Pending Todos
 
@@ -70,12 +75,11 @@ Recent decisions affecting current work:
 
 ### Blockers/Concerns
 
-- Magazine Layout JSON schema contract with decoded-editorial frontend is undefined (must resolve in Phase 4)
 - Supabase celeb/products 테이블 실제 스키마 확인 필요 (credentials not yet in .env.local)
 - USER-SETUP required: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DATABASE_URL (see .planning/phases/02-data-layer/02-USER-SETUP.md)
 
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 03-02-PLAN.md (Phase 3 complete)
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
