@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from editorial_ai.services.content_service import (
     get_content_by_id,
     get_content_by_thread_id,
-    list_contents_by_status,
+    list_contents,
     save_pending_content,
     update_content_status,
 )
@@ -47,6 +47,7 @@ def _build_mock_client(response_data: dict | list | None) -> MagicMock:
     builder.eq.return_value = builder
     builder.limit.return_value = builder
     builder.order.return_value = builder
+    builder.range.return_value = builder
     builder.maybe_single.return_value = builder
     builder.upsert.return_value = builder
     builder.update.return_value = builder
@@ -148,18 +149,18 @@ async def test_update_content_status_published_sets_published_at(
 
 
 # ---------------------------------------------------------------------------
-# list_contents_by_status
+# list_contents
 # ---------------------------------------------------------------------------
 
 
 @patch("editorial_ai.services.content_service.get_supabase_client")
-async def test_list_contents_by_status_passes_filter(
+async def test_list_contents_with_status_filter(
     mock_get_client: AsyncMock,
 ) -> None:
     mock_client = _build_mock_client([SAMPLE_CONTENT])
     mock_get_client.return_value = mock_client
 
-    results = await list_contents_by_status("pending")
+    results = await list_contents(status="pending")
 
     builder = mock_client.table.return_value
     builder.eq.assert_called_with("status", "pending")
