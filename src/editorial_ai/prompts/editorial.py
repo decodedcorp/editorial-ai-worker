@@ -1,10 +1,11 @@
 """Prompt templates for the editorial content generation pipeline.
 
-Four prompt builders for the 3-step editorial pipeline:
+Five prompt builders for the 3-step editorial pipeline:
 1. build_content_generation_prompt — Gemini structured output for editorial content
-2. build_layout_image_prompt — Nano Banana image generation for layout design
-3. build_layout_parsing_prompt — Vision AI to parse layout image into block JSON
-4. build_output_repair_prompt — Fix malformed JSON using Gemini
+2. build_content_generation_prompt_with_feedback — Feedback-aware variant for retry iterations
+3. build_layout_image_prompt — Nano Banana image generation for layout design
+4. build_layout_parsing_prompt — Vision AI to parse layout image into block JSON
+5. build_output_repair_prompt — Fix malformed JSON using Gemini
 """
 
 
@@ -40,6 +41,41 @@ def build_content_generation_prompt(keyword: str, trend_context: str) -> str:
 언어: 한국어 (영어 고유명사는 영어 그대로 사용 가능)
 
 반드시 유효한 JSON만 출력하세요. 마크다운 코드 펜스나 추가 설명을 포함하지 마세요."""
+
+
+def build_content_generation_prompt_with_feedback(
+    keyword: str,
+    trend_context: str,
+    feedback_history: list[dict],
+    previous_draft: dict | None = None,
+) -> str:
+    """Build editorial prompt with injected review feedback for retry iterations.
+
+    Feedback is placed BEFORE the main generation instructions so the LLM
+    prioritizes addressing prior failures.
+    """
+    feedback_section = "--- 이전 검수 피드백 (반드시 반영하세요) ---\n\n"
+
+    for i, feedback in enumerate(feedback_history, 1):
+        feedback_section += f"[시도 {i}]\n"
+        for criterion in feedback.get("criteria", []):
+            if not criterion.get("passed"):
+                feedback_section += (
+                    f"- {criterion['criterion']}: {criterion['reason']}\n"
+                )
+        suggestions = feedback.get("suggestions", [])
+        if suggestions:
+            feedback_section += f"개선 제안: {', '.join(suggestions)}\n"
+        feedback_section += "\n"
+
+    if previous_draft:
+        prev_title = previous_draft.get("title", "N/A")
+        feedback_section += f"이전 초안 제목: {prev_title}\n"
+        feedback_section += "위 피드백을 반영하여 완전히 새로운 초안을 작성하세요.\n\n"
+
+    # Feedback BEFORE main prompt for maximum LLM attention
+    base_prompt = build_content_generation_prompt(keyword, trend_context)
+    return feedback_section + base_prompt
 
 
 def build_layout_image_prompt(keyword: str, title: str, num_sections: int) -> str:

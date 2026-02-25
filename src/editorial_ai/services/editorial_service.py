@@ -38,6 +38,7 @@ from editorial_ai.models.layout import (
 )
 from editorial_ai.prompts.editorial import (
     build_content_generation_prompt,
+    build_content_generation_prompt_with_feedback,
     build_layout_image_prompt,
     build_layout_parsing_prompt,
     build_output_repair_prompt,
@@ -100,13 +101,24 @@ class EditorialService:
         self,
         keyword: str,
         trend_context: str,
+        *,
+        feedback_history: list[dict] | None = None,
+        previous_draft: dict | None = None,
     ) -> EditorialContent:
         """Step 1: Generate editorial content via Gemini structured output.
 
         Returns an EditorialContent model with title, body, quotes, etc.
         On parse failure, attempts markdown fence stripping then repair loop.
+
+        When feedback_history is provided (retry iteration), uses feedback-aware
+        prompt that prepends review failures before generation instructions.
         """
-        prompt = build_content_generation_prompt(keyword, trend_context)
+        if feedback_history:
+            prompt = build_content_generation_prompt_with_feedback(
+                keyword, trend_context, feedback_history, previous_draft
+            )
+        else:
+            prompt = build_content_generation_prompt(keyword, trend_context)
 
         response = await self.client.aio.models.generate_content(
             model=self.content_model,
@@ -359,6 +371,9 @@ class EditorialService:
         self,
         keyword: str,
         trend_context: str,
+        *,
+        feedback_history: list[dict] | None = None,
+        previous_draft: dict | None = None,
     ) -> MagazineLayout:
         """Full pipeline entry point for editorial generation.
 
@@ -369,9 +384,17 @@ class EditorialService:
         d. If layout image AND parsing succeed: build layout from parsed blocks
         e. Merge content into layout
         f. Return final MagazineLayout
+
+        When feedback_history is provided (retry iteration), passes it through
+        to generate_content for feedback-aware prompt construction.
         """
         # Step 1: Generate editorial content
-        content = await self.generate_content(keyword, trend_context)
+        content = await self.generate_content(
+            keyword,
+            trend_context,
+            feedback_history=feedback_history,
+            previous_draft=previous_draft,
+        )
 
         # Step 2 + 3: Try Nano Banana + Vision pipeline
         layout: MagazineLayout | None = None
