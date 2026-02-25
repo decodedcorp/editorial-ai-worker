@@ -157,3 +157,28 @@ export interface ApproveRequest {
 export interface RejectRequest {
   reason: string;
 }
+
+// ---------------------------------------------------------------------------
+// Pipeline trigger types
+// ---------------------------------------------------------------------------
+
+export interface TriggerRequest {
+  seed_keyword: string;
+  category?: string;
+  tone?: string;
+  style?: string;
+  target_celeb?: string;
+  target_brand?: string;
+}
+
+export interface TriggerResponse {
+  thread_id: string;
+  message: string;
+}
+
+export interface PipelineStatus {
+  thread_id: string;
+  pipeline_status: string;
+  error_log: string[];
+  has_draft: boolean;
+}

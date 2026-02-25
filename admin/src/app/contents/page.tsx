@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ContentTable } from "@/components/content-table";
+import { NewContentModal } from "@/components/new-content-modal";
 import { apiGet } from "@/lib/api";
 import type { ContentListResponse } from "@/lib/types";
 
@@ -29,11 +30,14 @@ export default async function ContentsPage({ searchParams }: ContentsPageProps) 
 
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Contents</h1>
-          <p className="text-muted-foreground">
-            Browse and manage editorial content
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Contents</h1>
+            <p className="text-muted-foreground">
+              Browse and manage editorial content
+            </p>
+          </div>
+          <NewContentModal />
         </div>
         <ContentTable
           items={data.items}
