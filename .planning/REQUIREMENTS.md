@@ -26,9 +26,9 @@
 
 ### Review
 
-- [ ] **REVW-01**: LLM-as-a-Judge 기반 품질 평가 (할루시네이션, 포맷, 팩트)
-- [ ] **REVW-02**: 실패 시 구조화된 피드백과 함께 Editorial Agent로 반려
-- [ ] **REVW-03**: 최대 3회 재시도 제한, 초과 시 에스컬레이션
+- [x] **REVW-01**: LLM-as-a-Judge 기반 품질 평가 (할루시네이션, 포맷, 팩트)
+- [x] **REVW-02**: 실패 시 구조화된 피드백과 함께 Editorial Agent로 반려
+- [x] **REVW-03**: 최대 3회 재시도 제한, 초과 시 에스컬레이션
 
 ### Admin
 
@@ -89,9 +89,9 @@
 | EDIT-02 | Phase 5 | Complete |
 | EDIT-03 | Phase 5 | Complete |
 | EDIT-04 | Phase 4 | Complete |
-| REVW-01 | Phase 6 | Pending |
-| REVW-02 | Phase 6 | Pending |
-| REVW-03 | Phase 6 | Pending |
+| REVW-01 | Phase 6 | Complete |
+| REVW-02 | Phase 6 | Complete |
+| REVW-03 | Phase 6 | Complete |
 | ADMN-01 | Phase 7 | Pending |
 | ADMN-02 | Phase 7 | Pending |
 | ADMN-03 | Phase 7 | Pending |
@@ -104,4 +104,4 @@
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-25 after Phase 5 completion*
+*Last updated: 2026-02-25 after Phase 6 completion*

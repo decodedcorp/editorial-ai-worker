@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Curation Agent** - Gemini + Google Search Grounding 기반 트렌드 키워드 수집 에이전트
 - [x] **Phase 4: Editorial Agent - Generation + Layout** - 에디토리얼 초안 생성 및 Magazine Layout JSON 구조화 출력
 - [x] **Phase 5: Editorial Agent - DB Tools** - 셀럽/인플루언서 및 상품/브랜드 검색 Tool 스킬
-- [ ] **Phase 6: Review Agent + Feedback Loop** - LLM-as-a-Judge 품질 평가 및 반려 피드백 루프
+- [x] **Phase 6: Review Agent + Feedback Loop** - LLM-as-a-Judge 품질 평가 및 반려 피드백 루프
 - [ ] **Phase 7: Admin Backend + HITL** - 콘텐츠 저장, 승인/반려 API, Human-in-the-loop interrupt 패턴
 - [ ] **Phase 8: Admin Dashboard UI** - 콘텐츠 프리뷰 + 승인/반려 프론트엔드
 
@@ -110,12 +110,12 @@ Plans:
   3. 재시도 시 이전 피드백이 Editorial Agent에 주입되어 동일한 문제가 반복되지 않는 방향으로 개선된다
   4. 최대 3회 재시도 후에도 실패 시 에스컬레이션 상태로 전환되어 무한 루프가 발생하지 않는다
   5. Review -> Editorial 피드백 루프가 LangGraph conditional edge로 구현되어 그래프 토폴로지에서 확인 가능하다
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: Review agent node (LLM-as-a-Judge prompt, scoring schema, pass/fail routing)
-- [ ] 06-02: Structured feedback schema + Editorial Agent feedback injection
-- [ ] 06-03: Conditional edge wiring (Review -> Editorial loop, retry counter, escalation)
+- [x] 06-01-PLAN.md — Review models, prompt, and service (hybrid Pydantic+LLM evaluation)
+- [x] 06-02-PLAN.md — Structured feedback schema + Editorial Agent feedback injection
+- [x] 06-03-PLAN.md — Review node + graph wiring (review_node replaces stub_review, conditional edge loop)
 
 ### Phase 7: Admin Backend + HITL
 **Goal**: 검수 통과 콘텐츠가 Supabase에 저장되고, 관리자가 API로 승인/반려할 수 있으며, 파이프라인이 승인 대기 중 일시정지되는 상태
@@ -162,6 +162,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 3. Curation Agent | 2/2 | Complete | 2026-02-25 |
 | 4. Editorial Agent - Generation + Layout | 3/3 | Complete | 2026-02-25 |
 | 5. Editorial Agent - DB Tools | 3/3 | Complete | 2026-02-25 |
-| 6. Review Agent + Feedback Loop | 0/3 | Not started | - |
+| 6. Review Agent + Feedback Loop | 3/3 | Complete | 2026-02-25 |
 | 7. Admin Backend + HITL | 0/3 | Not started | - |
 | 8. Admin Dashboard UI | 0/3 | Not started | - |
