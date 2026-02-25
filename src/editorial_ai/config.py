@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     )
     default_model: str = "gemini-2.5-flash"
 
+    # Editorial Agent
+    editorial_model: str = "gemini-2.5-flash"
+    nano_banana_model: str = "gemini-2.5-flash-preview-image-generation"
+    editorial_max_repair_attempts: int = 2
+
     # Supabase (REST API)
     supabase_url: str | None = Field(default=None, alias="SUPABASE_URL")
     supabase_service_role_key: str | None = Field(
