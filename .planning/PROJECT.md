@@ -12,25 +12,30 @@
 
 ### Validated
 
-(None yet — ship to validate)
+<!-- v1.0 Milestone (Phase 1-8) — shipped 2026-02-26 -->
+
+- ✓ LangGraph StateGraph 기반 파이프라인 스켈레톤 (state schema, nodes, edges) — Phase 1
+- ✓ Vertex AI (Gemini 2.5 Flash) 연동 및 LLM 팩토리 — Phase 1
+- ✓ Supabase 서비스 레이어 (셀럽, 상품, 포스트 CRUD) — Phase 2
+- ✓ LangGraph Postgres 체크포인터 (상태 영속화) — Phase 2
+- ✓ Gemini + Google Search Grounding 기반 트렌드 큐레이션 — Phase 3
+- ✓ 에디토리얼 초안 자동 생성 + Magazine Layout JSON 구조화 출력 — Phase 4
+- ✓ Supabase 셀럽/인플루언서 및 상품/브랜드 검색 Tool — Phase 5
+- ✓ LLM-as-a-Judge 품질 평가 + 구조화된 피드백 반려 루프 (max 3회) — Phase 6
+- ✓ Admin Backend + Human-in-the-loop interrupt 패턴 — Phase 7
+- ✓ Admin Dashboard UI (콘텐츠 목록/프리뷰/승인/반려) — Phase 8
 
 ### Active
 
-- [ ] Curation Agent: Perplexity API로 트렌드 키워드 자동 수집
-- [ ] Curation Agent: 키워드 기반 Vector DB 검색으로 관련 과거 포스트 조회
-- [ ] Editorial Agent: 키워드 + 수집 자료 기반 에디토리얼 초안 자동 생성
-- [ ] Editorial Skill: Supabase에서 관련 셀럽/인플루언서 검색
-- [ ] Editorial Skill: Supabase에서 관련 상품/브랜드 검색
-- [ ] Editorial Skill: 외부 레퍼런스(이미지, 아티클) 수집
-- [ ] Editorial Skill: SNS 콘텐츠(인스타, 유튜브) 링크 수집
-- [ ] Editorial Skill: 프론트엔드 렌더링용 Magazine Layout JSON 구조화 출력
-- [ ] Source Agent: Perplexity 기반 심층 출처 탐색 (URL, 팩트 검증)
-- [ ] 검수 Agent: LLM-as-a-Judge 기반 품질 평가 (할루시네이션, 포맷, 팩트 체크)
-- [ ] 검수 Agent: 실패 시 구체적 피드백과 함께 Editorial Agent로 반려 (피드백 루프)
-- [ ] Admin API: 검수 통과 콘텐츠를 Supabase에 pending 상태로 저장
-- [ ] Admin 대시보드: 콘텐츠 프리뷰 + 승인/반려 UI
-- [ ] Human-in-the-loop: 관리자 승인 시 발행 파이프라인 재개
-- [ ] 주간 자동 실행: Cloud Scheduler/Cron 기반 Curation 트리거
+## Current Milestone: v1.1 파이프라인 실행 검증 + 관측성 + 매거진 렌더러
+
+**Goal:** v1.0 파이프라인을 실제 환경에서 실행 검증하고, 노드별 상세 로그를 수집하여 Admin에 표시하며, Layout JSON을 실제 매거진 형태로 렌더링한다.
+
+**Target features:**
+- [ ] E2E 실행 환경 세팅 (환경변수, Supabase 연결, 실제 Gemini 호출)
+- [ ] 파이프라인 관측성 — 각 노드별 상세 로그 (토큰, 시간, 입력 데이터, 프롬프트) 수집 및 저장
+- [ ] Admin 상세 페이지에 파이프라인 실행 로그 표시
+- [ ] Layout JSON → 동적 매거진 렌더러 (다채로운 레이아웃, 코드 컴포넌트 변환)
 
 ### Out of Scope
 
@@ -68,4 +73,4 @@
 | Python 선택 | LangGraph/Vertex AI 생태계가 Python 중심 | — Pending |
 
 ---
-*Last updated: 2026-02-20 after initialization*
+*Last updated: 2026-02-26 after v1.1 milestone start*
