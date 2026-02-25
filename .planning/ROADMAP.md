@@ -127,12 +127,12 @@ Plans:
   3. 승인/반려 API 호출 시 콘텐츠 상태가 변경되고, 승인 시 발행 파이프라인이 재개된다
   4. `interrupt()` 패턴으로 파이프라인이 Admin Gate에서 일시정지되고, `Command(resume=...)` 호출 시 정확히 이어서 실행된다
   5. 서버 재시작 후에도 대기 중인 파이프라인이 Postgres 체크포인터를 통해 복원된다
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 07-01: Admin Gate node (interrupt pattern, content snapshot to Supabase)
-- [ ] 07-02: FastAPI admin API (content list, detail, approve/reject endpoints)
-- [ ] 07-03: Pipeline resume logic (Command resume, publish node, end-to-end flow)
+- [ ] 07-01-PLAN.md — Content service + admin_gate node (interrupt pattern, content snapshot to Supabase) + publish node
+- [ ] 07-02-PLAN.md — FastAPI admin API (app scaffold, content list/detail, approve/reject, pipeline trigger endpoints)
+- [ ] 07-03-PLAN.md — Graph wiring + interrupt/resume integration tests (replace stubs, end-to-end flow)
 
 ### Phase 8: Admin Dashboard UI
 **Goal**: 관리자가 웹 브라우저에서 콘텐츠를 프리뷰하고 승인/반려할 수 있는 대시보드가 동작하는 상태
