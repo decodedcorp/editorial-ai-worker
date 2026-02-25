@@ -92,17 +92,25 @@ async def get_content_by_thread_id(thread_id: str) -> dict | None:
     return response.data
 
 
-async def list_contents_by_status(
-    status: str, *, limit: int = 50, offset: int = 0
+async def list_contents(
+    *, status: str | None = None, limit: int = 50, offset: int = 0
 ) -> list[dict]:
-    """List content entries filtered by status, ordered by created_at desc."""
+    """List content entries, optionally filtered by status, ordered by created_at desc."""
     client = await get_supabase_client()
+    query = client.table("editorial_contents").select("*", count="exact")
+    if status is not None:
+        query = query.eq("status", status)
     response = (
-        await client.table("editorial_contents")
-        .select("*")
-        .eq("status", status)
-        .order("created_at", desc=True)
-        .limit(limit)
-        .execute()
+        await query.order("created_at", desc=True).range(offset, offset + limit - 1).execute()
     )
     return response.data
+
+
+async def list_contents_count(*, status: str | None = None) -> int:
+    """Count content entries, optionally filtered by status."""
+    client = await get_supabase_client()
+    query = client.table("editorial_contents").select("*", count="exact")
+    if status is not None:
+        query = query.eq("status", status)
+    response = await query.limit(0).execute()
+    return response.count or 0
