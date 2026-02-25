@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Graph Skeleton + LLM Integration** - LangGraph StateGraph 스켈레톤과 Vertex AI(Gemini) 연동
 - [x] **Phase 2: Data Layer** - Supabase 서비스 레이어와 Postgres 체크포인터 구축
 - [x] **Phase 3: Curation Agent** - Gemini + Google Search Grounding 기반 트렌드 키워드 수집 에이전트
-- [ ] **Phase 4: Editorial Agent - Generation + Layout** - 에디토리얼 초안 생성 및 Magazine Layout JSON 구조화 출력
+- [x] **Phase 4: Editorial Agent - Generation + Layout** - 에디토리얼 초안 생성 및 Magazine Layout JSON 구조화 출력
 - [ ] **Phase 5: Editorial Agent - DB Tools** - 셀럽/인플루언서 및 상품/브랜드 검색 Tool 스킬
 - [ ] **Phase 6: Review Agent + Feedback Loop** - LLM-as-a-Judge 품질 평가 및 반려 피드백 루프
 - [ ] **Phase 7: Admin Backend + HITL** - 콘텐츠 저장, 승인/반려 API, Human-in-the-loop interrupt 패턴
@@ -80,9 +80,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Magazine Layout JSON Pydantic schema (block types, versioning, editorial content model, default template, tests)
-- [ ] 04-02-PLAN.md — EditorialService (content generation, Nano Banana layout image, Vision AI parsing, output repair loop, template fallback, tests)
-- [ ] 04-03-PLAN.md — Editorial LangGraph node (state wiring, graph integration, replace stub_editorial)
+- [x] 04-01-PLAN.md — Magazine Layout JSON Pydantic schema (block types, versioning, editorial content model, default template, tests)
+- [x] 04-02-PLAN.md — EditorialService (content generation, Nano Banana layout image, Vision AI parsing, output repair loop, template fallback, tests)
+- [x] 04-03-PLAN.md — Editorial LangGraph node (state wiring, graph integration, replace stub_editorial)
 
 ### Phase 5: Editorial Agent - DB Tools
 **Goal**: Editorial Agent가 Supabase에서 관련 셀럽/인플루언서와 상품/브랜드를 검색하여 초안에 반영하는 상태
@@ -160,7 +160,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 1. Graph Skeleton + LLM Integration | 3/3 | Complete | 2026-02-25 |
 | 2. Data Layer | 2/2 | Complete | 2026-02-25 |
 | 3. Curation Agent | 2/2 | Complete | 2026-02-25 |
-| 4. Editorial Agent - Generation + Layout | 0/3 | Planned | - |
+| 4. Editorial Agent - Generation + Layout | 3/3 | Complete | 2026-02-25 |
 | 5. Editorial Agent - DB Tools | 0/3 | Not started | - |
 | 6. Review Agent + Feedback Loop | 0/3 | Not started | - |
 | 7. Admin Backend + HITL | 0/3 | Not started | - |

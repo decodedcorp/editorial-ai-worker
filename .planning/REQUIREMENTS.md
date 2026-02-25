@@ -9,20 +9,20 @@
 
 - [x] **FOUND-01**: LangGraph StateGraph 기반 파이프라인 스켈레톤 구축 (state schema, nodes, edges)
 - [x] **FOUND-02**: Vertex AI (ChatGoogleGenerativeAI) 연동 및 기본 LLM 호출
-- [ ] **FOUND-03**: Supabase 서비스 레이어 (셀럽, 상품, 포스트 CRUD)
-- [ ] **FOUND-04**: LangGraph 체크포인터 설정 (Postgres 기반 상태 영속화)
+- [x] **FOUND-03**: Supabase 서비스 레이어 (셀럽, 상품, 포스트 CRUD)
+- [x] **FOUND-04**: LangGraph 체크포인터 설정 (Postgres 기반 상태 영속화)
 
 ### Curation
 
-- [ ] **CURE-01**: Perplexity API로 패션 트렌드 키워드 자동 수집
-- [ ] **CURE-02**: 수집된 키워드를 파이프라인 상태에 전달
+- [x] **CURE-01**: Perplexity API로 패션 트렌드 키워드 자동 수집
+- [x] **CURE-02**: 수집된 키워드를 파이프라인 상태에 전달
 
 ### Editorial
 
-- [ ] **EDIT-01**: 키워드 + 수집 자료 기반 에디토리얼 초안 자동 생성
+- [x] **EDIT-01**: 키워드 + 수집 자료 기반 에디토리얼 초안 자동 생성
 - [ ] **EDIT-02**: Supabase에서 관련 셀럽/인플루언서 검색 (Tool/Skill)
 - [ ] **EDIT-03**: Supabase에서 관련 상품/브랜드 검색 (Tool/Skill)
-- [ ] **EDIT-04**: Magazine Layout JSON 구조화 출력 (Structured Output)
+- [x] **EDIT-04**: Magazine Layout JSON 구조화 출력 (Structured Output)
 
 ### Review
 
@@ -83,12 +83,12 @@
 | FOUND-02 | Phase 1 | Complete |
 | FOUND-03 | Phase 2 | Complete |
 | FOUND-04 | Phase 2 | Complete |
-| CURE-01 | Phase 3 | Pending |
-| CURE-02 | Phase 3 | Pending |
-| EDIT-01 | Phase 4 | Pending |
+| CURE-01 | Phase 3 | Complete |
+| CURE-02 | Phase 3 | Complete |
+| EDIT-01 | Phase 4 | Complete |
 | EDIT-02 | Phase 5 | Pending |
 | EDIT-03 | Phase 5 | Pending |
-| EDIT-04 | Phase 4 | Pending |
+| EDIT-04 | Phase 4 | Complete |
 | REVW-01 | Phase 6 | Pending |
 | REVW-02 | Phase 6 | Pending |
 | REVW-03 | Phase 6 | Pending |
@@ -104,4 +104,4 @@
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-20 after roadmap creation*
+*Last updated: 2026-02-25 after Phase 4 completion*
