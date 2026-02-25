@@ -49,6 +49,25 @@ async def editorial_node(state: EditorialPipelineState) -> dict:
     if keywords:
         trend_context += "\nKeywords: " + ", ".join(keywords)
 
+    # Append real posts data if available from source node
+    enriched_contexts = state.get("enriched_contexts") or []
+    if enriched_contexts:
+        trend_context += "\n\n--- 실제 데이터 (DB에서 가져온 포스트/상품 정보) ---\n"
+        for ctx in enriched_contexts[:10]:
+            artist = ctx.get("artist_name") or "unknown"
+            group = ctx.get("group_name") or ""
+            image_url = ctx.get("image_url") or ""
+            trend_context += f"\n아티스트: {artist} ({group}), 이미지: {image_url}"
+            for sol in ctx.get("solutions", [])[:3]:
+                sol_title = sol.get("title") or ""
+                if sol_title:
+                    trend_context += f"\n  - 상품: {sol_title}"
+                    meta = sol.get("metadata") or {}
+                    kws = meta.get("keywords", [])
+                    if kws:
+                        trend_context += f" (키워드: {', '.join(kws[:5])})"
+        trend_context += "\n\n위 실제 데이터를 콘텐츠에 적극 반영하세요. 실제 아티스트 이름과 상품을 언급하세요."
+
     # Use first topic keyword or fall back to curation_input seed keyword
     primary_keyword = curated_topics[0].get("keyword", "")
     if not primary_keyword:

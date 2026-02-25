@@ -7,21 +7,33 @@ Three prompt builders for the two-step Gemini grounding pattern:
 """
 
 
-def build_trend_research_prompt(keyword: str) -> str:
+def build_trend_research_prompt(keyword: str, *, db_context: str = "") -> str:
     """Build prompt for grounded Gemini research call.
 
     Instructs the model to use Google Search grounding to research current
-    fashion trends related to the keyword.
+    fashion trends related to the keyword, anchored to available DB data.
     """
+    db_section = ""
+    if db_context:
+        db_section = f"""
+
+--- 우리 데이터베이스에 보유한 콘텐츠 ---
+{db_context}
+
+중요: 위 아티스트와 브랜드는 우리 DB에 실제 이미지와 상품 데이터가 있습니다.
+트렌드를 조사할 때 이 아티스트들과 브랜드를 중심으로 리서치하세요.
+키워드와 관련된 이 아티스트들의 최신 패션 활동, 착용 아이템, 스타일링을 조사하세요.
+"""
+
     return f"""당신은 패션 에디토리얼 전문 리서처입니다.
 다음 키워드에 대해 최신 패션 트렌드를 종합적으로 조사해주세요.
 
 키워드: {keyword}
-
+{db_section}
 다음 항목을 포함하여 상세하게 작성해주세요:
 
 1. **트렌드 배경 (Trend Background)**: 이 트렌드가 왜 주목받고 있는지, 패션 업계에서의 맥락
-2. **관련 키워드 (Related Keywords)**: 이 트렌드와 연관된 패션 키워드 5-10개
+2. **관련 키워드 (Related Keywords)**: 이 트렌드와 연관된 패션 키워드 5-10개. 반드시 아티스트 이름(예: jennie, hanni, minji 등)을 2-3개 포함하세요.
 3. **관련 셀럽/인플루언서 (Celebrities)**: 이 트렌드를 리드하거나 착용한 셀럽들과 각각의 관련성
 4. **관련 브랜드/제품 (Brands & Products)**: 이 트렌드와 관련된 브랜드나 제품들과 각각의 관련성
 5. **시즌성 (Seasonality)**: 이 트렌드의 시즌 특성 (예: S/S 2025, year-round, transitional 등)

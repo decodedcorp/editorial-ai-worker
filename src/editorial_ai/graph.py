@@ -20,9 +20,11 @@ from langgraph.graph.state import CompiledStateGraph
 from editorial_ai.nodes.admin_gate import admin_gate
 from editorial_ai.nodes.curation import curation_node
 from editorial_ai.nodes.editorial import editorial_node
-from editorial_ai.nodes.enrich import enrich_editorial_node
+from editorial_ai.nodes.enrich import enrich_editorial_node  # noqa: F401 — kept for node_overrides
+from editorial_ai.nodes.enrich_from_posts import enrich_from_posts_node
 from editorial_ai.nodes.publish import publish_node
 from editorial_ai.nodes.review import review_node
+from editorial_ai.nodes.source import source_node
 from editorial_ai.nodes.stubs import (
     stub_admin_gate,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_curation,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
@@ -30,7 +32,7 @@ from editorial_ai.nodes.stubs import (
     stub_enrich,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_publish,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_review,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
-    stub_source,
+    stub_source,  # noqa: F401 — kept for backward compat
 )
 from editorial_ai.state import EditorialPipelineState
 
@@ -73,9 +75,9 @@ def build_graph(
     """
     nodes: dict[str, Callable[..., Any]] = {
         "curation": curation_node,
-        "source": stub_source,
+        "source": source_node,
         "editorial": editorial_node,
-        "enrich": enrich_editorial_node,  # Phase 5: DB enrichment
+        "enrich": enrich_from_posts_node,  # Posts-based enrichment
         "review": review_node,
         "admin_gate": admin_gate,
         "publish": publish_node,

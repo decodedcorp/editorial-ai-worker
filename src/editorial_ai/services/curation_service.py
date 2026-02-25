@@ -36,7 +36,17 @@ retry_on_api_error = retry(
 
 
 def get_genai_client() -> genai.Client:
-    """Create a google-genai Client using project settings."""
+    """Create a google-genai Client using project settings.
+
+    When GOOGLE_GENAI_USE_VERTEXAI is True, uses Vertex AI with ADC.
+    Otherwise falls back to Gemini Developer API with API key.
+    """
+    if settings.google_genai_use_vertexai:
+        return genai.Client(
+            vertexai=True,
+            project=settings.gcp_project_id,
+            location=settings.gcp_location,
+        )
     if settings.google_api_key is None:
         raise ValueError("GOOGLE_API_KEY required for curation service")
     return genai.Client(api_key=settings.google_api_key)
@@ -99,14 +109,18 @@ class CurationService:
         self.relevance_threshold = relevance_threshold
 
     @retry_on_api_error
-    async def research_trend(self, keyword: str) -> tuple[str, list[GroundingSource]]:
+    async def research_trend(
+        self, keyword: str, *, db_context: str = ""
+    ) -> tuple[str, list[GroundingSource]]:
         """Step 1: Grounded Gemini call for trend research.
 
         Returns the raw research text and extracted grounding source URLs.
+        When db_context is provided, it's injected into the prompt so the model
+        anchors its research to available DB data.
         """
         response = await self.client.aio.models.generate_content(
             model=self.model,
-            contents=build_trend_research_prompt(keyword),
+            contents=build_trend_research_prompt(keyword, db_context=db_context),
             config=types.GenerateContentConfig(
                 tools=[types.Tool(google_search=types.GoogleSearch())],
                 temperature=0.7,
@@ -206,14 +220,20 @@ class CurationService:
     async def curate_seed(self, seed_keyword: str) -> CurationResult:
         """Entry point for the LangGraph curation node.
 
-        1. Research the seed keyword for initial background
-        2. Expand into sub-topic keywords
-        3. Curate each keyword (seed + sub-topics) sequentially
-        4. Filter by relevance threshold
-        5. Return aggregated CurationResult
+        1. Fetch DB context (available artists/brands) for grounded research
+        2. Research the seed keyword for initial background
+        3. Expand into sub-topic keywords
+        4. Curate each keyword (seed + sub-topics) sequentially
+        5. Filter by relevance threshold
+        6. Return aggregated CurationResult
         """
+        # Step 0: Build DB context for prompt grounding
+        db_context = await _build_db_context()
+
         # Step 1: Initial research on seed keyword
-        raw_research, seed_sources = await self.research_trend(seed_keyword)
+        raw_research, seed_sources = await self.research_trend(
+            seed_keyword, db_context=db_context
+        )
 
         # Step 2: Expand sub-topics
         subtopics = await self.expand_subtopics(seed_keyword, raw_research)
@@ -247,3 +267,70 @@ class CurationService:
             total_generated=total_generated,
             total_filtered=len(filtered_topics),
         )
+
+
+async def _build_db_context() -> str:
+    """Build a summary of available DB data for curation prompt grounding.
+
+    Queries posts and solutions to provide artists, groups, and top brands
+    so the AI researches trends relevant to our actual content.
+    """
+    try:
+        from editorial_ai.services.supabase_client import get_supabase_client
+
+        client = await get_supabase_client()
+
+        # Get artist/group distribution
+        artists_resp = await (
+            client.table("posts")
+            .select("artist_name, group_name")
+            .eq("status", "active")
+            .not_.is_("artist_name", "null")
+            .limit(500)
+            .execute()
+        )
+
+        # Count by group and artist
+        group_artists: dict[str, set[str]] = {}
+        for row in artists_resp.data:
+            group = row.get("group_name") or "Solo"
+            artist = row.get("artist_name", "")
+            if artist:
+                group_artists.setdefault(group, set()).add(artist)
+
+        # Get top brands from solutions
+        brands_resp = await (
+            client.table("solutions")
+            .select("title")
+            .not_.is_("title", "null")
+            .neq("title", "")
+            .limit(200)
+            .execute()
+        )
+
+        brand_counts: dict[str, int] = {}
+        for row in brands_resp.data:
+            title = row.get("title", "")
+            # Extract first word as brand approximation
+            brand = title.split(" ")[0] if title else ""
+            if len(brand) > 2:
+                brand_counts[brand] = brand_counts.get(brand, 0) + 1
+
+        top_brands = sorted(brand_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+
+        # Build context string
+        lines = ["아티스트/그룹:"]
+        for group, artists in sorted(group_artists.items(), key=lambda x: len(x[1]), reverse=True):
+            artists_str = ", ".join(sorted(artists))
+            lines.append(f"  - {group}: {artists_str}")
+
+        lines.append(f"\n주요 브랜드 (상품 {len(brands_resp.data)}건):")
+        for brand, count in top_brands:
+            lines.append(f"  - {brand} ({count}건)")
+
+        lines.append(f"\n총 포스트: {len(artists_resp.data)}건 (street style 중심)")
+
+        return "\n".join(lines)
+    except Exception:  # noqa: BLE001
+        logger.warning("Failed to build DB context for curation, proceeding without it")
+        return ""
