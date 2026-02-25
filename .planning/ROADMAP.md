@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Data Layer** - Supabase 서비스 레이어와 Postgres 체크포인터 구축
 - [x] **Phase 3: Curation Agent** - Gemini + Google Search Grounding 기반 트렌드 키워드 수집 에이전트
 - [x] **Phase 4: Editorial Agent - Generation + Layout** - 에디토리얼 초안 생성 및 Magazine Layout JSON 구조화 출력
-- [ ] **Phase 5: Editorial Agent - DB Tools** - 셀럽/인플루언서 및 상품/브랜드 검색 Tool 스킬
+- [x] **Phase 5: Editorial Agent - DB Tools** - 셀럽/인플루언서 및 상품/브랜드 검색 Tool 스킬
 - [ ] **Phase 6: Review Agent + Feedback Loop** - LLM-as-a-Judge 품질 평가 및 반려 피드백 루프
 - [ ] **Phase 7: Admin Backend + HITL** - 콘텐츠 저장, 승인/반려 API, Human-in-the-loop interrupt 패턴
 - [ ] **Phase 8: Admin Dashboard UI** - 콘텐츠 프리뷰 + 승인/반려 프론트엔드
@@ -96,9 +96,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Multi-column OR search for celeb/product services + enrich prompts
-- [ ] 05-02-PLAN.md — Enrich service (keyword expansion, DB search orchestration, content re-generation, layout rebuild)
-- [ ] 05-03-PLAN.md — Enrich LangGraph node + graph wiring (editorial -> enrich -> review)
+- [x] 05-01-PLAN.md — Multi-column OR search for celeb/product services + enrich prompts
+- [x] 05-02-PLAN.md — Enrich service (keyword expansion, DB search orchestration, content re-generation, layout rebuild)
+- [x] 05-03-PLAN.md — Enrich LangGraph node + graph wiring (editorial -> enrich -> review)
 
 ### Phase 6: Review Agent + Feedback Loop
 **Goal**: 생성된 에디토리얼 초안을 자동 품질 평가하고, 실패 시 구조화된 피드백으로 재생성을 요청하며, 최대 재시도 제한이 동작하는 상태
@@ -161,7 +161,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 2. Data Layer | 2/2 | Complete | 2026-02-25 |
 | 3. Curation Agent | 2/2 | Complete | 2026-02-25 |
 | 4. Editorial Agent - Generation + Layout | 3/3 | Complete | 2026-02-25 |
-| 5. Editorial Agent - DB Tools | 0/3 | Not started | - |
+| 5. Editorial Agent - DB Tools | 3/3 | Complete | 2026-02-25 |
 | 6. Review Agent + Feedback Loop | 0/3 | Not started | - |
 | 7. Admin Backend + HITL | 0/3 | Not started | - |
 | 8. Admin Dashboard UI | 0/3 | Not started | - |

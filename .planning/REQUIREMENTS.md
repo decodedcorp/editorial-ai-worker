@@ -20,8 +20,8 @@
 ### Editorial
 
 - [x] **EDIT-01**: 키워드 + 수집 자료 기반 에디토리얼 초안 자동 생성
-- [ ] **EDIT-02**: Supabase에서 관련 셀럽/인플루언서 검색 (Tool/Skill)
-- [ ] **EDIT-03**: Supabase에서 관련 상품/브랜드 검색 (Tool/Skill)
+- [x] **EDIT-02**: Supabase에서 관련 셀럽/인플루언서 검색 (Tool/Skill)
+- [x] **EDIT-03**: Supabase에서 관련 상품/브랜드 검색 (Tool/Skill)
 - [x] **EDIT-04**: Magazine Layout JSON 구조화 출력 (Structured Output)
 
 ### Review
@@ -86,8 +86,8 @@
 | CURE-01 | Phase 3 | Complete |
 | CURE-02 | Phase 3 | Complete |
 | EDIT-01 | Phase 4 | Complete |
-| EDIT-02 | Phase 5 | Pending |
-| EDIT-03 | Phase 5 | Pending |
+| EDIT-02 | Phase 5 | Complete |
+| EDIT-03 | Phase 5 | Complete |
 | EDIT-04 | Phase 4 | Complete |
 | REVW-01 | Phase 6 | Pending |
 | REVW-02 | Phase 6 | Pending |
@@ -104,4 +104,4 @@
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-25 after Phase 4 completion*
+*Last updated: 2026-02-25 after Phase 5 completion*
