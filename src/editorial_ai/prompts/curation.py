@@ -36,7 +36,8 @@ def build_subtopic_expansion_prompt(keyword: str, trend_background: str) -> str:
 
     Returns a prompt that asks for a JSON array of 3-7 sub-topic keyword strings.
     """
-    return f"""다음 패션 트렌드 리서치를 바탕으로, 에디토리얼 콘텐츠로 확장할 수 있는 세부 주제(sub-topic) 키워드를 추출해주세요.
+    return f"""다음 패션 트렌드 리서치를 바탕으로, 에디토리얼 콘텐츠로 확장할 수 있는 \
+세부 주제(sub-topic) 키워드를 추출해주세요.
 
 메인 키워드: {keyword}
 
