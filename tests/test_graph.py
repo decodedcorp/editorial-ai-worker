@@ -5,7 +5,7 @@ from __future__ import annotations
 from langgraph.graph.state import CompiledStateGraph
 
 from editorial_ai.graph import build_graph, graph
-from editorial_ai.nodes.stubs import stub_curation
+from editorial_ai.nodes.stubs import stub_curation, stub_editorial
 
 
 def _initial_state() -> dict:
@@ -14,6 +14,7 @@ def _initial_state() -> dict:
         "curation_input": {"week": "2026-W08"},
         "curated_topics": [],
         "enriched_contexts": [],
+        "current_draft": None,
         "current_draft_id": None,
         "tool_calls_log": [],
         "review_result": None,
@@ -32,9 +33,16 @@ def test_graph_compiles():
     assert isinstance(graph, CompiledStateGraph)
 
 
+def test_graph_compiles_with_real_editorial_node():
+    """build_graph() without overrides compiles with async editorial node."""
+    compiled = build_graph()
+    assert isinstance(compiled, CompiledStateGraph)
+    assert "editorial" in compiled.nodes
+
+
 def test_graph_happy_path():
     """Happy path: all stubs pass, pipeline reaches 'published'."""
-    sync_graph = build_graph(node_overrides={"curation": stub_curation})
+    sync_graph = build_graph(node_overrides={"curation": stub_curation, "editorial": stub_editorial})
     result = sync_graph.invoke(_initial_state())
     assert result["pipeline_status"] == "published"
     assert result["admin_decision"] == "approved"
@@ -59,7 +67,7 @@ def test_graph_review_fail_then_pass():
             "review_result": {"passed": True},
         }
 
-    test_graph = build_graph(node_overrides={"curation": stub_curation, "review": mock_review})
+    test_graph = build_graph(node_overrides={"curation": stub_curation, "editorial": stub_editorial, "review": mock_review})
     result = test_graph.invoke(_initial_state())
     assert result["pipeline_status"] == "published"
     assert call_count == 2
@@ -78,7 +86,7 @@ def test_graph_max_retries():
             "revision_count": state.get("revision_count", 0) + 1,
         }
 
-    test_graph = build_graph(node_overrides={"curation": stub_curation, "review": mock_review_always_fail})
+    test_graph = build_graph(node_overrides={"curation": stub_curation, "editorial": stub_editorial, "review": mock_review_always_fail})
     result = test_graph.invoke(_initial_state())
     assert result["pipeline_status"] != "published"
     assert result["revision_count"] >= 3
@@ -101,7 +109,7 @@ def test_graph_admin_revision_requested():
             "admin_decision": "approved",
         }
 
-    test_graph = build_graph(node_overrides={"curation": stub_curation, "admin_gate": mock_admin_gate})
+    test_graph = build_graph(node_overrides={"curation": stub_curation, "editorial": stub_editorial, "admin_gate": mock_admin_gate})
     result = test_graph.invoke(_initial_state())
     assert result["pipeline_status"] == "published"
     assert call_count["admin"] == 2

@@ -74,6 +74,7 @@ def _base_state(**overrides: object) -> dict:
         "curation_input": {"keyword": "Y2K"},
         "curated_topics": [],
         "enriched_contexts": [],
+        "current_draft": None,
         "current_draft_id": None,
         "tool_calls_log": [],
         "review_result": None,

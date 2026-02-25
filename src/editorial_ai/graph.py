@@ -15,10 +15,11 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
 from editorial_ai.nodes.curation import curation_node
+from editorial_ai.nodes.editorial import editorial_node
 from editorial_ai.nodes.stubs import (
     stub_admin_gate,
     stub_curation,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
-    stub_editorial,
+    stub_editorial,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_publish,
     stub_review,
     stub_source,
@@ -65,7 +66,7 @@ def build_graph(
     nodes: dict[str, Callable[..., Any]] = {
         "curation": curation_node,
         "source": stub_source,
-        "editorial": stub_editorial,
+        "editorial": editorial_node,
         "review": stub_review,
         "admin_gate": stub_admin_gate,
         "publish": stub_publish,
