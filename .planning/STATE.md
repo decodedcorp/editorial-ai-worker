@@ -5,34 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** 키워드 하나로 셀럽/상품/레퍼런스가 조합된 에디토리얼 콘텐츠가 자동 생성되고, 검수 루프를 거쳐 관리자가 승인하면 발행
-**Current focus:** Phase 2 - Data Layer
+**Current focus:** Phase 2 - Data Layer (complete)
 
 ## Current Position
 
 Phase: 2 of 8 (Data Layer)
-Plan: 1 of 2 in phase 2 — In progress
-Status: 02-01 complete, 02-02 remaining
-Last activity: 2026-02-25 — Completed 02-01-PLAN.md
+Plan: 2 of 2 in phase 2 — Phase complete
+Status: Phase 2 complete
+Last activity: 2026-02-25 — Completed 02-02-PLAN.md
 
-Progress: [████░░░░░░░░░░░░░░░░░░] 4/22 (18%)
+Progress: [█████░░░░░░░░░░░░░░░░░] 5/22 (23%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: ~3.5m
-- Total execution time: ~0.23 hours
+- Total plans completed: 5
+- Average duration: ~3.2m
+- Total execution time: ~0.27 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 | 3/3 | ~9m | ~3m |
-| 2 | 1/2 | ~4m | ~4m |
+| 2 | 2/2 | ~6m | ~3m |
 
 **Recent Trend:**
-- Last 5 plans: 3m, 3m, 2m, 4m
-- Trend: stable
+- Last 5 plans: 3m, 3m, 2m, 4m, 2m
+- Trend: stable/improving
 
 *Updated after each plan completion*
 
@@ -54,11 +54,12 @@ Recent decisions affecting current work:
 - [01-03]: Factory function pattern for per-node LLM customization (model, temperature)
 - [02-01]: Pydantic models created with domain-reasonable defaults (schema discovery deferred — no Supabase credentials)
 - [02-01]: MagicMock for sync client methods, AsyncMock for execute() in service tests
+- [02-02]: create_checkpointer() returns async context manager; caller manages lifecycle
+- [02-02]: Lean state validated at <10KB threshold via MemorySaver test
 
 ### Pending Todos
 
 - Verify Pydantic model schemas against live Supabase tables when credentials are configured
-- Phase 2 Plan 02: Postgres checkpointer integration
 
 ### Blockers/Concerns
 
@@ -69,5 +70,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 02-01-PLAN.md
+Stopped at: Completed 02-02-PLAN.md (Phase 2 complete)
 Resume file: None
