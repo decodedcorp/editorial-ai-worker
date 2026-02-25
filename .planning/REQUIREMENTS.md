@@ -7,8 +7,8 @@
 
 ### Foundation
 
-- [ ] **FOUND-01**: LangGraph StateGraph 기반 파이프라인 스켈레톤 구축 (state schema, nodes, edges)
-- [ ] **FOUND-02**: Vertex AI (ChatGoogleGenerativeAI) 연동 및 기본 LLM 호출
+- [x] **FOUND-01**: LangGraph StateGraph 기반 파이프라인 스켈레톤 구축 (state schema, nodes, edges)
+- [x] **FOUND-02**: Vertex AI (ChatGoogleGenerativeAI) 연동 및 기본 LLM 호출
 - [ ] **FOUND-03**: Supabase 서비스 레이어 (셀럽, 상품, 포스트 CRUD)
 - [ ] **FOUND-04**: LangGraph 체크포인터 설정 (Postgres 기반 상태 영속화)
 
