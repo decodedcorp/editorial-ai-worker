@@ -35,6 +35,7 @@ from editorial_ai.models.layout import (
 )
 from editorial_ai.models.post import Post
 from editorial_ai.models.product import Product
+from editorial_ai.models.review import CriterionResult, ReviewResult
 
 __all__ = [
     "BodyTextBlock",
@@ -45,6 +46,7 @@ __all__ = [
     "CelebItem",
     "CelebReference",
     "CreditEntry",
+    "CriterionResult",
     "CreditsBlock",
     "CuratedTopic",
     "CurationResult",
@@ -65,5 +67,6 @@ __all__ = [
     "ProductMention",
     "ProductShowcaseBlock",
     "PullQuoteBlock",
+    "ReviewResult",
     "create_default_template",
 ]
