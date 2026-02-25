@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-20)
 
 **Core value:** 키워드 하나로 셀럽/상품/레퍼런스가 조합된 에디토리얼 콘텐츠가 자동 생성되고, 검수 루프를 거쳐 관리자가 승인하면 발행
-**Current focus:** Phase 8 in progress. Content list and detail pages complete. Building approve/reject actions next.
+**Current focus:** Phase 8 complete. All 22 plans executed. Pending human verification of full dashboard.
 
 ## Current Position
 
 Phase: 8 of 8 (Admin Dashboard UI)
-Plan: 2 of 3 in phase 8
-Status: In progress
-Last activity: 2026-02-25 — Completed 08-02-PLAN.md
+Plan: 3 of 3 in phase 8
+Status: Complete (pending human verification)
+Last activity: 2026-02-26 — Completed 08-03-PLAN.md
 
-Progress: [█████████████████████░] 21/22 (95%)
+Progress: [██████████████████████] 22/22 (100%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 22
 - Average duration: ~2.5m
-- Total execution time: ~0.9 hours
+- Total execution time: ~0.95 hours
 
 **By Phase:**
 
@@ -34,7 +34,7 @@ Progress: [█████████████████████░] 2
 | 5 | 3/3 | ~6m | ~2m |
 | 6 | 3/3 | ~6m | ~2m |
 | 7 | 3/3 | ~10m | ~3.3m |
-| 8 | 2/3 | ~6m | ~3m |
+| 8 | 3/3 | ~9m | ~3m |
 
 **Recent Trend:**
 - Last 5 plans: 3m, 3m, 4m, 3m, 3m
@@ -109,6 +109,10 @@ Recent decisions affecting current work:
 - [08-02]: Record<string, ComponentType> block dispatch map with unknown-type fallback warning
 - [08-02]: URL searchParams for tab filtering and pagination (shareable, SSR-compatible)
 - [08-02]: Defensive rendering (optional chaining + fallbacks) for all AI-generated block data
+- [08-03]: Optimistic UI: status badge updates immediately, reverts on API failure
+- [08-03]: Inline reject form (not modal) for lightweight UX
+- [08-03]: DEMO_MODE env toggle with in-memory data for frontend testing without backend
+- [08-03]: CORS middleware added to FastAPI for cross-origin admin requests
 
 ### Pending Todos
 
@@ -121,6 +125,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-25
-Stopped at: Completed 08-02-PLAN.md (Content List and Detail Pages)
+Last session: 2026-02-26
+Stopped at: Completed 08-03-PLAN.md (Approve/Reject Flow) — All phases complete
 Resume file: None

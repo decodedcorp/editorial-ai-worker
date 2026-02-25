@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Editorial Agent - DB Tools** - 셀럽/인플루언서 및 상품/브랜드 검색 Tool 스킬
 - [x] **Phase 6: Review Agent + Feedback Loop** - LLM-as-a-Judge 품질 평가 및 반려 피드백 루프
 - [x] **Phase 7: Admin Backend + HITL** - 콘텐츠 저장, 승인/반려 API, Human-in-the-loop interrupt 패턴
-- [ ] **Phase 8: Admin Dashboard UI** - 콘텐츠 프리뷰 + 승인/반려 프론트엔드
+- [x] **Phase 8: Admin Dashboard UI** - 콘텐츠 프리뷰 + 승인/반려 프론트엔드
 
 ## Phase Details
 
@@ -146,9 +146,9 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 08-01: Dashboard scaffold (tech stack selection, project setup, routing)
-- [ ] 08-02: Content list + preview page (Layout JSON rendering)
-- [ ] 08-03: Approve/reject flow (API integration, status feedback, rejection reason)
+- [x] 08-01: Dashboard scaffold (tech stack selection, project setup, routing)
+- [x] 08-02: Content list + preview page (Layout JSON rendering)
+- [x] 08-03: Approve/reject flow (API integration, status feedback, rejection reason)
 
 ## Progress
 
@@ -164,4 +164,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 5. Editorial Agent - DB Tools | 3/3 | Complete | 2026-02-25 |
 | 6. Review Agent + Feedback Loop | 3/3 | Complete | 2026-02-25 |
 | 7. Admin Backend + HITL | 3/3 | Complete | 2026-02-25 |
-| 8. Admin Dashboard UI | 0/3 | Not started | - |
+| 8. Admin Dashboard UI | 3/3 | Complete | 2026-02-26 |
