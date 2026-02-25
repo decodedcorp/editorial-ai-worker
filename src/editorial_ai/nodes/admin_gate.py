@@ -45,7 +45,7 @@ async def admin_gate(state: EditorialPipelineState) -> dict:
     # real thread_id when triggering the pipeline.
     # For now, use keyword as thread identifier (will be replaced by real
     # thread_id when the API layer passes it through state).
-    thread_id = state.get("_thread_id", keyword or "unknown")
+    thread_id = state.get("thread_id") or keyword or "unknown"
 
     saved = await save_pending_content(
         thread_id=thread_id,

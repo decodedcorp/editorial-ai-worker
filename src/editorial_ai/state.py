@@ -29,6 +29,9 @@ class EditorialPipelineState(TypedDict):
     revision_count: int
     feedback_history: Annotated[list[dict], operator.add]
 
+    # Thread tracking (set by API trigger, used by admin_gate for Supabase upsert)
+    thread_id: str | None
+
     # Admin Gate
     admin_decision: Literal["approved", "rejected", "revision_requested"] | None
     admin_feedback: str | None

@@ -28,6 +28,7 @@ async def trigger_pipeline(
     try:
         await graph.ainvoke(
             {
+                "thread_id": thread_id,
                 "curation_input": {
                     "seed_keyword": body.seed_keyword,
                     "category": body.category,
