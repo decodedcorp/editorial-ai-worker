@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Graph Skeleton + LLM Integration** - LangGraph StateGraph 스켈레톤과 Vertex AI(Gemini) 연동
 - [x] **Phase 2: Data Layer** - Supabase 서비스 레이어와 Postgres 체크포인터 구축
-- [ ] **Phase 3: Curation Agent** - Perplexity API 기반 트렌드 키워드 수집 에이전트
+- [x] **Phase 3: Curation Agent** - Gemini + Google Search Grounding 기반 트렌드 키워드 수집 에이전트
 - [ ] **Phase 4: Editorial Agent - Generation + Layout** - 에디토리얼 초안 생성 및 Magazine Layout JSON 구조화 출력
 - [ ] **Phase 5: Editorial Agent - DB Tools** - 셀럽/인플루언서 및 상품/브랜드 검색 Tool 스킬
 - [ ] **Phase 6: Review Agent + Feedback Loop** - LLM-as-a-Judge 품질 평가 및 반려 피드백 루프
@@ -65,8 +65,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Curation Pydantic models, prompt templates, CurationService (Gemini + Google Search Grounding, two-step pattern, retry logic)
-- [ ] 03-02-PLAN.md — Curation LangGraph node (state I/O, error handling) + graph wiring
+- [x] 03-01-PLAN.md — Curation Pydantic models, prompt templates, CurationService (Gemini + Google Search Grounding, two-step pattern, retry logic)
+- [x] 03-02-PLAN.md — Curation LangGraph node (state I/O, error handling) + graph wiring
 
 ### Phase 4: Editorial Agent - Generation + Layout
 **Goal**: 큐레이션된 키워드와 수집 자료를 입력받아 Magazine Layout JSON 형식의 에디토리얼 초안을 생성하는 상태
@@ -159,7 +159,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 |-------|----------------|--------|-----------|
 | 1. Graph Skeleton + LLM Integration | 3/3 | Complete | 2026-02-25 |
 | 2. Data Layer | 2/2 | Complete | 2026-02-25 |
-| 3. Curation Agent | 0/2 | Not started | - |
+| 3. Curation Agent | 2/2 | Complete | 2026-02-25 |
 | 4. Editorial Agent - Generation + Layout | 0/3 | Not started | - |
 | 5. Editorial Agent - DB Tools | 0/3 | Not started | - |
 | 6. Review Agent + Feedback Loop | 0/3 | Not started | - |
