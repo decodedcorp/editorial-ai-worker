@@ -20,6 +20,7 @@ class EditorialPipelineState(TypedDict):
     enriched_contexts: list[dict]
 
     # Editorial Phase
+    current_draft: dict | None  # MagazineLayout JSON (temporary; Phase 7 moves to Supabase)
     current_draft_id: str | None
     tool_calls_log: Annotated[list[dict], operator.add]
 
