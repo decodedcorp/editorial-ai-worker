@@ -8,6 +8,12 @@ from editorial_ai.models.curation import (
     CurationResult,
     GroundingSource,
 )
+from editorial_ai.models.design_spec import (
+    ColorPalette,
+    DesignSpec,
+    FontPairing,
+    default_design_spec,
+)
 from editorial_ai.models.editorial import (
     CelebMention,
     EditorialContent,
@@ -45,13 +51,16 @@ __all__ = [
     "CelebMention",
     "CelebItem",
     "CelebReference",
+    "ColorPalette",
     "CreditEntry",
     "CriterionResult",
     "CreditsBlock",
     "CuratedTopic",
     "CurationResult",
+    "DesignSpec",
     "EditorialContent",
     "DividerBlock",
+    "FontPairing",
     "GroundingSource",
     "HashtagBarBlock",
     "HeadlineBlock",
@@ -69,4 +78,5 @@ __all__ = [
     "PullQuoteBlock",
     "ReviewResult",
     "create_default_template",
+    "default_design_spec",
 ]
