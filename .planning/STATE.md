@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 10 of 13 (Pipeline Observability Backend)
-Plan: — (awaiting plan-phase)
-Status: Ready to plan
-Last activity: 2026-02-26 — Phase 9 complete (3/3 plans, verified)
+Plan: 1 of 3 (10-01 complete)
+Status: In progress
+Last activity: 2026-02-26 — Completed 10-01-PLAN.md (observability foundation)
 
-Progress: [###########.......] 69% (25/TBD plans — v1.0 complete, phase 9 complete)
+Progress: [############......] 72% (26/36 plans)
 
 ## Performance Metrics
 
@@ -51,6 +51,9 @@ Progress: [###########.......] 69% (25/TBD plans — v1.0 complete, phase 9 comp
 - [09-03]: Non-blocking pipeline trigger via asyncio.create_task for immediate thread_id return
 - [09-03]: BFF proxy pattern for API key hiding; 3s polling with 180s timeout
 - [09-03]: Modal phase state machine: form -> running -> success|error
+- [10-01]: model_validator(mode='before') for computed fields over @computed_field
+- [10-01]: ContextVar copy-on-first-write for cross-context safety
+- [10-01]: Fire-and-forget pattern for all observability I/O (try/except + log warning)
 
 ### Pending Todos
 
@@ -65,5 +68,5 @@ Progress: [###########.......] 69% (25/TBD plans — v1.0 complete, phase 9 comp
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Phase 9 complete, verified (5/5 must-haves). Ready to plan Phase 10.
+Stopped at: Completed 10-01-PLAN.md (observability models, collector, storage). Ready for 10-02.
 Resume file: None
