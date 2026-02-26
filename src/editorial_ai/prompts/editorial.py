@@ -94,18 +94,20 @@ Design requirements:
 - Modern fashion magazine aesthetic (think Vogue, Harper's Bazaar, Elle)
 - Clean grid layout with clear section boundaries
 - Include ALL of these section areas for a rich, diverse layout:
-  1. Large hero image area at the top (full-width)
+  1. Large hero image area at the top (full-width, full-bleed or split layout)
   2. Headline/title typography area
-  3. Body text columns (2 text sections spread throughout)
-  4. Pull quote / callout area (between text sections)
-  5. Image gallery area (grid or carousel)
-  6. Product showcase area (grid of product cards)
-  7. Celebrity feature area
-  8. Divider elements (2-3 visual separators for rhythm)
-  9. Hashtag bar near the bottom
-  10. Credits section at the very bottom
+  3. Body text columns (2 text sections - try single column AND two-column layouts)
+  4. Pull quote / callout area (centered large or full-width background)
+  5. Image gallery area (grid, masonry, or asymmetric layout)
+  6. Product showcase area (featured hero + grid, or lookbook style)
+  7. Celebrity feature area (spotlight or card row)
+  8. Divider elements (2-3 visual separators - vary between lines, color bands, gradients)
+  9. Hashtag bar near the bottom (banner or floating cloud)
+  10. Credits section at the very bottom (full-width dark footer)
 - IMPORTANT: Vary the layout - do NOT repeat the same block type consecutively.
   Use pull quotes between text sections. Add dividers to create visual rhythm.
+- IMPORTANT: Use DIVERSE layout variants for each section. Mix full-bleed, split,
+  multi-column, and contained layouts to create visual interest.
 - Example layout patterns:
   Pattern A: hero -> headline -> body_text -> pull_quote -> image_gallery -> body_text -> divider -> product_showcase -> celeb_feature -> hashtag_bar -> credits
   Pattern B: hero -> headline -> body_text -> divider -> celeb_feature -> pull_quote -> body_text -> image_gallery -> product_showcase -> hashtag_bar -> credits
@@ -133,13 +135,13 @@ def build_layout_parsing_prompt(keyword: str, block_types: list[str]) -> str:
 사용 가능한 애니메이션: "fade-up", "fade-in", "slide-left", "slide-right", "scale-in", "parallax", "none"
 
 이미지에서 보이는 레이아웃 섹션을 위에서 아래로 순서대로 분석하여,
-각 섹션에 맞는 블록 타입과 애니메이션을 지정해주세요.
+각 섹션에 맞는 블록 타입, 애니메이션, 레이아웃 변형을 지정해주세요.
 
 출력 형식 (JSON 배열):
 [
-  {{"type": "hero", "order": 0, "animation": "parallax"}},
-  {{"type": "headline", "order": 1, "animation": "fade-up"}},
-  {{"type": "body_text", "order": 2, "animation": "fade-up"}},
+  {{"type": "hero", "order": 0, "animation": "parallax", "layout_variant": "full_bleed"}},
+  {{"type": "headline", "order": 1, "animation": "fade-up", "layout_variant": "default"}},
+  {{"type": "body_text", "order": 2, "animation": "fade-up", "layout_variant": "single_column"}},
   ...
 ]
 
@@ -155,10 +157,31 @@ def build_layout_parsing_prompt(keyword: str, block_types: list[str]) -> str:
 - hashtag_bar: "slide-left"
 - credits: "fade-in"
 
+레이아웃 변형 가이드 (블록 타입별 사용 가능한 layout_variant):
+- hero: "contained" (기본), "full_bleed" (100vw, 90vh), "split_text_left" (50/50 텍스트+이미지), "split_text_right", "parallax" (패럴랙스 스크롤), "letterbox" (21:9 시네마틱)
+- headline: "default" (기본), "full_width_banner" (풀폭 컬러 배너), "left_aligned_large" (8xl+ 좌정렬), "overlapping" (반투명 겹침)
+- body_text: "single_column" (기본), "two_column" (2단), "three_column" (3단), "wide" (넓은), "narrow_centered" (좁은 중앙), "drop_cap_accent" (장식 드롭캡)
+- image_gallery: "grid" (기본), "carousel", "masonry", "full_bleed_grid" (풀폭 그리드), "asymmetric" (비대칭), "full_bleed_single" (풀폭 단일), "staggered_overlap" (콜라주), "filmstrip" (필름스트립)
+- pull_quote: "default" (기본), "centered_large" (큰 중앙정렬), "full_width_background" (컬러 배경), "sidebar" (사이드바), "oversized_serif" (대형 세리프)
+- product_showcase: "grid" (기본), "full_width_row" (가로 풀폭), "featured_plus_grid" (히어로+그리드), "minimal_list" (텍스트 리스트), "lookbook" (룩북), "carousel_cards" (가로 스크롤)
+- celeb_feature: "grid" (기본), "spotlight" (스포트라이트), "card_row" (카드), "minimal_list" (리스트), "hero_collage" (콜라주)
+- divider: "line" (기본), "space", "ornament", "full_bleed_line" (풀폭 라인), "color_band" (컬러 밴드), "gradient_fade" (그라데이션)
+- hashtag_bar: "default" (기본), "full_width_banner" (풀폭 배너), "minimal_inline" (인라인), "floating" (태그 클라우드)
+- credits: "default" (기본), "full_width_footer" (다크 풋터), "inline" (인라인), "sidebar_column" (사이드바)
+
+레이아웃 변형 선택 규칙:
+- 매거진 전체에서 다양한 레이아웃을 사용하세요 (모든 블록이 "default"이면 안 됩니다)
+- hero는 "full_bleed" 또는 "parallax"를 권장 (임팩트 있는 시작)
+- body_text가 2개 이상이면 서로 다른 variant를 사용하세요
+- 풀폭 블록(full_bleed, full_width 계열)은 2-3개로 제한하여 리듬감 유지
+- pull_quote는 "centered_large" 또는 "full_width_background"를 권장
+- credits는 "full_width_footer"를 권장 (매거진 마무리 느낌)
+
 규칙:
 - order는 0부터 시작하는 순서 번호
 - type은 위의 사용 가능한 블록 타입 중 하나
 - animation은 각 블록에 적합한 GSAP 애니메이션 효과
+- layout_variant는 각 블록 타입에 맞는 값 중 하나 (필수)
 - 이미지에서 식별할 수 없는 섹션은 건너뛰세요
 - 최소 3개, 최대 12개의 블록을 출력하세요
 

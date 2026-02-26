@@ -421,6 +421,7 @@ class EditorialService:
         """
         new_layout = deepcopy(layout)
         pull_quote_idx = 0
+        body_text_filled = False
 
         for block in new_layout.blocks:
             if isinstance(block, HeroBlock):
@@ -429,7 +430,10 @@ class EditorialService:
             elif isinstance(block, HeadlineBlock):
                 block.text = content.title
             elif isinstance(block, BodyTextBlock):
-                block.paragraphs = content.body_paragraphs
+                if not body_text_filled:
+                    block.paragraphs = content.body_paragraphs
+                    body_text_filled = True
+                # else: leave empty — will be filtered by _is_block_empty
             elif isinstance(block, PullQuoteBlock):
                 if pull_quote_idx < len(content.pull_quotes):
                     block.quote = content.pull_quotes[pull_quote_idx]
@@ -470,7 +474,8 @@ class EditorialService:
         previous_draft: dict | None = None,
         revision_count: int = 0,
         cache_name: str | None = None,
-    ) -> MagazineLayout:
+        enriched_contexts: list[dict] | None = None,
+    ) -> tuple[MagazineLayout, bytes | None]:
         """Full pipeline entry point for editorial generation.
 
         Steps:
@@ -479,7 +484,7 @@ class EditorialService:
         c. If layout image OR parsing fails: use default template
         d. If layout image AND parsing succeed: build layout from parsed blocks
         e. Merge content into layout
-        f. Return final MagazineLayout
+        f. Return (final MagazineLayout, layout_image_bytes or None)
 
         When feedback_history is provided (retry iteration), passes it through
         to generate_content for feedback-aware prompt construction.
@@ -520,7 +525,51 @@ class EditorialService:
             layout = create_default_template(keyword, content.title)
 
         # Step 4: Merge content into layout
-        return self.merge_content_into_layout(content, layout)
+        merged = self.merge_content_into_layout(content, layout)
+
+        # Step 5: Enrich product items with solution metadata (image_url, link_url)
+        if enriched_contexts:
+            self._enrich_products_from_solutions(merged, enriched_contexts)
+
+        return merged, image_bytes
+
+    @staticmethod
+    def _enrich_products_from_solutions(
+        layout: MagazineLayout,
+        enriched_contexts: list[dict],
+    ) -> None:
+        """Inject image_url and link_url into ProductItems by matching solution names.
+
+        LLM generates product name/brand but cannot output real URLs.
+        This post-processing step matches product names against the original
+        enriched_contexts solutions and injects thumbnail_url → image_url,
+        original_url → link_url.
+        """
+        # Build lookup: normalized name → solution data
+        solution_lookup: dict[str, dict] = {}
+        for ctx in enriched_contexts:
+            for sol in ctx.get("solutions", []):
+                title = (sol.get("title") or "").strip()
+                if title:
+                    solution_lookup[title.lower()] = sol
+
+        for block in layout.blocks:
+            if not isinstance(block, ProductShowcaseBlock):
+                continue
+            for product in block.products:
+                name_lower = (product.name or "").strip().lower()
+                # Try exact match first, then substring match
+                matched = solution_lookup.get(name_lower)
+                if not matched:
+                    for sol_name, sol_data in solution_lookup.items():
+                        if sol_name in name_lower or name_lower in sol_name:
+                            matched = sol_data
+                            break
+                if matched:
+                    if not product.image_url and matched.get("thumbnail_url"):
+                        product.image_url = matched["thumbnail_url"]
+                    if not product.link_url and matched.get("original_url"):
+                        product.link_url = matched["original_url"]
 
     def _build_layout_from_parsed(
         self,
@@ -568,6 +617,8 @@ class EditorialService:
                 block = builder()
                 if "animation" in pb and pb["animation"]:
                     block.animation = pb["animation"]
+                if "layout_variant" in pb and pb["layout_variant"]:
+                    block.layout_variant = pb["layout_variant"]
                 blocks.append(block)
 
         if not blocks:
