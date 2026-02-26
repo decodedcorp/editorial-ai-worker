@@ -145,7 +145,7 @@ Plans:
 
 - [x] **Phase 9: E2E Execution Foundation** - 실제 환경에서 파이프라인이 처음부터 끝까지 동작하는 상태 확보
 - [x] **Phase 10: Pipeline Observability Backend** - 노드별 실행 메트릭 수집, 저장, API 제공
-- [ ] **Phase 11: Magazine Renderer Enhancement** - Layout JSON을 매거진 품질로 렌더링하는 블록 컴포넌트 고도화
+- [x] **Phase 11: Magazine Renderer Enhancement** - Layout JSON을 매거진 품질로 렌더링하는 블록 컴포넌트 고도화
 - [ ] **Phase 12: Observability Dashboard** - Admin UI에 파이프라인 실행 로그와 진행 상태 표시
 - [ ] **Phase 13: Pipeline Advanced** - 모델 라우팅, 컨텍스트 캐싱, 적응형 루브릭으로 파이프라인 고도화
 
@@ -193,7 +193,13 @@ Plans:
   2. 본문 텍스트가 세리프 폰트, 드롭캡, 적절한 행간으로 매거진 느낌의 타이포그래피를 갖춘다
   3. 개별 블록의 데이터가 malformed여도 해당 블록만 에러 표시되고 나머지 페이지는 정상 렌더링된다
   4. 상세 페이지에서 JSON 원본과 렌더링된 매거진 뷰를 나란히(side-by-side) 비교할 수 있다
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [x] 11-01-PLAN.md — DesignSpec pipeline node (Pydantic model, Gemini service, graph wiring)
+- [x] 11-02-PLAN.md — MagazineImage + BlockErrorBoundary (progressive loading, gradient fallback, per-block error isolation)
+- [x] 11-03-PLAN.md — Block components upgrade (10 blocks: real images, magazine typography, Google Fonts, design spec)
+- [x] 11-04-PLAN.md — Detail page tab integration (Magazine/JSON tabs, DesignSpec context provider)
 
 ### Phase 12: Observability Dashboard
 **Goal**: Admin 대시보드에서 파이프라인 실행 과정을 시각적으로 추적하고 비용을 파악할 수 있는 상태
@@ -232,6 +238,6 @@ Phases execute in numeric order: 9 -> 10 -> 11 (parallelizable with 10) -> 12 ->
 | 8. Admin Dashboard UI | v1.0 | 3/3 | Complete | 2026-02-26 |
 | 9. E2E Execution Foundation | v1.1 | 3/3 | Complete | 2026-02-26 |
 | 10. Pipeline Observability Backend | v1.1 | 3/3 | Complete | 2026-02-26 |
-| 11. Magazine Renderer Enhancement | v1.1 | 0/TBD | Not started | - |
+| 11. Magazine Renderer Enhancement | v1.1 | 4/4 | Complete | 2026-02-26 |
 | 12. Observability Dashboard | v1.1 | 0/TBD | Not started | - |
 | 13. Pipeline Advanced | v1.1 | 0/TBD | Not started | - |

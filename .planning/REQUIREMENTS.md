@@ -58,10 +58,10 @@
 
 ### 매거진 렌더러
 
-- [ ] **MAG-01**: 4개 이미지 블록(hero, product, celeb, gallery) 플레이스홀더 → 실제 이미지 렌더링 + fallback
-- [ ] **MAG-02**: 매거진 품질 타이포그래피 (세리프 본문, 드롭캡, 적절한 line-height, Google Fonts)
-- [ ] **MAG-03**: 블록 레벨 에러 바운더리 (malformed 데이터로 전체 페이지 크래시 방지)
-- [ ] **MAG-04**: 상세 페이지 JSON + 렌더링 병렬(side-by-side) 뷰
+- [x] **MAG-01**: 4개 이미지 블록(hero, product, celeb, gallery) 플레이스홀더 → 실제 이미지 렌더링 + fallback
+- [x] **MAG-02**: 매거진 품질 타이포그래피 (세리프 본문, 드롭캡, 적절한 line-height, Google Fonts)
+- [x] **MAG-03**: 블록 레벨 에러 바운더리 (malformed 데이터로 전체 페이지 크래시 방지)
+- [x] **MAG-04**: 상세 페이지 JSON + 렌더링 병렬(side-by-side) 뷰
 
 ### 파이프라인 고도화
 
@@ -140,10 +140,10 @@
 | OBS-04 | Phase 12 | Pending |
 | OBS-05 | Phase 12 | Pending |
 | OBS-06 | Phase 12 | Pending |
-| MAG-01 | Phase 11 | Pending |
-| MAG-02 | Phase 11 | Pending |
-| MAG-03 | Phase 11 | Pending |
-| MAG-04 | Phase 11 | Pending |
+| MAG-01 | Phase 11 | Complete |
+| MAG-02 | Phase 11 | Complete |
+| MAG-03 | Phase 11 | Complete |
+| MAG-04 | Phase 11 | Complete |
 | ADV-01 | Phase 13 | Pending |
 | ADV-02 | Phase 13 | Pending |
 | ADV-03 | Phase 13 | Pending |
