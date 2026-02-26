@@ -54,6 +54,9 @@ Progress: [##############....] 78% (28/36 plans)
 - [10-01]: model_validator(mode='before') for computed fields over @computed_field
 - [10-01]: ContextVar copy-on-first-write for cross-context safety
 - [10-01]: Fire-and-forget pattern for all observability I/O (try/except + log warning)
+- [10-02]: 10 LLM call sites instrumented (plan listed 8, enrich_service had 2 additional)
+- [10-02]: Node wrapping applied after node_overrides so test stubs also get wrapped
+- [10-02]: BaseException catch for node errors to handle KeyboardInterrupt/SystemExit
 - [10-03]: Logs router registered before admin at same prefix; include_io defaults true
 
 ### Pending Todos
@@ -64,7 +67,7 @@ Progress: [##############....] 78% (28/36 plans)
 
 - ~~seed_keyword vs keyword 필드명 불일치~~ -- RESOLVED in 09-01
 - Supabase DATABASE_URL 포트 확인 필요 (5432 session pooler, not 6543 transaction pooler)
-- google-genai response.usage_metadata 필드명 검증 필요 (Phase 10 구현 시)
+- ~~google-genai response.usage_metadata 필드명 검증 필요~~ -- RESOLVED in 10-02 (prompt_token_count, candidates_token_count, total_token_count with getattr defaults)
 
 ## Session Continuity
 
