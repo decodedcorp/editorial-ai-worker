@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 13 of 13 (Pipeline Advanced)
-Plan: 02 of 3 in phase
+Plan: 01 of 3 in phase (01 + 02 complete)
 Status: In progress
-Last activity: 2026-02-26 — Completed 13-02-PLAN.md (adaptive rubrics)
+Last activity: 2026-02-26 — Completed 13-01-PLAN.md (model router)
 
-Progress: [####################] 100% (37/36+1 plans — v1.0 complete, phases 9-13 in progress)
+Progress: [####################] 100% (38/36+2 plans — v1.0 complete, phases 9-13 in progress)
 
 ## Performance Metrics
 
@@ -76,6 +76,10 @@ Progress: [####################] 100% (37/36+1 plans — v1.0 complete, phases 9
 - [13-02]: Longest-match-first keyword sorting for multi-domain disambiguation in classifier
 - [13-02]: DEFAULT rubric = FASHION_MAGAZINE (fashion-first pipeline)
 - [13-02]: Backward compatible rubric_config=None produces original 3-criteria prompt
+- [13-01]: YAML config over code constants for model mapping (easy tuning without deploys)
+- [13-01]: Module-level singleton ModelRouter (initialized once, shared across requests)
+- [13-01]: RoutingDecision dataclass with reason string for observability tracking
+- [13-01]: revision_count >= 2 triggers Pro upgrade for editorial_content and review nodes
 
 ### Pending Todos
 
@@ -90,5 +94,5 @@ Progress: [####################] 100% (37/36+1 plans — v1.0 complete, phases 9
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 13-02-PLAN.md (adaptive rubrics)
+Stopped at: Completed 13-01-PLAN.md (model router). 13-02 also complete.
 Resume file: None
