@@ -4,24 +4,94 @@ Single prompt builder for semantic evaluation of editorial drafts.
 Format validation is handled deterministically by Pydantic -- NOT by the LLM.
 """
 
+from __future__ import annotations
 
-def build_review_prompt(draft_json: str, curated_topics_json: str) -> str:
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from editorial_ai.rubrics.registry import RubricConfig
+
+
+def _build_criteria_section(rubric_config: RubricConfig) -> str:
+    """Generate dynamic evaluation criteria from rubric config."""
+    lines = [f"다음 {len(rubric_config.criteria)}가지 기준으로 평가하세요:"]
+    for i, criterion in enumerate(rubric_config.criteria, 1):
+        lines.append(f"""
+### {i}. {criterion.name} (가중치: {criterion.weight})
+- {criterion.description}
+- severity: critical, major, minor (기준에 따라 판단)""")
+    return "\n".join(lines)
+
+
+def _build_output_criteria_names(rubric_config: RubricConfig) -> str:
+    """Build the criterion names list for output format section."""
+    names = ", ".join(c.name for c in rubric_config.criteria)
+    return names
+
+
+def build_review_prompt(
+    draft_json: str,
+    curated_topics_json: str,
+    *,
+    rubric_config: RubricConfig | None = None,
+) -> str:
     """Build prompt for LLM-as-a-Judge evaluation of an editorial draft.
 
-    The prompt instructs Gemini to evaluate 3 semantic criteria:
-    - hallucination: fabricated info not in curated data
-    - fact_accuracy: brand/celeb/trend names match curated data
-    - content_completeness: structural requirements met
-
-    Format validation is NOT included -- handled by Pydantic separately.
+    When rubric_config is provided, dynamically generates criteria from the
+    config. When None, uses the original hardcoded 3-criteria prompt for
+    backward compatibility.
 
     Args:
         draft_json: The full MagazineLayout JSON to evaluate.
-        curated_topics_json: The curated topics JSON as ground truth for fact-checking.
+        curated_topics_json: The curated topics JSON as ground truth.
+        rubric_config: Optional content-type-specific evaluation config.
 
     Returns:
         Prompt string for Gemini structured output.
     """
+    if rubric_config is None:
+        return _build_default_prompt(draft_json, curated_topics_json)
+
+    criteria_section = _build_criteria_section(rubric_config)
+    criteria_names = _build_output_criteria_names(rubric_config)
+    criteria_count = len(rubric_config.criteria)
+
+    return f"""당신은 전문 에디터로서 콘텐츠 초안을 검수합니다.
+아래의 에디토리얼 초안(Draft)을 큐레이션 데이터(Ground Truth)와 대조하여 평가해주세요.
+
+## 에디토리얼 초안 (Draft)
+{draft_json}
+
+## 큐레이션 데이터 (Ground Truth)
+{curated_topics_json}
+
+## 평가 기준
+
+{criteria_section}
+
+## 추가 지침
+
+{rubric_config.prompt_additions}
+
+## 출력 형식
+
+각 기준에 대해 다음을 출력하세요:
+- criterion: 기준 이름 ({criteria_names})
+- passed: true/false
+- reason: 구체적이고 실행 가능한 설명 (한국어)
+- severity: critical, major, minor
+
+전체 결과:
+- passed: 모든 기준이 통과하면 true, 하나라도 실패하면 false
+- criteria: 위 {criteria_count}개 기준 결과 배열
+- summary: 전체 평가 요약 (1-2문장, 한국어)
+- suggestions: 개선 제안 목록 (실패한 기준에 대해)
+
+반드시 유효한 JSON만 출력하세요."""
+
+
+def _build_default_prompt(draft_json: str, curated_topics_json: str) -> str:
+    """Original hardcoded 3-criteria prompt (backward compatible)."""
     return f"""당신은 패션 매거진 편집장으로서 에디토리얼 초안을 검수합니다.
 아래의 에디토리얼 초안(Draft)을 큐레이션 데이터(Ground Truth)와 대조하여 평가해주세요.
 

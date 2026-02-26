@@ -32,6 +32,10 @@ for _kw in _FASHION_KEYWORDS:
 for _kw in _LIFESTYLE_KEYWORDS:
     KEYWORD_DOMAIN_MAP[_kw] = ContentType.LIFESTYLE
 
+# Sort by keyword length descending so longer (more specific) matches win.
+# E.g. "home decor" matches before "trend" in "home decor trends".
+_SORTED_KEYWORDS = sorted(KEYWORD_DOMAIN_MAP.items(), key=lambda x: len(x[0]), reverse=True)
+
 
 def classify_content_type(
     keyword: str,
@@ -46,8 +50,8 @@ def classify_content_type(
     """
     normalized = keyword.lower()
 
-    # Check seed keyword against domain keywords
-    for domain_kw, content_type in KEYWORD_DOMAIN_MAP.items():
+    # Check seed keyword against domain keywords (longest match first)
+    for domain_kw, content_type in _SORTED_KEYWORDS:
         if domain_kw in normalized:
             return content_type
 
@@ -57,7 +61,7 @@ def classify_content_type(
             related = topic.get("related_keywords", [])
             for rk in related:
                 rk_lower = rk.lower() if isinstance(rk, str) else ""
-                for domain_kw, content_type in KEYWORD_DOMAIN_MAP.items():
+                for domain_kw, content_type in _SORTED_KEYWORDS:
                     if domain_kw in rk_lower:
                         return content_type
 

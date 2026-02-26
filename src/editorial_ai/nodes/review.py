@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 
+from editorial_ai.rubrics import classify_content_type, get_rubric
 from editorial_ai.services.curation_service import get_genai_client
 from editorial_ai.services.review_service import ReviewService
 from editorial_ai.state import EditorialPipelineState
@@ -43,9 +44,23 @@ async def review_node(state: EditorialPipelineState) -> dict:
 
     curated_topics = state.get("curated_topics") or []
 
+    # Classify content type and get adaptive rubric
+    curation_input = state.get("curation_input") or {}
+    seed_keyword = curation_input.get("keyword", "")
+    content_type = classify_content_type(seed_keyword, curated_topics)
+    rubric_config = get_rubric(content_type)
+    logger.info(
+        "Review using %s rubric for keyword=%s", content_type.value, seed_keyword
+    )
+
     try:
         service = ReviewService(get_genai_client())
-        result = await service.evaluate(current_draft, curated_topics)
+        result = await service.evaluate(
+            current_draft,
+            curated_topics,
+            rubric_config=rubric_config,
+            revision_count=state.get("revision_count", 0),
+        )
     except Exception as e:  # noqa: BLE001
         logger.exception("Review node failed")
         return {

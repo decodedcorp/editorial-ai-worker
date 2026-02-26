@@ -6,8 +6,11 @@ Evaluation pipeline:
 3. Overall result -- aggregates all criteria, any failure = overall fail
 """
 
+from __future__ import annotations
+
 import json
 import logging
+from typing import TYPE_CHECKING
 
 from google import genai
 from google.genai import types
@@ -16,6 +19,7 @@ from pydantic import ValidationError
 from editorial_ai.config import settings
 from editorial_ai.models.layout import BodyTextBlock, MagazineLayout
 from editorial_ai.observability import record_token_usage
+from editorial_ai.routing import get_model_router
 from editorial_ai.models.review import CriterionResult, ReviewResult
 from editorial_ai.prompts.review import build_review_prompt
 from editorial_ai.services.curation_service import (
@@ -23,6 +27,9 @@ from editorial_ai.services.curation_service import (
     get_genai_client,
     retry_on_api_error,
 )
+
+if TYPE_CHECKING:
+    from editorial_ai.rubrics.registry import RubricConfig
 
 logger = logging.getLogger(__name__)
 
@@ -86,17 +93,28 @@ class ReviewService:
 
     @retry_on_api_error
     async def evaluate_with_llm(
-        self, draft_json: str, curated_topics_json: str
+        self,
+        draft_json: str,
+        curated_topics_json: str,
+        *,
+        rubric_config: RubricConfig | None = None,
+        revision_count: int = 0,
     ) -> list[CriterionResult]:
-        """LLM-as-a-Judge for hallucination, fact_accuracy, content_completeness.
+        """LLM-as-a-Judge for semantic evaluation.
 
         Calls Gemini with structured output and temperature=0.0 for deterministic
         evaluation. Returns only semantic criteria (excludes format).
-        """
-        prompt = build_review_prompt(draft_json, curated_topics_json)
 
+        When rubric_config is provided, the prompt uses content-type-specific
+        criteria. When None, falls back to the default 3-criteria prompt.
+        """
+        prompt = build_review_prompt(
+            draft_json, curated_topics_json, rubric_config=rubric_config
+        )
+
+        decision = get_model_router().resolve("review", revision_count=revision_count)
         response = await self.client.aio.models.generate_content(
-            model=self.model,
+            model=decision.model,
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
@@ -109,7 +127,8 @@ class ReviewService:
                 prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                 completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                 total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
-                model_name=self.model,
+                model_name=decision.model,
+                routing_reason=decision.reason,
             )
 
         raw_text = response.text or "{}"
@@ -119,7 +138,12 @@ class ReviewService:
         return [c for c in result.criteria if c.criterion != "format"]
 
     async def evaluate(
-        self, draft: dict, curated_topics: list[dict]
+        self,
+        draft: dict,
+        curated_topics: list[dict],
+        *,
+        rubric_config: RubricConfig | None = None,
+        revision_count: int = 0,
     ) -> ReviewResult:
         """Full evaluation entry point: format (Pydantic) + LLM (semantic).
 
@@ -134,7 +158,9 @@ class ReviewService:
         # Step 2: LLM semantic evaluation
         draft_json = json.dumps(draft, ensure_ascii=False)
         topics_json = json.dumps(curated_topics, ensure_ascii=False)
-        llm_criteria = await self.evaluate_with_llm(draft_json, topics_json)
+        llm_criteria = await self.evaluate_with_llm(
+            draft_json, topics_json, rubric_config=rubric_config, revision_count=revision_count
+        )
 
         # Step 3: Combine all criteria
         all_criteria = [format_result] + llm_criteria
