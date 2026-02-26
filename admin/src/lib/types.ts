@@ -221,6 +221,68 @@ export interface TriggerRequest {
   style?: string;
   target_celeb?: string;
   target_brand?: string;
+  mode?: "ai_curation" | "db_source" | "ai_db_search";
+  selected_posts?: string[];
+  selected_celebs?: string[];
+  selected_products?: string[];
+}
+
+// ---------------------------------------------------------------------------
+// DB Source search types
+// ---------------------------------------------------------------------------
+
+export interface SolutionItem {
+  solution_id: string;
+  title: string;
+  thumbnail_url: string | null;
+  link_type: string | null;
+  original_url: string | null;
+  brand: string | null;
+  category: string | null;
+  material: string[] | null;
+  origin: string | null;
+  keywords: string[];
+}
+
+export interface PostSource {
+  id: string;
+  image_url: string | null;
+  media_type: string | null;
+  title: string;
+  artist_name: string;
+  group_name: string;
+  context: string;
+  view_count: number;
+  trending_score: number;
+  solutions: SolutionItem[];
+}
+
+export interface CelebSource {
+  id: string;
+  name: string;
+  name_en: string | null;
+  category: string | null;
+  profile_image_url: string | null;
+  description: string | null;
+  tags: string[] | null;
+}
+
+export interface ProductSource {
+  id: string;
+  name: string;
+  brand: string | null;
+  category: string | null;
+  price: number | null;
+  image_url: string | null;
+  description: string | null;
+  product_url: string | null;
+  tags: string[] | null;
+}
+
+export interface SourceSearchResponse {
+  posts?: PostSource[];
+  celebs?: CelebSource[];
+  products?: ProductSource[];
 }
 
 export interface TriggerResponse {
