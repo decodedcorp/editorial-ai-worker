@@ -53,6 +53,12 @@ class TriggerRequest(BaseModel):
     target_celeb: str | None = None
     target_brand: str | None = None
 
+    # DB Source mode fields
+    mode: str = "ai_curation"  # "ai_curation" | "db_source" | "ai_db_search"
+    selected_posts: list[str] | None = None
+    selected_celebs: list[str] | None = None
+    selected_products: list[str] | None = None
+
 
 class TriggerResponse(BaseModel):
     """Response after triggering a pipeline run."""
