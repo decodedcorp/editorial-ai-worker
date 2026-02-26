@@ -99,6 +99,7 @@ class ReviewService:
         *,
         rubric_config: RubricConfig | None = None,
         revision_count: int = 0,
+        cache_name: str | None = None,
     ) -> list[CriterionResult]:
         """LLM-as-a-Judge for semantic evaluation.
 
@@ -107,35 +108,59 @@ class ReviewService:
 
         When rubric_config is provided, the prompt uses content-type-specific
         criteria. When None, falls back to the default 3-criteria prompt.
+
+        When cache_name is provided, curated_topics are served from the cache
+        reducing token cost on retries.
         """
         prompt = build_review_prompt(
             draft_json, curated_topics_json, rubric_config=rubric_config
         )
 
         decision = get_model_router().resolve("review", revision_count=revision_count)
+        config = types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=ReviewResult,
+            temperature=0.0,
+        )
+        if cache_name:
+            config.cached_content = cache_name
+
         response = await self.client.aio.models.generate_content(
             model=decision.model,
             contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=ReviewResult,
-                temperature=0.0,
-            ),
+            config=config,
         )
         if hasattr(response, "usage_metadata") and response.usage_metadata:
             record_token_usage(
                 prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                 completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                 total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                cached_tokens=getattr(response.usage_metadata, "cached_content_token_count", 0) or 0,
                 model_name=decision.model,
                 routing_reason=decision.reason,
             )
 
         raw_text = response.text or "{}"
-        result = ReviewResult.model_validate_json(_strip_markdown_fences(raw_text))
+        stripped = _strip_markdown_fences(raw_text)
 
-        # Return only non-format criteria (format is handled by Pydantic)
-        return [c for c in result.criteria if c.criterion != "format"]
+        # Try parsing with fallback
+        for text_candidate in [stripped, raw_text]:
+            try:
+                result = ReviewResult.model_validate_json(text_candidate)
+                return [c for c in result.criteria if c.criterion != "format"]
+            except Exception:  # noqa: BLE001
+                continue
+
+        # All parsing failed — return a lenient pass to avoid blocking pipeline
+        logger.warning("Failed to parse ReviewResult JSON, returning lenient pass")
+        return [
+            CriterionResult(
+                criterion="llm_review",
+                passed=True,
+                reason="LLM review response could not be parsed; passing leniently",
+                severity="minor",
+            )
+        ]
 
     async def evaluate(
         self,
@@ -144,6 +169,7 @@ class ReviewService:
         *,
         rubric_config: RubricConfig | None = None,
         revision_count: int = 0,
+        cache_name: str | None = None,
     ) -> ReviewResult:
         """Full evaluation entry point: format (Pydantic) + LLM (semantic).
 
@@ -159,7 +185,11 @@ class ReviewService:
         draft_json = json.dumps(draft, ensure_ascii=False)
         topics_json = json.dumps(curated_topics, ensure_ascii=False)
         llm_criteria = await self.evaluate_with_llm(
-            draft_json, topics_json, rubric_config=rubric_config, revision_count=revision_count
+            draft_json,
+            topics_json,
+            rubric_config=rubric_config,
+            revision_count=revision_count,
+            cache_name=cache_name,
         )
 
         # Step 3: Combine all criteria

@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import logging
 
+from editorial_ai.caching import get_cache_manager
 from editorial_ai.models.design_spec import DesignSpec
+from editorial_ai.routing import get_model_router
 from editorial_ai.services.curation_service import get_genai_client
 from editorial_ai.services.editorial_service import EditorialService
 from editorial_ai.state import EditorialPipelineState
@@ -79,6 +81,26 @@ async def editorial_node(state: EditorialPipelineState) -> dict:
     feedback_history = state.get("feedback_history") or []
     previous_draft = state.get("current_draft") if feedback_history else None
 
+    # Cache trend_context + enriched on retry -- same context, different feedback/draft
+    revision_count = state.get("revision_count", 0)
+    cache_name = None
+    if revision_count > 0 and trend_context:
+        thread_id = state.get("thread_id") or "unknown"
+        cache_key = f"editorial-context-{thread_id}"
+        try:
+            model = get_model_router().resolve(
+                "editorial_content", revision_count=revision_count
+            ).model
+            cache_mgr = get_cache_manager()
+            cache_name = await cache_mgr.get_or_create(
+                cache_key=cache_key,
+                model=model,
+                contents=trend_context,
+                system_instruction="다음은 에디토리얼 작성을 위한 트렌드 컨텍스트 데이터입니다.",
+            )
+        except Exception:
+            logger.warning("Failed to create editorial cache, proceeding without", exc_info=True)
+
     try:
         service = EditorialService(get_genai_client())
         layout = await service.create_editorial(
@@ -86,7 +108,8 @@ async def editorial_node(state: EditorialPipelineState) -> dict:
             trend_context,
             feedback_history=feedback_history if feedback_history else None,
             previous_draft=previous_draft,
-            revision_count=state.get("revision_count", 0),
+            revision_count=revision_count,
+            cache_name=cache_name,
         )
         # Inject design_spec into layout so it persists in layout_json
         design_spec = state.get("design_spec")

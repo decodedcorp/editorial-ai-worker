@@ -6,8 +6,11 @@ from state, runs hybrid evaluation, writes review results back to state.
 
 from __future__ import annotations
 
+import json
 import logging
 
+from editorial_ai.caching import get_cache_manager
+from editorial_ai.routing import get_model_router
 from editorial_ai.rubrics import classify_content_type, get_rubric
 from editorial_ai.services.curation_service import get_genai_client
 from editorial_ai.services.review_service import ReviewService
@@ -53,13 +56,35 @@ async def review_node(state: EditorialPipelineState) -> dict:
         "Review using %s rubric for keyword=%s", content_type.value, seed_keyword
     )
 
+    # Cache curated_topics on retry -- same topics, different draft
+    revision_count = state.get("revision_count", 0)
+    cache_name = None
+    if revision_count > 0 and curated_topics:
+        topics_json = json.dumps(curated_topics, ensure_ascii=False)
+        thread_id = state.get("thread_id") or "unknown"
+        cache_key = f"review-topics-{thread_id}"
+        try:
+            model = get_model_router().resolve(
+                "review", revision_count=revision_count
+            ).model
+            cache_mgr = get_cache_manager()
+            cache_name = await cache_mgr.get_or_create(
+                cache_key=cache_key,
+                model=model,
+                contents=topics_json,
+                system_instruction="다음은 큐레이션된 토픽 데이터입니다. 에디토리얼 초안을 이 데이터와 대조하여 평가하세요.",
+            )
+        except Exception:
+            logger.warning("Failed to create review cache, proceeding without", exc_info=True)
+
     try:
         service = ReviewService(get_genai_client())
         result = await service.evaluate(
             current_draft,
             curated_topics,
             rubric_config=rubric_config,
-            revision_count=state.get("revision_count", 0),
+            revision_count=revision_count,
+            cache_name=cache_name,
         )
     except Exception as e:  # noqa: BLE001
         logger.exception("Review node failed")

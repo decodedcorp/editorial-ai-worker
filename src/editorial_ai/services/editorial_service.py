@@ -108,6 +108,7 @@ class EditorialService:
         feedback_history: list[dict] | None = None,
         previous_draft: dict | None = None,
         revision_count: int = 0,
+        cache_name: str | None = None,
     ) -> EditorialContent:
         """Step 1: Generate editorial content via Gemini structured output.
 
@@ -116,6 +117,9 @@ class EditorialService:
 
         When feedback_history is provided (retry iteration), uses feedback-aware
         prompt that prepends review failures before generation instructions.
+
+        When cache_name is provided, trend_context is served from the cache
+        reducing token cost on retries.
         """
         if feedback_history:
             prompt = build_content_generation_prompt_with_feedback(
@@ -125,20 +129,25 @@ class EditorialService:
             prompt = build_content_generation_prompt(keyword, trend_context)
 
         decision = get_model_router().resolve("editorial_content", revision_count=revision_count)
+        config = types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=EditorialContent,
+            temperature=0.7,
+        )
+        if cache_name:
+            config.cached_content = cache_name
+
         response = await self.client.aio.models.generate_content(
             model=decision.model,
             contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=EditorialContent,
-                temperature=0.7,
-            ),
+            config=config,
         )
         if hasattr(response, "usage_metadata") and response.usage_metadata:
             record_token_usage(
                 prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                 completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                 total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                cached_tokens=getattr(response.usage_metadata, "cached_content_token_count", 0) or 0,
                 model_name=decision.model,
                 routing_reason=decision.reason,
             )
@@ -195,6 +204,7 @@ class EditorialService:
                     prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                     completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                     total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                    cached_tokens=getattr(response.usage_metadata, "cached_content_token_count", 0) or 0,
                     model_name=self.image_model,
                 )
 
@@ -269,6 +279,7 @@ class EditorialService:
                     prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                     completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                     total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                    cached_tokens=getattr(response.usage_metadata, "cached_content_token_count", 0) or 0,
                     model_name=decision.model,
                     routing_reason=decision.reason,
                 )
@@ -330,6 +341,7 @@ class EditorialService:
                 prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                 completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                 total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                cached_tokens=getattr(response.usage_metadata, "cached_content_token_count", 0) or 0,
                 model_name=decision.model,
                 routing_reason=decision.reason,
             )
@@ -429,6 +441,7 @@ class EditorialService:
         feedback_history: list[dict] | None = None,
         previous_draft: dict | None = None,
         revision_count: int = 0,
+        cache_name: str | None = None,
     ) -> MagazineLayout:
         """Full pipeline entry point for editorial generation.
 
@@ -450,6 +463,7 @@ class EditorialService:
             feedback_history=feedback_history,
             previous_draft=previous_draft,
             revision_count=revision_count,
+            cache_name=cache_name,
         )
 
         # Step 2 + 3: Try Nano Banana + Vision pipeline
