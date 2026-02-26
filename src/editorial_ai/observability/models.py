@@ -18,6 +18,7 @@ class TokenUsage(BaseModel):
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
+    cached_tokens: int = 0
     model_name: str | None = None
     routing_reason: str | None = None
 

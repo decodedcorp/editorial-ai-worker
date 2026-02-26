@@ -31,6 +31,7 @@ def record_token_usage(
     total_tokens: int,
     model_name: str | None = None,
     routing_reason: str | None = None,
+    cached_tokens: int = 0,
 ) -> None:
     """Append a TokenUsage entry to the current context.
 
@@ -41,6 +42,7 @@ def record_token_usage(
             prompt_tokens=prompt_tokens,
             completion_tokens=completion_tokens,
             total_tokens=total_tokens,
+            cached_tokens=cached_tokens,
             model_name=model_name,
             routing_reason=routing_reason,
         )
