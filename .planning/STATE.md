@@ -38,6 +38,7 @@ Progress: [#####_______________] 25% (Phase 14: 1/4 plans complete)
 ### Quick Tasks Completed
 
 - [quick-001]: Layout diversity + per-block AI-decided GSAP animations + empty block filtering (2026-02-26)
+- [quick-003]: Fix pipeline execution logs not appearing on content detail page — added thread_id to local scripts (2026-02-26)
 
 ### Blockers/Concerns
 
@@ -46,5 +47,5 @@ Progress: [#####_______________] 25% (Phase 14: 1/4 plans complete)
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 14-01-PLAN.md (layout variant schema foundation)
+Stopped at: Completed quick-003 (thread_id fix for local pipeline scripts)
 Resume file: None
