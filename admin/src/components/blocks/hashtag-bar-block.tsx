@@ -1,6 +1,11 @@
-import type { HashtagBarBlock } from "@/lib/types";
+import type { HashtagBarBlock, DesignSpec } from "@/lib/types";
 
-export function HashtagBarBlockComponent({ block }: { block: HashtagBarBlock }) {
+interface HashtagBarBlockProps {
+  block: HashtagBarBlock;
+  designSpec?: DesignSpec;
+}
+
+export function HashtagBarBlockComponent({ block }: HashtagBarBlockProps) {
   const hashtags = block.hashtags ?? [];
 
   if (hashtags.length === 0) {
@@ -12,7 +17,7 @@ export function HashtagBarBlockComponent({ block }: { block: HashtagBarBlock }) 
       {hashtags.map((tag, i) => (
         <span
           key={i}
-          className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-700"
+          className="rounded-full border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors px-4 py-1.5 text-xs font-medium tracking-wide uppercase text-gray-700"
         >
           {tag.startsWith("#") ? tag : `#${tag}`}
         </span>
