@@ -211,3 +211,50 @@ export interface PipelineStatus {
   error_log: string[];
   has_draft: boolean;
 }
+
+// ---------------------------------------------------------------------------
+// Observability log types -- mirrors src/editorial_ai/api/schemas.py
+// ---------------------------------------------------------------------------
+
+export interface TokenUsageItem {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+  model_name: string | null;
+}
+
+export interface NodeRunLog {
+  node_name: string;
+  status: "success" | "error" | "skipped";
+  started_at: string;   // ISO datetime string
+  ended_at: string;     // ISO datetime string
+  duration_ms: number;
+  token_usage: TokenUsageItem[];
+  total_prompt_tokens: number;
+  total_completion_tokens: number;
+  total_tokens: number;
+  prompt_chars: number;
+  error_type: string | null;
+  error_message: string | null;
+  input_state: Record<string, unknown> | null;
+  output_state: Record<string, unknown> | null;
+}
+
+export interface PipelineRunSummary {
+  thread_id: string;
+  node_count: number;
+  total_duration_ms: number;
+  total_prompt_tokens: number;
+  total_completion_tokens: number;
+  total_tokens: number;
+  status: string;
+  started_at: string | null;
+  ended_at: string | null;
+}
+
+export interface LogsResponse {
+  content_id: string;
+  thread_id: string;
+  runs: NodeRunLog[];
+  summary: PipelineRunSummary | null;
+}
