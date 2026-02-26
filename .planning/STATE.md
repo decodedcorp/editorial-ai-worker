@@ -34,6 +34,10 @@ Progress: [####################] 100% (v1.0: 8 phases, v1.1: 5 phases — all sh
 - Verify Pydantic model schemas against live Supabase tables when credentials are configured
 - Address v1.1 tech debt (8 items — see milestones/v1.1-ROADMAP.md)
 
+### Quick Tasks Completed
+
+- [quick-001]: Layout diversity + per-block AI-decided GSAP animations + empty block filtering (2026-02-26)
+
 ### Blockers/Concerns
 
 - Supabase DATABASE_URL 포트 확인 필요 (5432 session pooler, not 6543 transaction pooler)
@@ -41,5 +45,5 @@ Progress: [####################] 100% (v1.0: 8 phases, v1.1: 5 phases — all sh
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: v1.1 milestone archived. Ready for next milestone.
+Stopped at: Completed quick-001 (layout diversity + animations)
 Resume file: None
