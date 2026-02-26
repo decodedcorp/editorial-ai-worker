@@ -32,6 +32,7 @@ from editorial_ai.models.layout import (
     HashtagBarBlock,
     HeadlineBlock,
     HeroBlock,
+    ImageGalleryBlock,
     MagazineLayout,
     ProductItem,
     ProductShowcaseBlock,
@@ -384,6 +385,30 @@ class EditorialService:
 
         raise last_error  # type: ignore[misc]
 
+    @staticmethod
+    def _is_block_empty(block: object) -> bool:
+        """Check if a block has no meaningful content and should be filtered."""
+        if isinstance(block, BodyTextBlock):
+            return not block.paragraphs or all(not p.strip() for p in block.paragraphs)
+        if isinstance(block, ImageGalleryBlock):
+            return not block.images
+        if isinstance(block, PullQuoteBlock):
+            return not block.quote or not block.quote.strip()
+        if isinstance(block, ProductShowcaseBlock):
+            return not block.products
+        if isinstance(block, CelebFeatureBlock):
+            return not block.celebs
+        if isinstance(block, HashtagBarBlock):
+            return not block.hashtags
+        if isinstance(block, CreditsBlock):
+            return not block.entries
+        if isinstance(block, HeadlineBlock):
+            return not block.text or not block.text.strip()
+        if isinstance(block, HeroBlock):
+            return not block.image_url and not block.overlay_title
+        # DividerBlock is never empty (it's structural)
+        return False
+
     def merge_content_into_layout(
         self,
         content: EditorialContent,
@@ -430,6 +455,9 @@ class EditorialService:
                 block.hashtags = content.hashtags
             elif isinstance(block, CreditsBlock):
                 block.entries = content.credits
+
+        # Filter out blocks with no meaningful content
+        new_layout.blocks = [b for b in new_layout.blocks if not self._is_block_empty(b)]
 
         return new_layout
 
@@ -537,7 +565,10 @@ class EditorialService:
             block_type = pb.get("type", "")
             builder = block_builders.get(block_type)
             if builder:
-                blocks.append(builder())
+                block = builder()
+                if "animation" in pb and pb["animation"]:
+                    block.animation = pb["animation"]
+                blocks.append(block)
 
         if not blocks:
             return create_default_template(keyword, title)

@@ -9,11 +9,19 @@ Schema version: 1.0
 
 from __future__ import annotations
 
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from editorial_ai.models.design_spec import DesignSpec
+
+# ---------------------------------------------------------------------------
+# Animation type for per-block GSAP animations (AI-decided)
+# ---------------------------------------------------------------------------
+
+AnimationType = Literal[
+    "fade-up", "fade-in", "slide-left", "slide-right", "scale-in", "parallax", "none"
+]
 
 # ---------------------------------------------------------------------------
 # Supporting models
@@ -89,6 +97,7 @@ class HeroBlock(BaseModel):
     image_url: str
     overlay_title: str | None = None
     overlay_subtitle: str | None = None
+    animation: Optional[AnimationType] = None
 
 
 class HeadlineBlock(BaseModel):
@@ -99,6 +108,7 @@ class HeadlineBlock(BaseModel):
     type: Literal["headline"] = "headline"
     text: str
     level: int = Field(default=1, ge=1, le=3)
+    animation: Optional[AnimationType] = None
 
 
 class BodyTextBlock(BaseModel):
@@ -108,6 +118,7 @@ class BodyTextBlock(BaseModel):
 
     type: Literal["body_text"] = "body_text"
     paragraphs: list[str]
+    animation: Optional[AnimationType] = None
 
 
 class ImageGalleryBlock(BaseModel):
@@ -118,6 +129,7 @@ class ImageGalleryBlock(BaseModel):
     type: Literal["image_gallery"] = "image_gallery"
     images: list[ImageItem]
     layout_style: Literal["grid", "carousel", "masonry"] = "grid"
+    animation: Optional[AnimationType] = None
 
 
 class PullQuoteBlock(BaseModel):
@@ -128,6 +140,7 @@ class PullQuoteBlock(BaseModel):
     type: Literal["pull_quote"] = "pull_quote"
     quote: str
     attribution: str | None = None
+    animation: Optional[AnimationType] = None
 
 
 class ProductShowcaseBlock(BaseModel):
@@ -137,6 +150,7 @@ class ProductShowcaseBlock(BaseModel):
 
     type: Literal["product_showcase"] = "product_showcase"
     products: list[ProductItem]
+    animation: Optional[AnimationType] = None
 
 
 class CelebFeatureBlock(BaseModel):
@@ -146,6 +160,7 @@ class CelebFeatureBlock(BaseModel):
 
     type: Literal["celeb_feature"] = "celeb_feature"
     celebs: list[CelebItem]
+    animation: Optional[AnimationType] = None
 
 
 class DividerBlock(BaseModel):
@@ -155,6 +170,7 @@ class DividerBlock(BaseModel):
 
     type: Literal["divider"] = "divider"
     style: Literal["line", "space", "ornament"] = "line"
+    animation: Optional[AnimationType] = None
 
 
 class HashtagBarBlock(BaseModel):
@@ -164,6 +180,7 @@ class HashtagBarBlock(BaseModel):
 
     type: Literal["hashtag_bar"] = "hashtag_bar"
     hashtags: list[str]
+    animation: Optional[AnimationType] = None
 
 
 class CreditsBlock(BaseModel):
@@ -173,6 +190,7 @@ class CreditsBlock(BaseModel):
 
     type: Literal["credits"] = "credits"
     entries: list[CreditEntry]
+    animation: Optional[AnimationType] = None
 
 
 # ---------------------------------------------------------------------------
@@ -231,13 +249,21 @@ def create_default_template(keyword: str, title: str) -> MagazineLayout:
         keyword=keyword,
         title=title,
         blocks=[
-            HeroBlock(image_url="", overlay_title=title),
-            HeadlineBlock(text=title),
-            BodyTextBlock(paragraphs=[]),
-            DividerBlock(),
-            ProductShowcaseBlock(products=[]),
-            CelebFeatureBlock(celebs=[]),
-            HashtagBarBlock(hashtags=[keyword]),
-            CreditsBlock(entries=[CreditEntry(role="AI Editor", name="decoded editorial")]),
+            HeroBlock(image_url="", overlay_title=title, animation="parallax"),
+            HeadlineBlock(text=title, animation="fade-up"),
+            BodyTextBlock(paragraphs=[], animation="fade-up"),
+            PullQuoteBlock(quote="", animation="scale-in"),
+            DividerBlock(style="line", animation="fade-in"),
+            ImageGalleryBlock(images=[], layout_style="grid", animation="fade-up"),
+            BodyTextBlock(paragraphs=[], animation="fade-up"),
+            DividerBlock(style="space", animation="fade-in"),
+            ProductShowcaseBlock(products=[], animation="slide-right"),
+            CelebFeatureBlock(celebs=[], animation="scale-in"),
+            DividerBlock(style="line", animation="fade-in"),
+            HashtagBarBlock(hashtags=[keyword], animation="slide-left"),
+            CreditsBlock(
+                entries=[CreditEntry(role="AI Editor", name="decoded editorial")],
+                animation="fade-in",
+            ),
         ],
     )

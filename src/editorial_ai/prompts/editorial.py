@@ -93,13 +93,22 @@ Number of content sections: {num_sections}
 Design requirements:
 - Modern fashion magazine aesthetic (think Vogue, Harper's Bazaar, Elle)
 - Clean grid layout with clear section boundaries
-- Include these section areas:
+- Include ALL of these section areas for a rich, diverse layout:
   1. Large hero image area at the top (full-width)
   2. Headline/title typography area
-  3. Body text columns ({num_sections - 4 if num_sections > 4 else 1} text section(s))
-  4. Product showcase area (grid of product cards)
-  5. Celebrity feature area
-  6. Hashtag bar at the bottom
+  3. Body text columns (2 text sections spread throughout)
+  4. Pull quote / callout area (between text sections)
+  5. Image gallery area (grid or carousel)
+  6. Product showcase area (grid of product cards)
+  7. Celebrity feature area
+  8. Divider elements (2-3 visual separators for rhythm)
+  9. Hashtag bar near the bottom
+  10. Credits section at the very bottom
+- IMPORTANT: Vary the layout - do NOT repeat the same block type consecutively.
+  Use pull quotes between text sections. Add dividers to create visual rhythm.
+- Example layout patterns:
+  Pattern A: hero -> headline -> body_text -> pull_quote -> image_gallery -> body_text -> divider -> product_showcase -> celeb_feature -> hashtag_bar -> credits
+  Pattern B: hero -> headline -> body_text -> divider -> celeb_feature -> pull_quote -> body_text -> image_gallery -> product_showcase -> hashtag_bar -> credits
 - Use placeholder rectangles for images (labeled "IMAGE")
 - Use horizontal lines for text areas (labeled "TEXT")
 - Minimalist color palette: white background, black text areas, light gray image placeholders
@@ -121,22 +130,41 @@ def build_layout_parsing_prompt(keyword: str, block_types: list[str]) -> str:
 
 사용 가능한 블록 타입: [{block_types_str}]
 
+사용 가능한 애니메이션: "fade-up", "fade-in", "slide-left", "slide-right", "scale-in", "parallax", "none"
+
 이미지에서 보이는 레이아웃 섹션을 위에서 아래로 순서대로 분석하여,
-각 섹션에 맞는 블록 타입을 지정해주세요.
+각 섹션에 맞는 블록 타입과 애니메이션을 지정해주세요.
 
 출력 형식 (JSON 배열):
 [
-  {{"type": "hero", "order": 0}},
-  {{"type": "headline", "order": 1}},
-  {{"type": "body_text", "order": 2}},
+  {{"type": "hero", "order": 0, "animation": "parallax"}},
+  {{"type": "headline", "order": 1, "animation": "fade-up"}},
+  {{"type": "body_text", "order": 2, "animation": "fade-up"}},
   ...
 ]
+
+애니메이션 가이드 (블록 타입별 권장 애니메이션):
+- hero: "parallax" 또는 "fade-in"
+- headline: "fade-up" 또는 "slide-left"
+- body_text: "fade-up"
+- pull_quote: "scale-in" 또는 "fade-in"
+- image_gallery: "fade-up" 또는 "slide-left"
+- product_showcase: "fade-up" 또는 "slide-right"
+- celeb_feature: "scale-in" 또는 "fade-up"
+- divider: "fade-in" 또는 "none"
+- hashtag_bar: "slide-left"
+- credits: "fade-in"
 
 규칙:
 - order는 0부터 시작하는 순서 번호
 - type은 위의 사용 가능한 블록 타입 중 하나
+- animation은 각 블록에 적합한 GSAP 애니메이션 효과
 - 이미지에서 식별할 수 없는 섹션은 건너뛰세요
 - 최소 3개, 최대 12개의 블록을 출력하세요
+
+중요: 다양한 블록 타입을 사용하세요. body_text나 image_gallery만 반복하지 마세요.
+pull_quote, product_showcase, celeb_feature, divider 블록을 반드시 포함하세요.
+pull_quote, product_showcase, celeb_feature 블록을 각각 최소 1개씩 포함하세요.
 
 반드시 유효한 JSON 배열만 출력하세요."""
 
