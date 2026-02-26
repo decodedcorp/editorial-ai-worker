@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 12 of 13 (Observability Dashboard)
-Plan: 2 of 3 complete (12-01+12-02 done, 12-03 remaining)
-Status: In progress
-Last activity: 2026-02-26 — Completed 12-02-PLAN.md (Pipeline tab visualization)
+Plan: 3 of 3 complete (12-01, 12-02, 12-03 done)
+Status: Phase complete
+Last activity: 2026-02-26 — Completed 12-03-PLAN.md (list page pipeline status)
 
-Progress: [##################-] 94% (34/36 plans)
+Progress: [###################] 97% (35/36 plans)
 
 ## Performance Metrics
 
@@ -70,6 +70,9 @@ Progress: [##################-] 94% (34/36 plans)
 - [12-02]: Round grouping by detecting repeated node_name for retry visualization
 - [12-02]: IO data lazy-loaded on demand (include_io=true) to avoid heavy initial page load
 - [12-02]: Parallel fetch of content + logs on detail page with graceful logs failure fallback
+- [12-03]: BFF list proxy enriches items server-side via Promise.all parallel log fetches (no N+1 from browser)
+- [12-03]: Retry count derived from editorial node occurrence count minus one
+- [12-03]: All 5 dots filled for terminal statuses; mid-pipeline stages reserved for detail page Pipeline tab
 
 ### Pending Todos
 
@@ -84,5 +87,5 @@ Progress: [##################-] 94% (34/36 plans)
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 12-02-PLAN.md (Pipeline tab visualization). Ready for 12-03 (list page status indicators).
+Stopped at: Completed 12-03-PLAN.md (list page pipeline status). Phase 12 complete.
 Resume file: None
