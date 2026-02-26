@@ -1,6 +1,12 @@
-import type { ImageGalleryBlock } from "@/lib/types";
+import { MagazineImage } from "@/components/magazine-image";
+import type { ImageGalleryBlock, DesignSpec } from "@/lib/types";
 
-export function ImageGalleryBlockComponent({ block }: { block: ImageGalleryBlock }) {
+interface ImageGalleryBlockProps {
+  block: ImageGalleryBlock;
+  designSpec?: DesignSpec;
+}
+
+export function ImageGalleryBlockComponent({ block, designSpec }: ImageGalleryBlockProps) {
   const images = block.images ?? [];
   const layoutStyle = block.layout_style ?? "grid";
 
@@ -15,6 +21,8 @@ export function ImageGalleryBlockComponent({ block }: { block: ImageGalleryBlock
         ? "columns-2 gap-4 space-y-4"
         : "grid grid-cols-2 gap-4";
 
+  const aspectRatio = layoutStyle === "masonry" ? "3/4" : "1/1";
+
   return (
     <div className={gridClass}>
       {images.map((img, i) => (
@@ -24,11 +32,17 @@ export function ImageGalleryBlockComponent({ block }: { block: ImageGalleryBlock
             layoutStyle === "carousel" ? "flex-none w-64" : "break-inside-avoid"
           }
         >
-          <div className="flex aspect-square items-center justify-center rounded bg-slate-200 text-sm text-slate-500">
-            {img.alt || "Image"}
-          </div>
+          <MagazineImage
+            src={img.url}
+            alt={img.alt || "Gallery image"}
+            aspectRatio={aspectRatio}
+            gradientFrom={designSpec?.color_palette?.primary}
+            gradientTo={designSpec?.color_palette?.accent}
+          />
           {img.caption && (
-            <p className="mt-1 text-xs text-gray-500">{img.caption}</p>
+            <p className="text-xs text-muted-foreground italic mt-1.5">
+              {img.caption}
+            </p>
           )}
         </div>
       ))}

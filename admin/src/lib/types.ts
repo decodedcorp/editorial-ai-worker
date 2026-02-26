@@ -123,6 +123,34 @@ export interface MagazineLayout {
 }
 
 // ---------------------------------------------------------------------------
+// Design Spec types -- mirrors src/editorial_ai/models/design_spec.py
+// ---------------------------------------------------------------------------
+
+export interface FontPairing {
+  headline_font: string;
+  body_font: string;
+  accent_font?: string | null;
+}
+
+export interface ColorPalette {
+  primary: string;
+  secondary: string;
+  accent: string;
+  background: string;
+  text: string;
+  muted: string;
+}
+
+export interface DesignSpec {
+  font_pairing: FontPairing;
+  color_palette: ColorPalette;
+  layout_density: "compact" | "normal" | "spacious";
+  mood: string;
+  hero_aspect_ratio: string;
+  drop_cap: boolean;
+}
+
+// ---------------------------------------------------------------------------
 // Content API types -- mirrors src/editorial_ai/api/schemas.py
 // ---------------------------------------------------------------------------
 
