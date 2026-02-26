@@ -29,6 +29,7 @@ Progress: [###############_____] 75% (Phase 14: 3/4 plans complete)
 - [v1.0]: 8 phases, 22 plans — MVP 파이프라인 구축 완료
 - [v1.1]: 5 phases, 16 plans — E2E 검증, 관측성, 매거진 렌더러, 파이프라인 고도화 완료
 - [14-01]: layout_variant Literal types on all 10 block models; 4-tier width system in BlockRenderer
+- [14-02]: 20 layout variants across hero (6), body-text (6), image-gallery (8) with backward-compat fallbacks
 - [14-03]: 20 layout variants across pull-quote (5), headline (4), product-showcase (6), celeb-feature (5)
 
 ### Pending Todos
