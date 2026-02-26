@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 10 of 13 (Pipeline Observability Backend)
-Plan: 1 of 3 (10-01 complete)
+Plan: 3 of 3 (10-03 complete)
 Status: In progress
-Last activity: 2026-02-26 — Completed 10-01-PLAN.md (observability foundation)
+Last activity: 2026-02-26 — Completed 10-03-PLAN.md (logs API endpoint)
 
-Progress: [############......] 72% (26/36 plans)
+Progress: [##############....] 78% (28/36 plans)
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [############......] 72% (26/36 plans)
 - [10-01]: model_validator(mode='before') for computed fields over @computed_field
 - [10-01]: ContextVar copy-on-first-write for cross-context safety
 - [10-01]: Fire-and-forget pattern for all observability I/O (try/except + log warning)
+- [10-03]: Logs router registered before admin at same prefix; include_io defaults true
 
 ### Pending Todos
 
@@ -68,5 +69,5 @@ Progress: [############......] 72% (26/36 plans)
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 10-01-PLAN.md (observability models, collector, storage). Ready for 10-02.
+Stopped at: Completed 10-03-PLAN.md (logs API endpoint). Phase 10 complete.
 Resume file: None
