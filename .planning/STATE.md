@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** 키워드 하나로 셀럽/상품/레퍼런스가 조합된 에디토리얼 콘텐츠가 자동 생성되고, 검수 루프를 거쳐 관리자가 승인하면 발행
-**Current focus:** Milestone v1.1 Phase 13 — Pipeline Advanced
+**Current focus:** Milestone v1.1 complete
 
 ## Current Position
 
 Phase: 13 of 13 (Pipeline Advanced)
-Plan: 01 of 3 in phase (01 + 02 complete)
-Status: In progress
-Last activity: 2026-02-26 — Completed 13-01-PLAN.md (model router)
+Plan: 03 of 3 in phase (all complete)
+Status: Phase 13 complete. v1.1 milestone complete.
+Last activity: 2026-02-26 — Completed 13-03-PLAN.md (context caching)
 
-Progress: [####################] 100% (38/36+2 plans — v1.0 complete, phases 9-13 in progress)
+Progress: [####################] 100% (all plans complete — v1.0 + v1.1 shipped)
 
 ## Performance Metrics
 
@@ -80,6 +80,11 @@ Progress: [####################] 100% (38/36+2 plans — v1.0 complete, phases 9
 - [13-01]: Module-level singleton ModelRouter (initialized once, shared across requests)
 - [13-01]: RoutingDecision dataclass with reason string for observability tracking
 - [13-01]: revision_count >= 2 triggers Pro upgrade for editorial_content and review nodes
+- [13-03]: MIN_CACHE_TOKENS=2048 with 4 chars/token estimate for cache threshold check
+- [13-03]: TTL 3600s (1 hour) for cache auto-expiry after pipeline completes
+- [13-03]: Singleton CacheManager via get_cache_manager() factory (lazy init)
+- [13-03]: Cache keys scoped per pipeline run via thread_id (review-topics-{id}, editorial-context-{id})
+- [13-03]: Fire-and-forget for all cache operations (consistent with observability pattern)
 
 ### Pending Todos
 
@@ -94,5 +99,5 @@ Progress: [####################] 100% (38/36+2 plans — v1.0 complete, phases 9
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 13-01-PLAN.md (model router). 13-02 also complete.
+Stopped at: Completed 13-03-PLAN.md (context caching). Phase 13 complete. v1.1 milestone complete.
 Resume file: None
