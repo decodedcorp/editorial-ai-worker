@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 11 of 13 (Magazine Renderer Enhancement)
-Plan: 02 of 4 (11-01 + 11-02 complete)
+Plan: 03 of 4 (11-01 + 11-02 + 11-03 complete)
 Status: In progress
-Last activity: 2026-02-26 — Completed 11-01-PLAN.md (DesignSpec Pipeline Node)
+Last activity: 2026-02-26 — Completed 11-03-PLAN.md (Block Components Upgrade)
 
-Progress: [################..] 83% (30/36 plans)
+Progress: [#################.] 86% (31/36 plans)
 
 ## Performance Metrics
 
@@ -62,6 +62,9 @@ Progress: [################..] 83% (30/36 plans)
 - [11-01]: design_spec_node failure returns default spec (non-critical, never crashes pipeline)
 - [11-01]: DesignSpec injected into MagazineLayout at editorial_node for DB-to-frontend delivery
 - [11-02]: Native <img> over next/image for magazine content (avoids remotePatterns for arbitrary external URLs)
+- [11-03]: All blocks accept optional designSpec prop (forward-compatible, works without it)
+- [11-03]: Drop cap uses float-left pattern with Playfair Display serif for first character
+- [11-03]: Google Fonts loaded via next/font/google CSS variables (no external CDN)
 
 ### Pending Todos
 
@@ -76,5 +79,5 @@ Progress: [################..] 83% (30/36 plans)
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 11-01-PLAN.md (DesignSpec Pipeline Node). 11-01 + 11-02 done. Next: 11-03.
+Stopped at: Completed 11-03-PLAN.md (Block Components Upgrade). 11-01 + 11-02 + 11-03 done. Next: 11-04.
 Resume file: None
