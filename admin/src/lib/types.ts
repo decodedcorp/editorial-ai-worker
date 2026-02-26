@@ -34,6 +34,19 @@ export interface CreditEntry {
 }
 
 // ---------------------------------------------------------------------------
+// Animation type for per-block GSAP animations (AI-decided)
+// ---------------------------------------------------------------------------
+
+export type AnimationType =
+  | "fade-up"
+  | "fade-in"
+  | "slide-left"
+  | "slide-right"
+  | "scale-in"
+  | "parallax"
+  | "none";
+
+// ---------------------------------------------------------------------------
 // Block types -- discriminated union on `type` field
 // ---------------------------------------------------------------------------
 
@@ -42,54 +55,64 @@ export interface HeroBlock {
   image_url: string;
   overlay_title?: string | null;
   overlay_subtitle?: string | null;
+  animation?: AnimationType | null;
 }
 
 export interface HeadlineBlock {
   type: "headline";
   text: string;
   level: 1 | 2 | 3;
+  animation?: AnimationType | null;
 }
 
 export interface BodyTextBlock {
   type: "body_text";
   paragraphs: string[];
+  animation?: AnimationType | null;
 }
 
 export interface ImageGalleryBlock {
   type: "image_gallery";
   images: ImageItem[];
   layout_style: "grid" | "carousel" | "masonry";
+  animation?: AnimationType | null;
 }
 
 export interface PullQuoteBlock {
   type: "pull_quote";
   quote: string;
   attribution?: string | null;
+  animation?: AnimationType | null;
 }
 
 export interface ProductShowcaseBlock {
   type: "product_showcase";
   products: ProductItem[];
+  animation?: AnimationType | null;
 }
 
 export interface CelebFeatureBlock {
   type: "celeb_feature";
   celebs: CelebItem[];
+  animation?: AnimationType | null;
 }
 
 export interface DividerBlock {
   type: "divider";
   style: "line" | "space" | "ornament";
+  animation?: AnimationType | null;
 }
 
 export interface HashtagBarBlock {
   type: "hashtag_bar";
   hashtags: string[];
+  animation?: AnimationType | null;
 }
 
 export interface CreditsBlock {
   type: "credits";
   entries: CreditEntry[];
+  animation?: AnimationType | null;
 }
 
 // ---------------------------------------------------------------------------
