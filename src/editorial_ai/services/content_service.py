@@ -58,6 +58,7 @@ async def save_pending_content(
     title: str,
     keyword: str,
     review_summary: str | None = None,
+    layout_image_base64: str | None = None,
 ) -> dict:
     """Save or update pending content for a given thread (upsert on thread_id).
 
@@ -70,16 +71,17 @@ async def save_pending_content(
     if existing:
         content_id = existing["id"]
         now = _now_iso()
-        existing.update(
-            {
-                "status": "pending",
-                "title": title,
-                "keyword": keyword,
-                "layout_json": layout_json,
-                "review_summary": review_summary,
-                "updated_at": now,
-            }
-        )
+        update_data: dict = {
+            "status": "pending",
+            "title": title,
+            "keyword": keyword,
+            "layout_json": layout_json,
+            "review_summary": review_summary,
+            "updated_at": now,
+        }
+        if layout_image_base64 is not None:
+            update_data["layout_image_base64"] = layout_image_base64
+        existing.update(update_data)
         _save(d / f"{content_id}.json", existing)
         return existing
 
@@ -93,6 +95,7 @@ async def save_pending_content(
         "title": title,
         "keyword": keyword,
         "layout_json": layout_json,
+        "layout_image_base64": layout_image_base64,
         "review_summary": review_summary,
         "rejection_reason": None,
         "admin_feedback": None,

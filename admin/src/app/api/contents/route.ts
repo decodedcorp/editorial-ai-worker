@@ -3,9 +3,74 @@ import { API_BASE_URL, ADMIN_API_KEY, DEMO_MODE } from "@/config";
 import { getDemoItems } from "@/lib/demo-data";
 import { estimateCost } from "@/components/pipeline/cost-utils";
 import type { ContentItem } from "@/lib/types";
+import fs from "fs";
+import path from "path";
+
+const LOCAL_CONTENTS_DIR = path.join(process.cwd(), "..", "data", "contents");
+
+/**
+ * Recursively collects all *.json file paths under the given directory.
+ */
+function collectJsonFiles(dir: string): string[] {
+  const result: string[] = [];
+  try {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        result.push(...collectJsonFiles(fullPath));
+      } else if (entry.isFile() && entry.name.endsWith(".json")) {
+        result.push(fullPath);
+      }
+    }
+  } catch {
+    // ignore read errors
+  }
+  return result;
+}
+
+function loadLocalContents(): ContentItem[] {
+  if (!fs.existsSync(LOCAL_CONTENTS_DIR)) return [];
+  const files = collectJsonFiles(LOCAL_CONTENTS_DIR);
+  const seen = new Set<string>();
+  const items: ContentItem[] = [];
+  for (const filePath of files) {
+    try {
+      const raw = fs.readFileSync(filePath, "utf-8");
+      const item = JSON.parse(raw) as ContentItem;
+      // Deduplicate by id (top-level files take precedence over subdirectory ones)
+      if (item.id && !seen.has(item.id)) {
+        seen.add(item.id);
+        items.push(item);
+      }
+    } catch {
+      // skip invalid files
+    }
+  }
+  items.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+  return items;
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
+
+  // Try local JSON files first (pipeline test mode)
+  const localItems = loadLocalContents();
+  if (localItems.length > 0) {
+    const status = searchParams.get("status") || undefined;
+    const limit = parseInt(searchParams.get("limit") || "20", 10);
+    const offset = parseInt(searchParams.get("offset") || "0", 10);
+    let filtered = localItems;
+    if (status) {
+      filtered = filtered.filter((i) => i.status === status);
+    }
+    const paged = filtered.slice(offset, offset + limit);
+    const enriched = paged.map((item) => ({
+      ...item,
+      pipeline_summary: null,
+    }));
+    return NextResponse.json({ items: enriched, total: filtered.length });
+  }
 
   if (DEMO_MODE) {
     const status = searchParams.get("status") || undefined;

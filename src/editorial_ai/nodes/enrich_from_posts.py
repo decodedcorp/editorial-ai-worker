@@ -107,6 +107,7 @@ def _inject_posts_data(
                     name=p["name"],
                     brand=p.get("brand"),
                     image_url=p.get("thumbnail_url"),
+                    link_url=p.get("original_url"),
                     description=p.get("description"),
                 )
                 for p in products[:6]
@@ -179,6 +180,7 @@ def _collect_products(contexts: list[dict]) -> list[dict]:
                 "name": title,
                 "brand": brand,
                 "thumbnail_url": sol.get("thumbnail_url"),
+                "original_url": sol.get("original_url"),
                 "description": description[:150] if description else None,
             })
     return products

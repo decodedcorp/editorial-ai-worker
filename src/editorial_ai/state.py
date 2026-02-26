@@ -24,6 +24,7 @@ class EditorialPipelineState(TypedDict):
 
     # Editorial Phase
     current_draft: dict | None  # MagazineLayout JSON (temporary; Phase 7 moves to Supabase)
+    layout_image_base64: str | None  # Nano Banana generated layout image (base64 PNG)
     current_draft_id: str | None
     tool_calls_log: Annotated[list[dict], operator.add]
 

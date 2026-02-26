@@ -2,11 +2,14 @@
 
 Thin wrapper around EditorialService: reads curated_topics from state,
 calls the service, writes MagazineLayout JSON back to state.
+Also saves the Nano Banana layout image locally and as base64 in state.
 """
 
 from __future__ import annotations
 
+import base64
 import logging
+from pathlib import Path
 
 from editorial_ai.models.design_spec import DesignSpec
 from editorial_ai.services.curation_service import get_genai_client
@@ -14,6 +17,8 @@ from editorial_ai.services.editorial_service import EditorialService
 from editorial_ai.state import EditorialPipelineState
 
 logger = logging.getLogger(__name__)
+
+_LAYOUT_IMAGES_DIR = Path("data/layout_images")
 
 
 async def editorial_node(state: EditorialPipelineState) -> dict:
@@ -86,21 +91,34 @@ async def editorial_node(state: EditorialPipelineState) -> dict:
 
     try:
         service = EditorialService(get_genai_client())
-        layout = await service.create_editorial(
+        layout, image_bytes = await service.create_editorial(
             primary_keyword,
             trend_context,
             feedback_history=feedback_history if feedback_history else None,
             previous_draft=previous_draft,
             revision_count=revision_count,
             cache_name=cache_name,
+            enriched_contexts=enriched_contexts,
         )
         # Inject design_spec into layout so it persists in layout_json
         design_spec = state.get("design_spec")
         if design_spec:
             layout.design_spec = DesignSpec.model_validate(design_spec)
 
+        # Save Nano Banana layout image locally and encode as base64
+        layout_image_base64: str | None = None
+        if image_bytes:
+            layout_image_base64 = base64.b64encode(image_bytes).decode("ascii")
+            # Save to local file for debugging
+            thread_id = state.get("thread_id") or "unknown"
+            _LAYOUT_IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+            img_path = _LAYOUT_IMAGES_DIR / f"{thread_id}.png"
+            img_path.write_bytes(image_bytes)
+            logger.info("Saved layout image: %s (%d bytes)", img_path, len(image_bytes))
+
         return {
             "current_draft": layout.model_dump(),
+            "layout_image_base64": layout_image_base64,
             "pipeline_status": "reviewing",
         }
     except Exception as e:  # noqa: BLE001

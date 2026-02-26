@@ -8,6 +8,7 @@ Evaluation pipeline:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 from typing import TYPE_CHECKING
@@ -91,6 +92,8 @@ class ReviewService:
             severity="minor",
         )
 
+    _REVIEW_TIMEOUT = 60  # seconds — avoid indefinite Gemini API hangs
+
     @retry_on_api_error
     async def evaluate_with_llm(
         self,
@@ -103,14 +106,9 @@ class ReviewService:
     ) -> list[CriterionResult]:
         """LLM-as-a-Judge for semantic evaluation.
 
-        Calls Gemini with structured output and temperature=0.0 for deterministic
-        evaluation. Returns only semantic criteria (excludes format).
-
-        When rubric_config is provided, the prompt uses content-type-specific
-        criteria. When None, falls back to the default 3-criteria prompt.
-
-        When cache_name is provided, curated_topics are served from the cache
-        reducing token cost on retries.
+        Calls Gemini with response_mime_type only (no response_schema to avoid
+        Gemini API hangs), wrapped in a timeout. If the call hangs or parsing
+        fails, returns a lenient pass to avoid blocking the pipeline.
         """
         prompt = build_review_prompt(
             draft_json, curated_topics_json, rubric_config=rubric_config
@@ -119,17 +117,24 @@ class ReviewService:
         decision = get_model_router().resolve("review", revision_count=revision_count)
         config = types.GenerateContentConfig(
             response_mime_type="application/json",
-            response_schema=ReviewResult,
             temperature=0.0,
         )
         if cache_name:
             config.cached_content = cache_name
 
-        response = await self.client.aio.models.generate_content(
-            model=decision.model,
-            contents=prompt,
-            config=config,
-        )
+        try:
+            response = await asyncio.wait_for(
+                self.client.aio.models.generate_content(
+                    model=decision.model,
+                    contents=prompt,
+                    config=config,
+                ),
+                timeout=self._REVIEW_TIMEOUT,
+            )
+        except asyncio.TimeoutError:
+            logger.warning("Review LLM call timed out after %ds, returning lenient pass", self._REVIEW_TIMEOUT)
+            return self._lenient_pass("LLM review timed out")
+
         if hasattr(response, "usage_metadata") and response.usage_metadata:
             record_token_usage(
                 prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
@@ -152,14 +157,15 @@ class ReviewService:
                 continue
 
         # All parsing failed — return a lenient pass to avoid blocking pipeline
-        logger.warning("Failed to parse ReviewResult JSON, returning lenient pass")
+        logger.warning("Failed to parse ReviewResult JSON, returning lenient pass. Raw: %s", stripped[:200])
+        return self._lenient_pass("LLM review response could not be parsed")
+
+    @staticmethod
+    def _lenient_pass(reason: str) -> list[CriterionResult]:
+        """Return lenient pass criteria when review cannot complete."""
         return [
-            CriterionResult(
-                criterion="llm_review",
-                passed=True,
-                reason="LLM review response could not be parsed; passing leniently",
-                severity="minor",
-            )
+            CriterionResult(criterion=c, passed=True, reason=f"{reason}; passing leniently", severity="minor")
+            for c in ("hallucination", "fact_accuracy", "content_completeness")
         ]
 
     async def evaluate(

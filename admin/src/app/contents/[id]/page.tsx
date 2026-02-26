@@ -109,13 +109,14 @@ export default async function ContentDetailPage({ params }: ContentDetailPagePro
         )}
       </div>
 
-      {/* Content Tabs: Magazine Preview + JSON */}
+      {/* Content Tabs: Magazine Preview + Layout Image + JSON */}
       <ContentTabs
         blocks={blocks}
         designSpec={designSpec}
         layoutJson={content.layout_json}
         logs={logsData}
         contentId={content.id}
+        layoutImageBase64={content.layout_image_base64}
       />
     </div>
   );

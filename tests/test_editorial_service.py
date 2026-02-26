@@ -339,7 +339,7 @@ class TestMergeContentIntoLayout:
 
 class TestCreateEditorial:
     async def test_create_editorial_full_pipeline(self) -> None:
-        """Full pipeline: content + image + vision -> merged layout."""
+        """Full pipeline: content + image + vision -> merged layout + image bytes."""
         client = _build_mock_client()
 
         # 3 calls: content gen, image gen, vision parse
@@ -350,7 +350,7 @@ class TestCreateEditorial:
         ]
 
         service = _build_service(client)
-        layout = await service.create_editorial(
+        layout, image_bytes = await service.create_editorial(
             "Y2K 패션",
             "레트로 트렌드 부활",
         )
@@ -365,6 +365,8 @@ class TestCreateEditorial:
         assert hero[0].overlay_title == "Y2K 리바이벌: 레트로가 다시 온다"
         # All 3 API calls made
         assert client.aio.models.generate_content.call_count == 3
+        # Image bytes returned
+        assert image_bytes == b"layout_image"
 
     async def test_create_editorial_nano_banana_fallback(self) -> None:
         """Image gen fails -> falls back to default template with content merged."""
@@ -377,7 +379,7 @@ class TestCreateEditorial:
         ]
 
         service = _build_service(client)
-        layout = await service.create_editorial(
+        layout, image_bytes = await service.create_editorial(
             "Y2K 패션",
             "레트로 트렌드 부활",
         )
@@ -389,6 +391,8 @@ class TestCreateEditorial:
             b for b in layout.blocks if isinstance(b, HeadlineBlock)
         ]
         assert headline[0].text == "Y2K 리바이벌: 레트로가 다시 온다"
+        # No image bytes when Nano Banana fails
+        assert image_bytes is None
 
     async def test_create_editorial_vision_parse_fallback(
         self,
@@ -404,7 +408,7 @@ class TestCreateEditorial:
         ]
 
         service = _build_service(client)
-        layout = await service.create_editorial(
+        layout, image_bytes = await service.create_editorial(
             "Y2K 패션",
             "레트로 트렌드 부활",
         )
@@ -416,3 +420,5 @@ class TestCreateEditorial:
             b for b in layout.blocks if isinstance(b, BodyTextBlock)
         ]
         assert len(body[0].paragraphs) == 2
+        # Image bytes still returned even though vision parse failed
+        assert image_bytes == b"layout_image"

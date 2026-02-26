@@ -529,7 +529,31 @@ class EditorialService:
 
         # Step 5: Enrich product items with solution metadata (image_url, link_url)
         if enriched_contexts:
+            total_sols = sum(len(c.get("solutions", [])) for c in enriched_contexts)
+            logger.info(
+                "Enriching products: %d contexts, %d total solutions",
+                len(enriched_contexts),
+                total_sols,
+            )
+            # Log sample solution to verify original_url presence
+            for c in enriched_contexts[:1]:
+                for s in c.get("solutions", [])[:1]:
+                    logger.info(
+                        "  Sample solution: title=%s, original_url=%s",
+                        s.get("title", "")[:40],
+                        (s.get("original_url") or "NONE")[:60],
+                    )
             self._enrich_products_from_solutions(merged, enriched_contexts)
+            # Log results
+            for block in merged.blocks:
+                if isinstance(block, ProductShowcaseBlock):
+                    for p in block.products:
+                        logger.info(
+                            "  Product after enrich: name=%s image=%s link=%s",
+                            (p.name or "")[:30],
+                            bool(p.image_url),
+                            bool(p.link_url),
+                        )
 
         return merged, image_bytes
 
@@ -538,27 +562,39 @@ class EditorialService:
         layout: MagazineLayout,
         enriched_contexts: list[dict],
     ) -> None:
-        """Inject image_url and link_url into ProductItems by matching solution names.
+        """Inject image_url and link_url into ProductItems from solution data.
 
         LLM generates product name/brand but cannot output real URLs.
-        This post-processing step matches product names against the original
-        enriched_contexts solutions and injects thumbnail_url → image_url,
-        original_url → link_url.
+        This post-processing step:
+        1. Tries name matching (exact then substring) to pair products with solutions
+        2. For unmatched products, assigns remaining solutions in order
+        3. Always overwrites image_url/link_url with DB values (LLM values are unreliable)
         """
-        # Build lookup: normalized name → solution data
-        solution_lookup: dict[str, dict] = {}
+        # Collect all solutions with valid titles, deduplicating by title
+        all_solutions: list[dict] = []
+        seen_titles: set[str] = set()
         for ctx in enriched_contexts:
             for sol in ctx.get("solutions", []):
                 title = (sol.get("title") or "").strip()
-                if title:
-                    solution_lookup[title.lower()] = sol
+                if title and title.lower() not in seen_titles:
+                    seen_titles.add(title.lower())
+                    all_solutions.append(sol)
+
+        # Build lookup: normalized name → solution data
+        solution_lookup: dict[str, dict] = {
+            (sol.get("title") or "").strip().lower(): sol
+            for sol in all_solutions
+        }
 
         for block in layout.blocks:
             if not isinstance(block, ProductShowcaseBlock):
                 continue
+
+            used_solutions: set[str] = set()
+
+            # Pass 1: Match by name
             for product in block.products:
                 name_lower = (product.name or "").strip().lower()
-                # Try exact match first, then substring match
                 matched = solution_lookup.get(name_lower)
                 if not matched:
                     for sol_name, sol_data in solution_lookup.items():
@@ -566,10 +602,25 @@ class EditorialService:
                             matched = sol_data
                             break
                 if matched:
-                    if not product.image_url and matched.get("thumbnail_url"):
+                    title_key = (matched.get("title") or "").strip().lower()
+                    used_solutions.add(title_key)
+                    if matched.get("thumbnail_url"):
                         product.image_url = matched["thumbnail_url"]
-                    if not product.link_url and matched.get("original_url"):
+                    if matched.get("original_url"):
                         product.link_url = matched["original_url"]
+
+            # Pass 2: Assign remaining solutions to unmatched products
+            remaining = [s for s in all_solutions if (s.get("title") or "").strip().lower() not in used_solutions]
+            remaining_idx = 0
+            for product in block.products:
+                if not product.image_url or not product.link_url:
+                    if remaining_idx < len(remaining):
+                        sol = remaining[remaining_idx]
+                        remaining_idx += 1
+                        if not product.image_url and sol.get("thumbnail_url"):
+                            product.image_url = sol["thumbnail_url"]
+                        if not product.link_url and sol.get("original_url"):
+                            product.link_url = sol["original_url"]
 
     def _build_layout_from_parsed(
         self,

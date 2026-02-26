@@ -10,7 +10,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from editorial_ai.api.routes import admin, health, logs, pipeline
+from editorial_ai.api.routes import admin, health, logs, pipeline, sources
 from editorial_ai.checkpointer import create_checkpointer
 from editorial_ai.config import settings
 from editorial_ai.graph import build_graph
@@ -58,4 +58,5 @@ async def global_exception_handler(request: Request, exc: Exception):
 app.include_router(logs.router, prefix="/api/contents", tags=["logs"])
 app.include_router(admin.router, prefix="/api/contents", tags=["contents"])
 app.include_router(pipeline.router, prefix="/api/pipeline", tags=["pipeline"])
+app.include_router(sources.router, prefix="/api/sources", tags=["sources"])
 app.include_router(health.router, tags=["health"])

@@ -1,7 +1,15 @@
-"""Multi-scenario pipeline v4: fetches real data from Supabase DB.
+"""Multi-scenario pipeline v5: fetches real data from Supabase DB.
+
+v5 changes (from v4):
+- layout_image_base64 saved through admin_gate -> content_service
+- link_url bug fix: enrich_from_posts now passes original_url
+- version tracking in output and saved content
+- enhanced verification: checks layout_image, link_url, block variants
 
 7 scenarios with ZERO image/solution overlap, all URLs from DB.
 """
+
+PIPELINE_VERSION = "v5"
 
 import asyncio
 import logging
@@ -341,15 +349,18 @@ async def auto_approve_admin_gate(state):
     keyword = curation_input.get("seed_keyword", "")
     review_summary = review_result.get("summary", "")
     thread_id = state.get("thread_id") or keyword or "unknown"
+    layout_image_base64 = state.get("layout_image_base64")
     saved = await save_pending_content(
         thread_id=thread_id,
         layout_json=current_draft,
         title=title,
         keyword=keyword,
         review_summary=review_summary,
+        layout_image_base64=layout_image_base64,
     )
     content_id = saved.get("id", "")
-    print(f"  Content saved: id={content_id}, title={title[:60]}", flush=True)
+    has_img = "✓" if layout_image_base64 else "✗"
+    print(f"  Content saved: id={content_id}, {has_img}layout_img, title={title[:60]}", flush=True)
     return {
         "admin_decision": "approved",
         "current_draft_id": content_id,
@@ -402,18 +413,37 @@ async def run_scenario(label, scenario):
         elapsed = time.time() - start
         draft = result.get("current_draft", {})
         blocks = draft.get("blocks", [])
-        print(f"  Completed in {elapsed:.1f}s", flush=True)
+        has_layout_img = "✓" if result.get("layout_image_base64") else "✗"
+        print(f"  Completed in {elapsed:.1f}s | {has_layout_img}layout_image", flush=True)
         print(f"  Title: {draft.get('title', 'N/A')}", flush=True)
-        print(f"  Blocks: {len(blocks)} — {', '.join(b.get('type','?') for b in blocks)}", flush=True)
 
-        # Show product enrichment status
+        # Block summary with variant info
+        block_summary = []
+        for b in blocks:
+            btype = b.get("type", "?")
+            variant = b.get("layout_variant")
+            anim = b.get("animation")
+            tag = btype
+            if variant:
+                tag += f"({variant})"
+            block_summary.append(tag)
+        print(f"  Blocks({len(blocks)}): {', '.join(block_summary)}", flush=True)
+
+        # Product enrichment verification
+        product_ok = 0
+        product_total = 0
         for b in blocks:
             if b.get("type") == "product_showcase":
                 for p in b.get("products", []):
+                    product_total += 1
                     has_img = "✓" if p.get("image_url") else "✗"
                     has_link = "✓" if p.get("link_url") else "✗"
+                    if p.get("image_url") and p.get("link_url"):
+                        product_ok += 1
                     print(f"    {has_img}img {has_link}link | {p.get('name','')[:40]}", flush=True)
 
+        enrichment_rate = f"{product_ok}/{product_total}" if product_total else "N/A"
+        print(f"  Enrichment: {enrichment_rate} products fully linked", flush=True)
         print(f"  Status: {result.get('pipeline_status')}", flush=True)
         return True
     except Exception as e:
@@ -426,7 +456,8 @@ async def main():
     from editorial_ai.services.content_service import list_contents
 
     total_start = time.time()
-    print(">>> Multi-scenario pipeline v4 (DB-sourced, zero overlap)", flush=True)
+    print(f">>> Multi-scenario pipeline {PIPELINE_VERSION} (DB-sourced, zero overlap)", flush=True)
+    print(f"    Changes: layout_image_base64, link_url fix, block variants", flush=True)
 
     # Fetch all data from DB
     print(">>> Fetching data from Supabase...", flush=True)
@@ -446,17 +477,34 @@ async def main():
 
     total_elapsed = time.time() - total_start
     print(f"\n{'='*60}", flush=True)
-    print(f">>> All done in {total_elapsed:.1f}s", flush=True)
+    print(f">>> Pipeline {PIPELINE_VERSION} — All done in {total_elapsed:.1f}s", flush=True)
     print(f"{'='*60}", flush=True)
 
+    ok_count = sum(1 for _, ok in results if ok)
+    print(f"  Results: {ok_count}/{len(results)} succeeded", flush=True)
     for label, ok in results:
         status = "OK" if ok else "FAIL"
         print(f"  [{status}] {label}", flush=True)
 
     items = await list_contents()
     print(f"\n>>> Total saved contents: {len(items)}", flush=True)
+    # Verify v5 features in saved content
+    img_count = sum(1 for i in items if i.get("layout_image_base64"))
+    print(f"  With layout_image: {img_count}/{len(items)}", flush=True)
     for item in items:
-        print(f"  [{item['status']}] {item['title'][:60]}", flush=True)
+        has_img = "✓" if item.get("layout_image_base64") else "✗"
+        # Count products with link_url in layout_json
+        lj = item.get("layout_json", {})
+        link_ok = 0
+        link_total = 0
+        for b in lj.get("blocks", []):
+            if b.get("type") == "product_showcase":
+                for p in b.get("products", []):
+                    link_total += 1
+                    if p.get("link_url"):
+                        link_ok += 1
+        link_info = f"links:{link_ok}/{link_total}" if link_total else ""
+        print(f"  [{item['status']}] {has_img}img {link_info} {item['title'][:55]}", flush=True)
 
 
 if __name__ == "__main__":

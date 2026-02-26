@@ -16,6 +16,7 @@ class ContentResponse(BaseModel):
     title: str
     keyword: str
     layout_json: dict
+    layout_image_base64: str | None = None
     review_summary: str | None = None
     rejection_reason: str | None = None
     admin_feedback: str | None = None

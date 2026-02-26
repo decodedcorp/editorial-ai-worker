@@ -18,6 +18,7 @@ export interface ProductItem {
   name: string;
   brand?: string | null;
   image_url?: string | null;
+  link_url?: string | null;
   description?: string | null;
 }
 

@@ -41,6 +41,7 @@ async def admin_gate(state: EditorialPipelineState) -> dict:
     # 1. Save to Supabase (upsert on thread_id -- safe on re-execution)
     # thread_id is set by the API trigger in pipeline state; keyword fallback for CLI usage
     thread_id = state.get("thread_id") or keyword or "unknown"
+    layout_image_base64 = state.get("layout_image_base64")
 
     saved = await save_pending_content(
         thread_id=thread_id,
@@ -48,6 +49,7 @@ async def admin_gate(state: EditorialPipelineState) -> dict:
         title=title,
         keyword=keyword,
         review_summary=review_summary,
+        layout_image_base64=layout_image_base64,
     )
     content_id = saved.get("id", "")
 

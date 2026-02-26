@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.0",
+  "title": "K-POP 패션: Refined Maximalism부터 앰버서더 파워까지, 트렌드를 이끄는 아이콘들",
+  "subtitle": null,
+  "keyword": "이번주 K-pop 패션 트렌드",
+  "blocks": [
+    {
+      "type": "hero",
+      "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/newjeanscloset/2024-07-08_03-35-51/2024-07-08_03-35-51_UTC_2.jpg",
+      "overlay_title": "K-POP 패션: Refined Maximalism부터 앰버서더 파워까지, 트렌드를 이끄는 아이콘들",
+      "overlay_subtitle": "이번 주, K-pop 아이돌들이 선보인 다채로운 스타일을 통해 2026년 패션 트렌드의 현주소를 조명합니다."
+    },
+    {
+      "type": "headline",
+      "text": "K-POP 패션: Refined Maximalism부터 앰버서더 파워까지, 트렌드를 이끄는 아이콘들",
+      "level": 1
+    },
+    {
+      "type": "body_text",
+      "paragraphs": [
+        "K-pop은 이제 단순한 음악 장르를 넘어 글로벌 라이프스타일과 패션 트렌드를 선도하는 문화 현상입니다. 2026년 현재, 'Refined Maximalism' 시대를 맞아 K-pop 아이돌들은 지속 가능한 디자인, 젠더 플루이드 테일러링, 첨단 기술을 접목한 실용성을 중요하게 여기며 패션의 최전선에 섰습니다. 미니멀리즘에 대한 반작용으로 부상한 Refined Maximalism은 색상, 패턴, 질감 등을 신중하게 조합하여 고급스럽고 의도적인 스타일을 연출하며 개성 표현의 활력을 불어넣습니다.",
+        "이번 주, 블랙핑크 제니는 Refined Maximalism의 정수를 선보였습니다. CHANEL Custom pantsuit과 CHANEL Washed Denim Coat를 매치, 럭셔리하면서도 과감한 스타일을 연출했습니다. GENTLE MONSTER Donut Bun 01 선글라스와 CHROME HEARTS Cross Cut Out Stud Earring으로 포인트를 더해 독보적인 아우라를 발산했습니다. 그녀의 스타일은 앰버서더 파워의 대표적인 예시입니다.",
+        "뉴진스 하니 역시 트렌드를 주도했습니다. BAPE Red Heart Camouflage Outfit과 GUCCI Oval Frame Sunglasses를 매치하여 Y2K 레트로 무드를 현대적으로 재해석한 발랄한 스타일을 선보였습니다. viaplain VIA Coi Pintuck Sleeveless로 편안하면서도 스타일리시한 일상 룩을 완성하며, K-pop 아이돌이 착용한 제품은 즉시 품절되는 강력한 팬덤의 영향력을 다시 한번 입증했습니다."
+      ]
+    },
+    {
+      "type": "divider",
+      "style": "line"
+    },
+    {
+      "type": "product_showcase",
+      "products": [
+        {
+          "product_id": "7c979569-de82-4058-ad66-aa423fb9e0fc",
+          "name": "ADRIANA HOT COUTURE AHC Turtleneck Top",
+          "brand": null,
+          "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/bad8e4a1-e1f3-4b00-b433-2e42c87a1739/4529.jpg",
+          "description": null
+        },
+        {
+          "product_id": "cf6c0788-beec-45c5-a46e-df79985ec0bd",
+          "name": "CHIN DOWN Boy Denim Panelled",
+          "brand": null,
+          "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/bad8e4a1-e1f3-4b00-b433-2e42c87a1739/4531.jpg",
+          "description": null
+        },
+        {
+          "product_id": "ccffe0d2-a593-4db6-ab97-0b260eba92ed",
+          "name": "GENTLE MONSTER Donut Bun 01",
+          "brand": null,
+          "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/bad8e4a1-e1f3-4b00-b433-2e42c87a1739/4532.jpg",
+          "description": null
+        },
+        {
+          "product_id": "65fa95ca-cb0b-495c-9a33-dc0b39d226e1",
+          "name": "CHANEL Custom pantsuit with a skirt",
+          "brand": null,
+          "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/5ea1026f-34a5-426a-8b42-f12f9f972396/154.jpg",
+          "description": null
+        },
+        {
+          "product_id": "c1a015a5-7118-4430-ae69-9cfc4261173d",
+          "name": "PLAGE Textured Half Button Swimsuit",
+          "brand": null,
+          "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/e6407f1c-0914-4888-ab74-b1ed8c7bae0a/3896.jpg",
+          "description": null
+        },
+        {
+          "product_id": "e3cd0609-6d2e-4f5b-8f0e-138237aa3988",
+          "name": "years ago Vintage Watch Belt",
+          "brand": null,
+          "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/e6407f1c-0914-4888-ab74-b1ed8c7bae0a/3900.jpg",
+          "description": null
+        }
+      ]
+    },
+    {
+      "type": "celeb_feature",
+      "celebs": [
+        {
+          "celeb_id": null,
+          "name": "jennie",
+          "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-05-01_14-50-38/2024-05-01_14-50-38_UTC_4.jpg",
+          "description": "BLACKPINK 멤버"
+        },
+        {
+          "celeb_id": null,
+          "name": "hanni",
+          "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/newjeanscloset/2024-07-08_03-35-51/2024-07-08_03-35-51_UTC_2.jpg",
+          "description": "NewJeans 멤버"
+        },
+        {
+          "celeb_id": null,
+          "name": "minji",
+          "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/newjeanscloset/2024-04-23_09-28-01/2024-04-23_09-28-01_UTC_6.jpg",
+          "description": "NewJeans 멤버"
+        }
+      ]
+    },
+    {
+      "type": "hashtag_bar",
+      "hashtags": [
+        "Kpop패션",
+        "RefinedMaximalism",
+        "젠더플루이드",
+        "앰버서더파워",
+        "셀럽스타일"
+      ]
+    },
+    {
+      "type": "credits",
+      "entries": [
+        {
+          "role": "AI Editor",
+          "name": "decoded editorial"
+        }
+      ]
+    }
+  ],
+  "created_at": null,
+  "metadata": []
+}

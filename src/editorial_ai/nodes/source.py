@@ -20,6 +20,12 @@ async def source_node(state: EditorialPipelineState) -> dict:
     Reads curated_topics keywords, queries posts+spots+solutions,
     and writes enriched_contexts back to state for editorial generation.
     """
+    # DB Source mode: enriched_contexts already provided, skip DB query
+    curation_input = state.get("curation_input") or {}
+    if curation_input.get("mode") == "db_source" and state.get("enriched_contexts"):
+        logger.info("Source skipped: db_source mode, %d contexts pre-populated", len(state["enriched_contexts"]))
+        return {"pipeline_status": "drafting"}
+
     curated_topics = state.get("curated_topics") or []
     if not curated_topics:
         return {

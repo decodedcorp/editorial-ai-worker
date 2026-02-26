@@ -68,7 +68,9 @@ class TestEditorialNodeSuccess:
     ) -> None:
         """Successful editorial sets pipeline_status='reviewing' and current_draft."""
         mock_instance = MagicMock()
-        mock_instance.create_editorial = AsyncMock(return_value=_sample_layout())
+        mock_instance.create_editorial = AsyncMock(
+            return_value=(_sample_layout(), b"fake_image_bytes")
+        )
         mock_service_cls.return_value = mock_instance
 
         result = await editorial_node(_base_state())
@@ -77,6 +79,7 @@ class TestEditorialNodeSuccess:
         assert result["current_draft"] is not None
         assert isinstance(result["current_draft"], dict)
         assert result["current_draft"]["keyword"] == "Y2K"
+        assert result["layout_image_base64"] is not None
         mock_instance.create_editorial.assert_awaited_once()
 
 
@@ -130,7 +133,9 @@ class TestEditorialNodeFeedbackInjection:
     ) -> None:
         """When feedback_history is present, node passes it to create_editorial."""
         mock_instance = MagicMock()
-        mock_instance.create_editorial = AsyncMock(return_value=_sample_layout())
+        mock_instance.create_editorial = AsyncMock(
+            return_value=(_sample_layout(), b"fake_image_bytes")
+        )
         mock_service_cls.return_value = mock_instance
 
         feedback = [
@@ -159,7 +164,9 @@ class TestEditorialNodeFeedbackInjection:
     ) -> None:
         """First run (empty feedback_history) passes feedback_history=None."""
         mock_instance = MagicMock()
-        mock_instance.create_editorial = AsyncMock(return_value=_sample_layout())
+        mock_instance.create_editorial = AsyncMock(
+            return_value=(_sample_layout(), None)
+        )
         mock_service_cls.return_value = mock_instance
 
         result = await editorial_node(_base_state(feedback_history=[]))
@@ -178,7 +185,9 @@ class TestEditorialNodeTrendContext:
     ) -> None:
         """Node concatenates multiple topic backgrounds and keywords into trend_context."""
         mock_instance = MagicMock()
-        mock_instance.create_editorial = AsyncMock(return_value=_sample_layout())
+        mock_instance.create_editorial = AsyncMock(
+            return_value=(_sample_layout(), None)
+        )
         mock_service_cls.return_value = mock_instance
 
         state = _base_state(
