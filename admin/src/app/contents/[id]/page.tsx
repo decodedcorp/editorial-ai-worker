@@ -5,7 +5,7 @@ import { apiGet } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import { ContentTabs } from "@/components/content-tabs";
 import { ActionBar } from "./actions";
-import type { ContentItem } from "@/lib/types";
+import type { ContentItem, LogsResponse } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -17,8 +17,16 @@ export default async function ContentDetailPage({ params }: ContentDetailPagePro
   const { id } = await params;
 
   let content: ContentItem;
+  let logsData: LogsResponse | null = null;
   try {
-    content = await apiGet<ContentItem>(`/api/contents/${id}`);
+    const [contentResult, logsResult] = await Promise.all([
+      apiGet<ContentItem>(`/api/contents/${id}`),
+      apiGet<LogsResponse>(`/api/contents/${id}/logs?include_io=false`).catch(
+        () => null,
+      ),
+    ]);
+    content = contentResult;
+    logsData = logsResult;
   } catch (err) {
     if (err instanceof Error && err.message.includes("404")) {
       notFound();
@@ -106,6 +114,8 @@ export default async function ContentDetailPage({ params }: ContentDetailPagePro
         blocks={blocks}
         designSpec={designSpec}
         layoutJson={content.layout_json}
+        logs={logsData}
+        contentId={content.id}
       />
     </div>
   );

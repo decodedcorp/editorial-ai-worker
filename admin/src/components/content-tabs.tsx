@@ -2,24 +2,30 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MagazinePreview } from "@/components/magazine-preview";
-import type { LayoutBlock, DesignSpec } from "@/lib/types";
+import { PipelineTab } from "@/components/pipeline/pipeline-tab";
+import type { LayoutBlock, DesignSpec, LogsResponse } from "@/lib/types";
 
 interface ContentTabsProps {
   blocks: LayoutBlock[];
   designSpec: DesignSpec | null;
   layoutJson: unknown;
+  logs: LogsResponse | null;
+  contentId: string;
 }
 
 export function ContentTabs({
   blocks,
   designSpec,
   layoutJson,
+  logs,
+  contentId,
 }: ContentTabsProps) {
   return (
     <Tabs defaultValue="magazine">
       <TabsList>
         <TabsTrigger value="magazine">Magazine</TabsTrigger>
         <TabsTrigger value="json">JSON</TabsTrigger>
+        <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
       </TabsList>
 
       <TabsContent value="magazine">
@@ -30,6 +36,10 @@ export function ContentTabs({
         <pre className="max-h-[80vh] overflow-auto rounded-lg bg-slate-950 p-4 font-mono text-xs text-slate-100">
           {JSON.stringify(layoutJson, null, 2)}
         </pre>
+      </TabsContent>
+
+      <TabsContent value="pipeline">
+        <PipelineTab logs={logs} contentId={contentId} />
       </TabsContent>
     </Tabs>
   );
