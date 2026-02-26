@@ -19,6 +19,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 from editorial_ai.config import settings
 from editorial_ai.models.curation import CuratedTopic, CurationResult, GroundingSource
 from editorial_ai.observability import record_token_usage
+from editorial_ai.routing import get_model_router
 from editorial_ai.prompts.curation import (
     build_extraction_prompt,
     build_subtopic_expansion_prompt,
@@ -119,8 +120,9 @@ class CurationService:
         When db_context is provided, it's injected into the prompt so the model
         anchors its research to available DB data.
         """
+        decision = get_model_router().resolve("curation_research")
         response = await self.client.aio.models.generate_content(
-            model=self.model,
+            model=decision.model,
             contents=build_trend_research_prompt(keyword, db_context=db_context),
             config=types.GenerateContentConfig(
                 tools=[types.Tool(google_search=types.GoogleSearch())],
@@ -132,7 +134,8 @@ class CurationService:
                 prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                 completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                 total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
-                model_name=self.model,
+                model_name=decision.model,
+                routing_reason=decision.reason,
             )
         text = response.text or ""
         sources = _extract_grounding_sources(response)
@@ -144,8 +147,9 @@ class CurationService:
 
         Returns a list of 3-7 sub-topic keyword strings.
         """
+        decision = get_model_router().resolve("curation_subtopics")
         response = await self.client.aio.models.generate_content(
-            model=self.model,
+            model=decision.model,
             contents=build_subtopic_expansion_prompt(keyword, trend_background),
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
@@ -157,7 +161,8 @@ class CurationService:
                 prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                 completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                 total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
-                model_name=self.model,
+                model_name=decision.model,
+                routing_reason=decision.reason,
             )
         try:
             raw_text = response.text or "[]"
@@ -183,8 +188,9 @@ class CurationService:
         Parses the research text into a CuratedTopic model. Falls back to
         low_quality=True with defaults if parsing fails.
         """
+        decision = get_model_router().resolve("curation_extract")
         response = await self.client.aio.models.generate_content(
-            model=self.model,
+            model=decision.model,
             contents=build_extraction_prompt(keyword, raw_research),
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
@@ -196,7 +202,8 @@ class CurationService:
                 prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                 completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                 total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
-                model_name=self.model,
+                model_name=decision.model,
+                routing_reason=decision.reason,
             )
         raw_text = response.text or "{}"
         # Try parsing, with markdown fence fallback

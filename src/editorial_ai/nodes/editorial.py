@@ -86,6 +86,7 @@ async def editorial_node(state: EditorialPipelineState) -> dict:
             trend_context,
             feedback_history=feedback_history if feedback_history else None,
             previous_draft=previous_draft,
+            revision_count=state.get("revision_count", 0),
         )
         # Inject design_spec into layout so it persists in layout_json
         design_spec = state.get("design_spec")

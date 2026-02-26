@@ -23,6 +23,7 @@ from editorial_ai.models.editorial import (
     EditorialContent,
 )
 from editorial_ai.observability import record_token_usage
+from editorial_ai.routing import get_model_router
 from editorial_ai.models.layout import (
     BodyTextBlock,
     CelebFeatureBlock,
@@ -106,6 +107,7 @@ class EditorialService:
         *,
         feedback_history: list[dict] | None = None,
         previous_draft: dict | None = None,
+        revision_count: int = 0,
     ) -> EditorialContent:
         """Step 1: Generate editorial content via Gemini structured output.
 
@@ -122,8 +124,9 @@ class EditorialService:
         else:
             prompt = build_content_generation_prompt(keyword, trend_context)
 
+        decision = get_model_router().resolve("editorial_content", revision_count=revision_count)
         response = await self.client.aio.models.generate_content(
-            model=self.content_model,
+            model=decision.model,
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
@@ -136,7 +139,8 @@ class EditorialService:
                 prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                 completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                 total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
-                model_name=self.content_model,
+                model_name=decision.model,
+                routing_reason=decision.reason,
             )
 
         raw_json = response.text or "{}"
@@ -243,10 +247,11 @@ class EditorialService:
         or None on failure.
         """
         prompt = build_layout_parsing_prompt(keyword, BLOCK_TYPES)
+        decision = get_model_router().resolve("editorial_layout_parse")
 
         try:
             response = await self.client.aio.models.generate_content(
-                model=self.content_model,
+                model=decision.model,
                 contents=[
                     prompt,
                     types.Part.from_bytes(
@@ -264,7 +269,8 @@ class EditorialService:
                     prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                     completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                     total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
-                    model_name=self.content_model,
+                    model_name=decision.model,
+                    routing_reason=decision.reason,
                 )
 
             raw_text = response.text or "[]"
@@ -310,8 +316,9 @@ class EditorialService:
             error_msg,
         )
 
+        decision = get_model_router().resolve("editorial_repair")
         response = await self.client.aio.models.generate_content(
-            model=self.content_model,
+            model=decision.model,
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
@@ -323,7 +330,8 @@ class EditorialService:
                 prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                 completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                 total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
-                model_name=self.content_model,
+                model_name=decision.model,
+                routing_reason=decision.reason,
             )
 
         return response.text or "{}"
@@ -420,6 +428,7 @@ class EditorialService:
         *,
         feedback_history: list[dict] | None = None,
         previous_draft: dict | None = None,
+        revision_count: int = 0,
     ) -> MagazineLayout:
         """Full pipeline entry point for editorial generation.
 
@@ -440,6 +449,7 @@ class EditorialService:
             trend_context,
             feedback_history=feedback_history,
             previous_draft=previous_draft,
+            revision_count=revision_count,
         )
 
         # Step 2 + 3: Try Nano Banana + Vision pipeline

@@ -21,6 +21,7 @@ from google.genai import types
 from editorial_ai.config import settings
 from editorial_ai.models.celeb import Celeb
 from editorial_ai.observability import record_token_usage
+from editorial_ai.routing import get_model_router
 from editorial_ai.models.editorial import EditorialContent
 from editorial_ai.models.layout import (
     BodyTextBlock,
@@ -72,8 +73,9 @@ async def expand_keywords(client: genai.Client, keyword: str) -> list[str]:
     returns an empty list (graceful degradation).
     """
     prompt = build_keyword_expansion_prompt(keyword)
+    decision = get_model_router().resolve("enrich_keywords")
     response = await client.aio.models.generate_content(
-        model=settings.default_model,
+        model=decision.model,
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
@@ -85,7 +87,8 @@ async def expand_keywords(client: genai.Client, keyword: str) -> list[str]:
             prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
             completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
             total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
-            model_name=settings.default_model,
+            model_name=decision.model,
+            routing_reason=decision.reason,
         )
     try:
         raw = _strip_markdown_fences(response.text or "[]")
@@ -127,8 +130,9 @@ async def regenerate_with_enrichment(
     )
 
     try:
+        decision = get_model_router().resolve("enrich_regenerate")
         response = await client.aio.models.generate_content(
-            model=settings.editorial_model,
+            model=decision.model,
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
@@ -141,7 +145,8 @@ async def regenerate_with_enrichment(
                 prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
                 completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
                 total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
-                model_name=settings.editorial_model,
+                model_name=decision.model,
+                routing_reason=decision.reason,
             )
         raw_text = response.text or "{}"
         return EditorialContent.model_validate_json(

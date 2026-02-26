@@ -14,6 +14,7 @@ from google.genai import types
 from editorial_ai.config import settings
 from editorial_ai.models.design_spec import DesignSpec, default_design_spec
 from editorial_ai.observability import record_token_usage
+from editorial_ai.routing import get_model_router
 from editorial_ai.prompts.design_spec import build_design_spec_prompt
 from editorial_ai.services.curation_service import get_genai_client
 
@@ -51,8 +52,9 @@ class DesignSpecService:
         """
         try:
             prompt = build_design_spec_prompt(keyword, category)
+            decision = get_model_router().resolve("design_spec")
             response = await self.client.aio.models.generate_content(
-                model=self.model_name,
+                model=decision.model,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
@@ -70,7 +72,8 @@ class DesignSpecService:
                     )
                     or 0,
                     total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
-                    model_name=self.model_name,
+                    model_name=decision.model,
+                    routing_reason=decision.reason,
                 )
 
             raw_text = response.text or "{}"

@@ -30,6 +30,7 @@ def record_token_usage(
     completion_tokens: int,
     total_tokens: int,
     model_name: str | None = None,
+    routing_reason: str | None = None,
 ) -> None:
     """Append a TokenUsage entry to the current context.
 
@@ -41,6 +42,7 @@ def record_token_usage(
             completion_tokens=completion_tokens,
             total_tokens=total_tokens,
             model_name=model_name,
+            routing_reason=routing_reason,
         )
         current = _token_usage_var.get()
         # ContextVar default returns the same list object, so we need

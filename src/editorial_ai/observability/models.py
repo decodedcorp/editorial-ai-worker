@@ -19,6 +19,7 @@ class TokenUsage(BaseModel):
     completion_tokens: int = 0
     total_tokens: int = 0
     model_name: str | None = None
+    routing_reason: str | None = None
 
 
 class NodeRunLog(BaseModel):
