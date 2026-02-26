@@ -32,6 +32,18 @@
 
 </details>
 
+### Phase 14: Magazine Layout Variants
+
+**Goal:** 모든 블록에 layout_variant 필드를 추가하여 AI가 다양한 매거진 레이아웃을 선택할 수 있게 함. 풀블리드, 분할 레이아웃, 멀티컬럼 등 실제 패션 매거진 다채로운 레이아웃 지원.
+
+**Plans:** 4 plans
+
+Plans:
+- [ ] 14-01-PLAN.md — Schema + Architecture (layout_variant fields + BlockRenderer restructure)
+- [ ] 14-02-PLAN.md — Core block variants (hero 6, body_text 6, image_gallery 8)
+- [ ] 14-03-PLAN.md — Supporting block variants (pull_quote 5, headline 4, product_showcase 6, celeb_feature 5)
+- [ ] 14-04-PLAN.md — Utility block variants (divider 6, hashtag_bar 4, credits 4) + AI prompt update
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -49,3 +61,4 @@
 | 11. Magazine Renderer Enhancement | v1.1 | 4/4 | Complete | 2026-02-26 |
 | 12. Observability Dashboard | v1.1 | 3/3 | Complete | 2026-02-26 |
 | 13. Pipeline Advanced | v1.1 | 3/3 | Complete | 2026-02-26 |
+| 14. Magazine Layout Variants | v1.2 | 0/4 | Planning | - |
