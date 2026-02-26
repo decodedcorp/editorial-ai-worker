@@ -146,7 +146,7 @@ Plans:
 - [x] **Phase 9: E2E Execution Foundation** - 실제 환경에서 파이프라인이 처음부터 끝까지 동작하는 상태 확보
 - [x] **Phase 10: Pipeline Observability Backend** - 노드별 실행 메트릭 수집, 저장, API 제공
 - [x] **Phase 11: Magazine Renderer Enhancement** - Layout JSON을 매거진 품질로 렌더링하는 블록 컴포넌트 고도화
-- [ ] **Phase 12: Observability Dashboard** - Admin UI에 파이프라인 실행 로그와 진행 상태 표시
+- [x] **Phase 12: Observability Dashboard** - Admin UI에 파이프라인 실행 로그와 진행 상태 표시
 - [ ] **Phase 13: Pipeline Advanced** - 모델 라우팅, 컨텍스트 캐싱, 적응형 루브릭으로 파이프라인 고도화
 
 ## Phase Details (v1.1)
@@ -212,9 +212,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 12-01-PLAN.md — BFF proxy route, TypeScript types, cost/duration utilities
-- [ ] 12-02-PLAN.md — Pipeline tab (Gantt timeline, node detail, cost summary, ContentTabs wiring)
-- [ ] 12-03-PLAN.md — List page pipeline status column (BFF enrichment, step indicator, summary metrics)
+- [x] 12-01-PLAN.md — BFF proxy route, TypeScript types, cost/duration utilities
+- [x] 12-02-PLAN.md — Pipeline tab (Gantt timeline, node detail, cost summary, ContentTabs wiring)
+- [x] 12-03-PLAN.md — List page pipeline status column (BFF enrichment, step indicator, summary metrics)
 
 ### Phase 13: Pipeline Advanced
 **Goal**: 파이프라인이 작업 복잡도에 따라 모델을 자동 선택하고, 반복 참조 소스를 캐싱하며, 콘텐츠 유형별 평가 기준을 동적 조정하는 상태
@@ -244,5 +244,5 @@ Phases execute in numeric order: 9 -> 10 -> 11 (parallelizable with 10) -> 12 ->
 | 9. E2E Execution Foundation | v1.1 | 3/3 | Complete | 2026-02-26 |
 | 10. Pipeline Observability Backend | v1.1 | 3/3 | Complete | 2026-02-26 |
 | 11. Magazine Renderer Enhancement | v1.1 | 4/4 | Complete | 2026-02-26 |
-| 12. Observability Dashboard | v1.1 | 0/3 | Planned | - |
+| 12. Observability Dashboard | v1.1 | 3/3 | Complete | 2026-02-26 |
 | 13. Pipeline Advanced | v1.1 | 0/TBD | Not started | - |

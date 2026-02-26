@@ -52,9 +52,9 @@
 - [ ] **OBS-01**: 각 노드별 실행 로그 수집 (토큰 사용량, 처리 시간, 프롬프트, 입력 데이터) — node_wrapper 데코레이터 패턴
 - [ ] **OBS-02**: pipeline_node_runs Supabase 테이블 + 마이그레이션 SQL
 - [ ] **OBS-03**: 파이프라인 로그 API 엔드포인트 (GET /api/contents/{id}/logs)
-- [ ] **OBS-04**: Admin 상세 페이지에 노드별 타임라인 로그 패널 (토큰/시간/프롬프트 확인)
-- [ ] **OBS-05**: 토큰 비용 추정 표시 (Gemini 2.5 Flash 가격 기반 "이 실행 비용: ~$0.03")
-- [ ] **OBS-06**: 콘텐츠 목록 페이지에 파이프라인 진행 상태 표시 (큐레이션 중/리뷰 중/대기 중)
+- [x] **OBS-04**: Admin 상세 페이지에 노드별 타임라인 로그 패널 (토큰/시간/프롬프트 확인)
+- [x] **OBS-05**: 토큰 비용 추정 표시 (Gemini 2.5 Flash 가격 기반 "이 실행 비용: ~$0.03")
+- [x] **OBS-06**: 콘텐츠 목록 페이지에 파이프라인 진행 상태 표시 (큐레이션 중/리뷰 중/대기 중)
 
 ### 매거진 렌더러
 
@@ -137,9 +137,9 @@
 | OBS-01 | Phase 10 | Complete |
 | OBS-02 | Phase 10 | Complete |
 | OBS-03 | Phase 10 | Complete |
-| OBS-04 | Phase 12 | Pending |
-| OBS-05 | Phase 12 | Pending |
-| OBS-06 | Phase 12 | Pending |
+| OBS-04 | Phase 12 | Complete |
+| OBS-05 | Phase 12 | Complete |
+| OBS-06 | Phase 12 | Complete |
 | MAG-01 | Phase 11 | Complete |
 | MAG-02 | Phase 11 | Complete |
 | MAG-03 | Phase 11 | Complete |

@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** 키워드 하나로 셀럽/상품/레퍼런스가 조합된 에디토리얼 콘텐츠가 자동 생성되고, 검수 루프를 거쳐 관리자가 승인하면 발행
-**Current focus:** Milestone v1.1 Phase 12 — Observability Dashboard
+**Current focus:** Milestone v1.1 Phase 13 — Pipeline Advanced
 
 ## Current Position
 
-Phase: 12 of 13 (Observability Dashboard)
-Plan: 3 of 3 complete (12-01, 12-02, 12-03 done)
-Status: Phase complete
-Last activity: 2026-02-26 — Completed 12-03-PLAN.md (list page pipeline status)
+Phase: 13 of 13 (Pipeline Advanced)
+Plan: TBD — needs planning
+Status: Phase 12 complete, Phase 13 not yet planned
+Last activity: 2026-02-26 — Phase 12 complete (3 plans, 2 waves, verified)
 
-Progress: [###################] 97% (35/36 plans)
+Progress: [###################] 97% (35/36 plans — v1.0 complete, phases 9-12 complete)
 
 ## Performance Metrics
 
@@ -87,5 +87,5 @@ Progress: [###################] 97% (35/36 plans)
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 12-03-PLAN.md (list page pipeline status). Phase 12 complete.
+Stopped at: Phase 12 complete. Phase 13 needs planning.
 Resume file: None
