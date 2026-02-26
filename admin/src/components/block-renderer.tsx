@@ -64,8 +64,11 @@ function AnimatedBlock({
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
+  // First 2 blocks (hero + headline) show immediately, no scroll animation
+  const isAboveFold = index < 2;
+
   useEffect(() => {
-    if (!ref.current) return;
+    if (!ref.current || isAboveFold) return;
 
     const animName = animation && animation !== "none" ? animation : "fade-up";
     const preset = ANIMATION_PRESETS[animName] ?? ANIMATION_PRESETS["fade-up"];
@@ -74,10 +77,10 @@ function AnimatedBlock({
       ...preset.to,
       duration: preset.to.duration ?? 0.7,
       ease: "power2.out",
-      delay: index * 0.05,
+      delay: Math.max(0, (index - 2) * 0.05),
       scrollTrigger: {
         trigger: ref.current,
-        start: "top 85%",
+        start: "top 90%",
         toggleActions: "play none none none",
       },
     });
@@ -87,7 +90,7 @@ function AnimatedBlock({
         if (t.trigger === ref.current) t.kill();
       });
     };
-  }, [index, animation]);
+  }, [index, animation, isAboveFold]);
 
   return <div ref={ref}>{children}</div>;
 }
