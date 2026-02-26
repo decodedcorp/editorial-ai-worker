@@ -18,7 +18,7 @@ class Settings(BaseSettings):
 
     # Editorial Agent
     editorial_model: str = "gemini-2.5-flash"
-    nano_banana_model: str = "gemini-2.5-flash-preview-image-generation"
+    nano_banana_model: str = "gemini-2.0-flash-preview-image-generation"
     editorial_max_repair_attempts: int = 2
 
     # Admin API
