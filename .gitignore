@@ -16,6 +16,9 @@ build/
 .pytest_cache/
 .ruff_cache/
 
+# Observability logs
+data/logs/*.jsonl
+
 # IDE
 .idea/
 .vscode/
