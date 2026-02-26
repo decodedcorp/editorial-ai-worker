@@ -1,6 +1,9 @@
-import type { LayoutBlock } from "@/lib/types";
+"use client";
+
+import type { LayoutBlock, DesignSpec } from "@/lib/types";
 import type { ComponentType } from "react";
 
+import { useDesignSpec } from "@/components/design-spec-provider";
 import { BlockErrorBoundary } from "@/components/block-error-boundary";
 import { HeroBlockComponent } from "@/components/blocks/hero-block";
 import { HeadlineBlockComponent } from "@/components/blocks/headline-block";
@@ -14,7 +17,7 @@ import { HashtagBarBlockComponent } from "@/components/blocks/hashtag-bar-block"
 import { CreditsBlockComponent } from "@/components/blocks/credits-block";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const BLOCK_MAP: Record<string, ComponentType<{ block: any }>> = {
+const BLOCK_MAP: Record<string, ComponentType<{ block: any; designSpec?: DesignSpec }>> = {
   hero: HeroBlockComponent,
   headline: HeadlineBlockComponent,
   body_text: BodyTextBlockComponent,
@@ -28,6 +31,8 @@ const BLOCK_MAP: Record<string, ComponentType<{ block: any }>> = {
 };
 
 export function BlockRenderer({ blocks }: { blocks: LayoutBlock[] }) {
+  const designSpec = useDesignSpec();
+
   if (!blocks || blocks.length === 0) {
     return (
       <div className="py-12 text-center text-muted-foreground">
@@ -55,7 +60,7 @@ export function BlockRenderer({ blocks }: { blocks: LayoutBlock[] }) {
 
         return (
           <BlockErrorBoundary key={i} blockType={type!} blockData={block}>
-            <Component block={block} />
+            <Component block={block} designSpec={designSpec ?? undefined} />
           </BlockErrorBoundary>
         );
       })}

@@ -120,6 +120,7 @@ export interface MagazineLayout {
   blocks: LayoutBlock[];
   created_at?: string | null;
   metadata?: KeyValuePair[];
+  design_spec?: DesignSpec | null;
 }
 
 // ---------------------------------------------------------------------------
