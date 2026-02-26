@@ -16,6 +16,9 @@ class EditorialPipelineState(TypedDict):
     curation_input: dict
     curated_topics: list[dict]
 
+    # Design Spec (generated from curated keyword, consumed by editorial node)
+    design_spec: dict | None
+
     # Source Phase
     enriched_contexts: list[dict]
 

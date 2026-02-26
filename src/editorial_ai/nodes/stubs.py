@@ -54,6 +54,13 @@ def stub_enrich(state: EditorialPipelineState) -> dict:
     return {}
 
 
+async def stub_design_spec(state: EditorialPipelineState) -> dict:
+    """Stub: returns default DesignSpec dict for testing."""
+    from editorial_ai.models.design_spec import default_design_spec
+
+    return {"design_spec": default_design_spec().model_dump()}
+
+
 def stub_publish(state: EditorialPipelineState) -> dict:
     """Stub kept for backward compatibility. Real implementation in nodes/publish.py."""
     return {

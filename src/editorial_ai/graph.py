@@ -1,7 +1,7 @@
 """Editorial pipeline graph definition.
 
 Defines the StateGraph topology with real node implementations and conditional edges.
-The graph follows: curation -> source -> editorial -> enrich -> review -> admin_gate -> publish
+The graph follows: curation -> design_spec -> source -> editorial -> enrich -> review -> admin_gate -> publish
 with conditional routing after review (retry/fail) and admin_gate (revision/reject).
 Review node performs LLM-as-a-Judge evaluation (Phase 6).
 Admin gate uses LangGraph interrupt() for human-in-the-loop approval (Phase 7).
@@ -20,6 +20,7 @@ from langgraph.graph.state import CompiledStateGraph
 from editorial_ai.observability import node_wrapper
 from editorial_ai.nodes.admin_gate import admin_gate
 from editorial_ai.nodes.curation import curation_node
+from editorial_ai.nodes.design_spec import design_spec_node
 from editorial_ai.nodes.editorial import editorial_node
 from editorial_ai.nodes.enrich import enrich_editorial_node  # noqa: F401 — kept for node_overrides
 from editorial_ai.nodes.enrich_from_posts import enrich_from_posts_node
@@ -33,6 +34,7 @@ from editorial_ai.nodes.stubs import (
     stub_enrich,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_publish,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
     stub_review,  # noqa: F401 — kept for backward compat (tests use via node_overrides)
+    stub_design_spec,  # noqa: F401 — kept for backward compat
     stub_source,  # noqa: F401 — kept for backward compat
 )
 from editorial_ai.state import EditorialPipelineState
@@ -76,6 +78,7 @@ def build_graph(
     """
     nodes: dict[str, Callable[..., Any]] = {
         "curation": curation_node,
+        "design_spec": design_spec_node,
         "source": source_node,
         "editorial": editorial_node,
         "enrich": enrich_from_posts_node,  # Posts-based enrichment
@@ -97,7 +100,8 @@ def build_graph(
 
     # Sequential edges
     builder.add_edge(START, "curation")
-    builder.add_edge("curation", "source")
+    builder.add_edge("curation", "design_spec")
+    builder.add_edge("design_spec", "source")
     builder.add_edge("source", "editorial")
     builder.add_edge("editorial", "enrich")
     builder.add_edge("enrich", "review")

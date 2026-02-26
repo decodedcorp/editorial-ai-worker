@@ -13,6 +13,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from editorial_ai.models.design_spec import DesignSpec
+
 # ---------------------------------------------------------------------------
 # Supporting models
 # ---------------------------------------------------------------------------
@@ -212,6 +214,7 @@ class MagazineLayout(BaseModel):
     blocks: list[Annotated[LayoutBlock, Field(discriminator="type")]]
     created_at: str | None = None
     metadata: list[KeyValuePair] = Field(default_factory=list)
+    design_spec: DesignSpec | None = None
 
 
 # ---------------------------------------------------------------------------

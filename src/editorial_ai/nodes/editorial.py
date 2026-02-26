@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 
+from editorial_ai.models.design_spec import DesignSpec
 from editorial_ai.services.curation_service import get_genai_client
 from editorial_ai.services.editorial_service import EditorialService
 from editorial_ai.state import EditorialPipelineState
@@ -86,6 +87,11 @@ async def editorial_node(state: EditorialPipelineState) -> dict:
             feedback_history=feedback_history if feedback_history else None,
             previous_draft=previous_draft,
         )
+        # Inject design_spec into layout so it persists in layout_json
+        design_spec = state.get("design_spec")
+        if design_spec:
+            layout.design_spec = DesignSpec.model_validate(design_spec)
+
         return {
             "current_draft": layout.model_dump(),
             "pipeline_status": "reviewing",
