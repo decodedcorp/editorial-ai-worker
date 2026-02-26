@@ -23,8 +23,9 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ContentStatusBadge } from "@/components/content-status-badge";
+import { PipelineStatusIndicator } from "@/components/pipeline-status-indicator";
 import { formatDate } from "@/lib/utils";
-import type { ContentItem } from "@/lib/types";
+import type { ContentItemWithSummary } from "@/lib/types";
 
 const STATUS_TABS = [
   { value: "all", label: "All" },
@@ -33,7 +34,7 @@ const STATUS_TABS = [
   { value: "rejected", label: "Rejected" },
 ] as const;
 
-const columns: ColumnDef<ContentItem>[] = [
+const columns: ColumnDef<ContentItemWithSummary>[] = [
   {
     accessorKey: "title",
     header: ({ column }) => (
@@ -63,6 +64,17 @@ const columns: ColumnDef<ContentItem>[] = [
     enableSorting: false,
   },
   {
+    id: "pipeline",
+    header: "Pipeline",
+    cell: ({ row }) => (
+      <PipelineStatusIndicator
+        status={row.original.status}
+        pipelineSummary={row.original.pipeline_summary}
+      />
+    ),
+    enableSorting: false,
+  },
+  {
     accessorKey: "keyword",
     header: "Keyword",
     cell: ({ row }) => (
@@ -87,7 +99,7 @@ const columns: ColumnDef<ContentItem>[] = [
 ];
 
 interface ContentTableProps {
-  items: ContentItem[];
+  items: ContentItemWithSummary[];
   total: number;
   page: number;
   limit: number;

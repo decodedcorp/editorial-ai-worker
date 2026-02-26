@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ContentTable } from "@/components/content-table";
 import { NewContentModal } from "@/components/new-content-modal";
 import { apiGet } from "@/lib/api";
-import type { ContentListResponse } from "@/lib/types";
+import type { ContentListWithSummaryResponse } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +26,7 @@ export default async function ContentsPage({ searchParams }: ContentsPageProps) 
   }
 
   try {
-    const data = await apiGet<ContentListResponse>("/api/contents", queryParams);
+    const data = await apiGet<ContentListWithSummaryResponse>("/api/contents", queryParams);
 
     return (
       <div className="space-y-6">
