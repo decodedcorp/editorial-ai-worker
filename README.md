@@ -287,20 +287,164 @@ Next.js 15 기반 관리자 대시보드. BFF(Backend for Frontend) 패턴으로
 - **새 콘텐츠 생성**: AI Curation / AI DB Search / DB Source 3가지 모드
 - **매거진 프리뷰**: GSAP ScrollTrigger 애니메이션, 54개 레이아웃 변형 (10 블록 타입)
 
-### Block Types (MagazineLayout)
+### GSAP Animation System
 
-| Type | Variants | 설명 |
-|------|----------|------|
-| `hero` | 6 | 히어로 이미지 + 타이틀 오버레이 |
-| `headline` | 4 | 섹션 제목 |
-| `body_text` | 6 | 본문 텍스트 |
-| `image_gallery` | 8 | 이미지 갤러리 (그리드/슬라이더) |
-| `pull_quote` | 5 | 인용구 |
-| `celeb_feature` | 5 | 셀럽 프로필 카드 |
-| `product_showcase` | 6 | 제품 쇼케이스 |
-| `divider` | 6 | 섹션 구분선 |
-| `hashtag_bar` | 4 | 해시태그 |
-| `credits` | 4 | 크레딧/출처 |
+모든 블록은 `BlockRenderer` → `AnimatedBlock`으로 래핑되어 스크롤 기반 GSAP 애니메이션이 적용됩니다.
+
+**동작 방식:**
+- `gsap.registerPlugin(ScrollTrigger)` 로 스크롤 트리거 등록
+- 각 블록의 `animation` 필드 값에 따라 진입 애니메이션 적용
+- **Above-fold 최적화**: 처음 2개 블록 (hero + headline)은 애니메이션 스킵 → 즉시 표시
+- 블록 인덱스에 따라 `delay` 스태거링: `(index - 2) * 0.05s`
+
+**Animation Presets (AI가 블록별 선택):**
+
+| Name | 효과 | GSAP Vars |
+|------|------|-----------|
+| `fade-up` | 아래에서 위로 페이드인 (기본값) | `y: 40 → 0, opacity: 0 → 1` |
+| `fade-in` | 제자리 페이드인 | `opacity: 0 → 1` |
+| `slide-left` | 왼쪽에서 슬라이드 | `x: -60 → 0` |
+| `slide-right` | 오른쪽에서 슬라이드 | `x: 60 → 0` |
+| `scale-in` | 축소에서 확대 | `scale: 0.9 → 1` |
+| `parallax` | 깊은 페이드업 (느린 속도) | `y: 60 → 0, duration: 1.2s` |
+| `none` | 애니메이션 없음 | — |
+
+**ScrollTrigger 설정:**
+- `start: "top 90%"` — 블록이 뷰포트 90% 지점에 도달하면 트리거
+- `toggleActions: "play none none none"` — 한 번만 재생
+- `ease: "power2.out"`, 기본 `duration: 0.7s`
+
+### Layout Variant Width System
+
+`layout_variant` 값에 따라 블록의 컨테이너 너비가 자동 결정됩니다:
+
+| Width Class | Variants | 적용 |
+|-------------|----------|------|
+| `w-full` (full bleed) | `full_bleed`, `parallax`, `letterbox`, `split_text_*`, `full_bleed_grid`, `full_bleed_single`, `staggered_overlap`, `full_width_*`, `lookbook`, `hero_collage`, `color_band`, `gradient_fade`, `floating` | 화면 전체 너비 |
+| `max-w-5xl` (wide) | `wide`, `featured_plus_grid`, `carousel_cards`, `card_row`, `filmstrip`, `centered_large`, `oversized_serif`, `spotlight` | 넓은 컨테이너 |
+| `max-w-xl` (narrow) | `narrow_centered` | 좁은 중앙 정렬 |
+| `max-w-3xl` (default) | 기타 모든 variant | 기본 컨테이너 |
+
+### DesignSpec Integration
+
+`DesignSpecProvider` (React Context)를 통해 AI가 생성한 디자인 스펙이 모든 블록에 전달됩니다:
+
+```
+MagazinePreview → DesignSpecProvider → BlockRenderer → 각 Block Component
+```
+
+**적용 항목:**
+- `color_palette.primary/accent/background`: 배경색, 드롭캡 색상, 구분선 색상, 그라데이션
+- `font_pairing`: Playfair Display (heading), Noto Sans KR (body)
+- `hero_aspect_ratio`: 히어로 이미지 종횡비 (기본 16/9)
+- `drop_cap`: 첫 문단 드롭캡 표시 여부
+- `layout_density`: compact / normal / spacious
+
+### Block Types — 54 Layout Variants
+
+#### `hero` — 히어로 이미지 (6 variants)
+
+| Variant | 설명 | 특징 |
+|---------|------|------|
+| `contained` | 라운드 코너 컨테이너 (기본) | aspect-ratio from DesignSpec, 하단 그라데이션 오버레이 |
+| `full_bleed` | 전체 화면 (90vh) | edge-to-edge, 강한 그라데이션 `from-black/70` |
+| `split_text_left` | 좌측 텍스트 + 우측 이미지 | 2컬럼 그리드, primary 색상 텍스트 패널 |
+| `split_text_right` | 좌측 이미지 + 우측 텍스트 | split_text_left 미러 |
+| `parallax` | 패럴랙스 배경 (85vh) | `will-change-transform`, 이미지 120% 크기로 오버플로 |
+| `letterbox` | 시네마틱 21:9 크롭 | `aspect-[21/9]`, uppercase tracking-wider 텍스트 |
+
+#### `headline` — 섹션 제목 (4 variants)
+
+| Variant | 설명 | 특징 |
+|---------|------|------|
+| `default` | 표준 제목 + 액센트 언더라인 | h1/h2/h3 레벨별 크기, accent 색상 3px bar |
+| `full_width_banner` | 전체 너비 배너 | primary 배경색, 흰색 텍스트, 중앙 정렬 |
+| `left_aligned_large` | 초대형 좌측 정렬 | `text-6xl md:text-8xl`, tracking-tighter |
+| `overlapping` | 고스트 텍스트 + 실제 텍스트 | 배경에 `opacity-[0.07]` 초대형 텍스트 중첩 |
+
+#### `body_text` — 본문 텍스트 (6 variants)
+
+| Variant | 설명 | 특징 |
+|---------|------|------|
+| `single_column` | 단일 컬럼 (기본) | 17px, line-height 1.8, DesignSpec 드롭캡 |
+| `two_column` | 2단 컬럼 | CSS `columns-2`, `break-inside-avoid` |
+| `three_column` | 3단 컬럼 | 반응형 `columns-1 md:columns-2 lg:columns-3` |
+| `wide` | 넓은 텍스트 | `text-lg`, line-height 2.0 |
+| `narrow_centered` | 좁은 중앙 정렬 | 중앙 정렬 + line-height 2.0 |
+| `drop_cap_accent` | 강조 드롭캡 | 5rem 드롭캡 + accent 색상 좌측 border |
+
+#### `image_gallery` — 이미지 갤러리 (8 variants)
+
+| Variant | 설명 | 특징 |
+|---------|------|------|
+| `grid` | 2열 그리드 (기본) | 정사각 1:1, 캡션 표시 |
+| `carousel` | 가로 스크롤 | `w-64` 고정 너비, `overflow-x-auto` |
+| `masonry` | 벽돌형 | CSS `columns-2`, 3:4 비율 |
+| `full_bleed_grid` | 밀착 그리드 | 2-4열, `gap-1`, 라운드 없음, 캡션 없음 |
+| `asymmetric` | 비대칭 | 첫 이미지 full-width 16:10, 나머지 2열 그리드 |
+| `full_bleed_single` | 풀 너비 스택 | 각 이미지 16:9, 라운드 없음 |
+| `staggered_overlap` | 콜라주 겹침 | 교차 너비 + 네거티브 마진으로 겹침 효과 |
+| `filmstrip` | 필름스트립 | 가로 스크롤 21:9, 흰색 보더 |
+
+#### `pull_quote` — 인용구 (5 variants)
+
+| Variant | 설명 | 특징 |
+|---------|------|------|
+| `default` | 좌측 accent 보더 | 3px border-left, Georgia serif |
+| `centered_large` | 대형 중앙 정렬 | 6xl 인용부호, `text-3xl md:text-4xl` |
+| `full_width_background` | 전체 너비 배경 | accent 색상 15% 투명도 배경 |
+| `sidebar` | 사이드바 플로팅 | `float-right w-64`, 본문 옆 배치 |
+| `oversized_serif` | 초대형 serif | `text-5xl md:text-6xl`, tracking `0.2em` 출처 |
+
+#### `celeb_feature` — 셀럽 프로필 (5 variants)
+
+| Variant | 설명 | 특징 |
+|---------|------|------|
+| `grid` | 원형 프로필 그리드 (기본) | `size-28` 원형, 2-3열 |
+| `spotlight` | 첫 셀럽 스포트라이트 | 2컬럼 (이미지 3:4 + 텍스트), 나머지 `size-16` 원형 |
+| `card_row` | 카드형 가로 스크롤 | `w-56`, 2:3 비율, 하단 그라데이션 오버레이 |
+| `minimal_list` | 미니멀 리스트 | `size-10` 원형 + 텍스트, 구분선 |
+| `hero_collage` | 콜라주 겹침 | 최대 5명, 절대 위치로 겹치는 레이아웃 |
+
+#### `product_showcase` — 제품 쇼케이스 (6 variants)
+
+| Variant | 설명 | 특징 |
+|---------|------|------|
+| `grid` | 카드 그리드 (기본) | 2-3열, hover 확대 효과, 링크 연동 |
+| `full_width_row` | 가로 스크롤 행 | `w-48` 고정, `overflow-x-auto` |
+| `featured_plus_grid` | 피처드 + 그리드 | 첫 제품 16:10 대형, 나머지 그리드 |
+| `minimal_list` | 미니멀 리스트 | 이미지 없음, 이름/브랜드 + 설명 |
+| `lookbook` | 룩북 | 교차 이미지-텍스트 레이아웃 (3:2 컬럼) |
+| `carousel_cards` | 캐러셀 카드 | `snap-x snap-mandatory`, 3:4 비율, hover shadow |
+
+#### `divider` — 구분선 (6 variants)
+
+| Variant | 설명 |
+|---------|------|
+| `line` | 기본 수평선 (`border-gray-200`) |
+| `space` | 여백만 (`h-12`) |
+| `ornament` | 장식 점 3개 (`· · ·`) |
+| `full_bleed_line` | 전체 너비 선 (`border-gray-300`) |
+| `color_band` | accent 색상 밴드 (`h-2`) |
+| `gradient_fade` | 그라데이션 페이드 (`h-16`, transparent → gray → transparent) |
+
+#### `hashtag_bar` — 해시태그 (4 variants)
+
+| Variant | 설명 |
+|---------|------|
+| `default` | pill 형태 태그 (rounded-full, border, hover 효과) |
+| `full_width_banner` | 전체 너비 배너 (accent 15% 배경) |
+| `minimal_inline` | 슬래시 구분 인라인 텍스트 |
+| `floating` | 크기/투명도 변형 (font-size + opacity 순환) |
+
+#### `credits` — 크레딧 (4 variants)
+
+| Variant | 설명 |
+|---------|------|
+| `default` | 상단 border + 2열 그리드 (role/name) |
+| `full_width_footer` | 다크 풀 너비 푸터 (`bg-gray-900`, 3열) |
+| `inline` | 한 줄 인라인 (슬래시 구분) |
+| `sidebar_column` | 우측 정렬 사이드바 (`max-w-[200px]`) |
 
 ## Project Structure
 
