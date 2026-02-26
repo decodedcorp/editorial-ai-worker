@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 
 import { apiGet } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
-import { BlockRenderer } from "@/components/block-renderer";
-import { JsonPanel } from "@/components/json-panel";
+import { ContentTabs } from "@/components/content-tabs";
 import { ActionBar } from "./actions";
 import type { ContentItem } from "@/lib/types";
 
@@ -43,6 +42,9 @@ export default async function ContentDetailPage({ params }: ContentDetailPagePro
       </div>
     );
   }
+
+  const blocks = content.layout_json?.blocks ?? [];
+  const designSpec = content.layout_json?.design_spec ?? null;
 
   return (
     <div className="space-y-8">
@@ -99,16 +101,12 @@ export default async function ContentDetailPage({ params }: ContentDetailPagePro
         )}
       </div>
 
-      {/* Magazine Preview */}
-      <div>
-        <h2 className="mb-4 text-lg font-semibold">Magazine Preview</h2>
-        <div className="rounded-lg border bg-white p-6">
-          <BlockRenderer blocks={content.layout_json?.blocks ?? []} />
-        </div>
-      </div>
-
-      {/* Raw JSON */}
-      <JsonPanel data={content.layout_json} />
+      {/* Content Tabs: Magazine Preview + JSON */}
+      <ContentTabs
+        blocks={blocks}
+        designSpec={designSpec}
+        layoutJson={content.layout_json}
+      />
     </div>
   );
 }
