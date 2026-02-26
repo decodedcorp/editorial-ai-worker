@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 13 of 13 (Pipeline Advanced)
-Plan: TBD — needs planning
-Status: Phase 12 complete, Phase 13 not yet planned
-Last activity: 2026-02-26 — Phase 12 complete (3 plans, 2 waves, verified)
+Plan: 02 of 3 in phase
+Status: In progress
+Last activity: 2026-02-26 — Completed 13-02-PLAN.md (adaptive rubrics)
 
-Progress: [###################] 97% (35/36 plans — v1.0 complete, phases 9-12 complete)
+Progress: [####################] 100% (37/36+1 plans — v1.0 complete, phases 9-13 in progress)
 
 ## Performance Metrics
 
@@ -73,6 +73,9 @@ Progress: [###################] 97% (35/36 plans — v1.0 complete, phases 9-12 
 - [12-03]: BFF list proxy enriches items server-side via Promise.all parallel log fetches (no N+1 from browser)
 - [12-03]: Retry count derived from editorial node occurrence count minus one
 - [12-03]: All 5 dots filled for terminal statuses; mid-pipeline stages reserved for detail page Pipeline tab
+- [13-02]: Longest-match-first keyword sorting for multi-domain disambiguation in classifier
+- [13-02]: DEFAULT rubric = FASHION_MAGAZINE (fashion-first pipeline)
+- [13-02]: Backward compatible rubric_config=None produces original 3-criteria prompt
 
 ### Pending Todos
 
@@ -87,5 +90,5 @@ Progress: [###################] 97% (35/36 plans — v1.0 complete, phases 9-12 
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Phase 12 complete. Phase 13 needs planning.
+Stopped at: Completed 13-02-PLAN.md (adaptive rubrics)
 Resume file: None
