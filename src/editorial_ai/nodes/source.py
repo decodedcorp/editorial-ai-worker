@@ -13,6 +13,64 @@ from editorial_ai.state import EditorialPipelineState
 
 logger = logging.getLogger(__name__)
 
+# Maps Korean celebrity/group names to their English DB equivalents.
+# Values are lists to support multiple possible DB spellings.
+CELEB_ALIAS_MAP: dict[str, list[str]] = {
+    # Groups
+    "뉴진스": ["NewJeans"],
+    "블랙핑크": ["BLACKPINK"],
+    # BLACKPINK members
+    "제니": ["jennie"],
+    "지수": ["jisoo"],
+    "리사": ["lisa"],
+    "로제": ["rose"],
+    # NewJeans members
+    "다니엘": ["danielle"],
+    "해린": ["haerin"],
+    "하니": ["hanni"],
+    "혜인": ["hyein"],
+    "민지": ["minji"],
+    # Other artists / groups
+    "뷔": ["V", "BTS"],
+    "아이유": ["IU"],
+    "차은우": ["chaeunwoo", "ASTRO"],
+    "아이브": ["IVE"],
+    "르세라핌": ["LE SSERAFIM"],
+    "있지": ["ITZY"],
+    "스테이씨": ["STAYC"],
+}
+
+# Korean stopwords to skip when splitting compound terms into individual words
+_KO_STOPWORDS: frozenset[str] = frozenset({
+    "의", "을", "를", "이", "가", "은", "는", "에", "와", "과",
+    "도", "로", "으로", "에서", "에게", "한", "하는", "스타일",
+    "패션", "룩", "컬렉션", "트렌드", "효과",
+})
+
+
+def _expand_aliases(terms: list[str]) -> list[str]:
+    """Expand Korean celebrity names in terms to their English DB equivalents.
+
+    For each term:
+    - If the whole term matches a key in CELEB_ALIAS_MAP, append the mapped names.
+    - Also scan individual tokens inside compound terms (e.g. "블랙핑크 제니")
+      so partial Korean names are also resolved.
+    Original terms are always kept.
+
+    Returns a deduplicated list preserving insertion order.
+    """
+    result: list[str] = list(terms)
+    for term in terms:
+        # Whole-term match
+        if term in CELEB_ALIAS_MAP:
+            result.extend(CELEB_ALIAS_MAP[term])
+            continue
+        # Token-level match inside a compound term
+        for token in term.split():
+            if token in CELEB_ALIAS_MAP:
+                result.extend(CELEB_ALIAS_MAP[token])
+    return list(dict.fromkeys(result))  # dedupe, preserve order
+
 
 async def source_node(state: EditorialPipelineState) -> dict:
     """LangGraph node: fetch posts data from Supabase using curated keywords.
@@ -50,20 +108,26 @@ async def source_node(state: EditorialPipelineState) -> dict:
             if name:
                 search_terms.append(name)
 
-    # Split compound terms into individual words for better matching
-    # e.g. "Jennie Effect" -> also search "Jennie", "Lisa's Kith" -> "Lisa"
+    # Split compound terms into individual words for better matching.
+    # e.g. "Jennie Effect" -> also search "Jennie"
+    #      "블랙핑크 제니" -> also search "블랙핑크", "제니"
+    _EN_STOPWORDS: frozenset[str] = frozenset({
+        "the", "and", "for", "with", "from", "style", "fashion",
+        "effect", "collection", "trend", "revival", "airport",
+    })
     expanded: list[str] = []
     for term in search_terms:
         expanded.append(term)
         words = term.replace("'s", "").split()
         for w in words:
-            # Only add single words that look like names (capitalized, 3+ chars)
-            if len(w) >= 3 and w[0].isupper() and w.lower() not in (
-                "the", "and", "for", "with", "from", "style", "fashion",
-                "effect", "collection", "trend", "revival", "airport",
-            ):
+            # Include words that are 2+ chars and not stopwords.
+            # Removed w[0].isupper() so Korean names (no uppercase) are also captured.
+            if len(w) >= 2 and w.lower() not in _EN_STOPWORDS and w not in _KO_STOPWORDS:
                 expanded.append(w)
     search_terms = list(dict.fromkeys(expanded))  # dedupe, preserve order
+
+    # Expand Korean celebrity names to their English DB equivalents
+    search_terms = _expand_aliases(search_terms)
 
     if not search_terms:
         return {

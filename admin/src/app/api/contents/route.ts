@@ -41,7 +41,9 @@ function loadLocalContents(): ContentItem[] {
       // Deduplicate by id (top-level files take precedence over subdirectory ones)
       if (item.id && !seen.has(item.id)) {
         seen.add(item.id);
-        items.push(item);
+        // Exclude heavy base64 image from list response
+        const { layout_image_base64: _, ...lightweight } = item as ContentItem & { layout_image_base64?: string };
+        items.push(lightweight as ContentItem);
       }
     } catch {
       // skip invalid files

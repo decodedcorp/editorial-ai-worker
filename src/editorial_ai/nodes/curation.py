@@ -33,10 +33,11 @@ async def _expand_keyword_for_db(keyword: str) -> dict:
         "You are a search query expander for a K-pop/fashion database.\n"
         f'Given the keyword "{keyword}", generate a JSON object with:\n'
         '- "search_keywords": list of 5-10 specific search terms optimized for DB text search\n'
-        "  (include: celeb names, group names, brand names, style terms, Korean equivalents)\n"
+        "  (include: celeb names, group names, brand names, style terms, Korean AND English/romanized equivalents)\n"
         '- "category_hints": list of relevant categories\n'
-        '- "celeb_names": list of celebrity/artist names mentioned\n'
-        '- "brand_names": list of brand names mentioned\n\n'
+        '- "celeb_names": list of celebrity/artist names — include BOTH Korean AND English/romanized names\n'
+        '  (e.g., for "제니" also include "jennie", for "뉴진스" also include "NewJeans")\n'
+        '- "brand_names": list of brand names as they appear in DB (use English brand names)\n\n'
         "Focus on terms that would match artist_name, group_name, title, context fields in a posts table,\n"
         "and product names/brands in a solutions table.\n\n"
         "Return ONLY valid JSON."
