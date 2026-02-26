@@ -56,6 +56,7 @@ export interface HeroBlock {
   overlay_title?: string | null;
   overlay_subtitle?: string | null;
   animation?: AnimationType | null;
+  layout_variant?: "contained" | "full_bleed" | "split_text_left" | "split_text_right" | "parallax" | "letterbox" | null;
 }
 
 export interface HeadlineBlock {
@@ -63,12 +64,14 @@ export interface HeadlineBlock {
   text: string;
   level: 1 | 2 | 3;
   animation?: AnimationType | null;
+  layout_variant?: "default" | "full_width_banner" | "left_aligned_large" | "overlapping" | null;
 }
 
 export interface BodyTextBlock {
   type: "body_text";
   paragraphs: string[];
   animation?: AnimationType | null;
+  layout_variant?: "single_column" | "two_column" | "three_column" | "wide" | "narrow_centered" | "drop_cap_accent" | null;
 }
 
 export interface ImageGalleryBlock {
@@ -76,6 +79,7 @@ export interface ImageGalleryBlock {
   images: ImageItem[];
   layout_style: "grid" | "carousel" | "masonry";
   animation?: AnimationType | null;
+  layout_variant?: "grid" | "carousel" | "masonry" | "full_bleed_grid" | "asymmetric" | "full_bleed_single" | "staggered_overlap" | "filmstrip" | null;
 }
 
 export interface PullQuoteBlock {
@@ -83,36 +87,42 @@ export interface PullQuoteBlock {
   quote: string;
   attribution?: string | null;
   animation?: AnimationType | null;
+  layout_variant?: "default" | "centered_large" | "full_width_background" | "sidebar" | "oversized_serif" | null;
 }
 
 export interface ProductShowcaseBlock {
   type: "product_showcase";
   products: ProductItem[];
   animation?: AnimationType | null;
+  layout_variant?: "grid" | "full_width_row" | "featured_plus_grid" | "minimal_list" | "lookbook" | "carousel_cards" | null;
 }
 
 export interface CelebFeatureBlock {
   type: "celeb_feature";
   celebs: CelebItem[];
   animation?: AnimationType | null;
+  layout_variant?: "grid" | "spotlight" | "card_row" | "minimal_list" | "hero_collage" | null;
 }
 
 export interface DividerBlock {
   type: "divider";
   style: "line" | "space" | "ornament";
   animation?: AnimationType | null;
+  layout_variant?: "line" | "space" | "ornament" | "full_bleed_line" | "color_band" | "gradient_fade" | null;
 }
 
 export interface HashtagBarBlock {
   type: "hashtag_bar";
   hashtags: string[];
   animation?: AnimationType | null;
+  layout_variant?: "default" | "full_width_banner" | "minimal_inline" | "floating" | null;
 }
 
 export interface CreditsBlock {
   type: "credits";
   entries: CreditEntry[];
   animation?: AnimationType | null;
+  layout_variant?: "default" | "full_width_footer" | "inline" | "sidebar_column" | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -185,6 +195,7 @@ export interface ContentItem {
   title: string;
   keyword: string;
   layout_json: MagazineLayout;
+  layout_image_base64?: string | null;
   review_summary?: string | null;
   rejection_reason?: string | null;
   admin_feedback?: string | null;

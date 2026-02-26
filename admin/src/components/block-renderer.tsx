@@ -93,6 +93,35 @@ function AnimatedBlock({
 }
 
 // ---------------------------------------------------------------------------
+// Block width helper -- determines wrapper class based on layout_variant
+// ---------------------------------------------------------------------------
+
+const FULL_BLEED_VARIANTS = new Set([
+  "full_bleed", "parallax", "letterbox", "split_text_left", "split_text_right",
+  "full_width_banner", "full_bleed_grid", "full_bleed_single", "staggered_overlap",
+  "full_width_background", "full_width_row", "lookbook",
+  "hero_collage", "full_bleed_line", "color_band", "gradient_fade",
+  "full_width_footer", "floating",
+]);
+
+const WIDE_VARIANTS = new Set([
+  "wide", "featured_plus_grid", "carousel_cards", "card_row", "filmstrip",
+  "centered_large", "oversized_serif", "spotlight",
+]);
+
+function getBlockWidthClass(block: LayoutBlock): string {
+  const variant = (block as { layout_variant?: string | null }).layout_variant;
+
+  if (variant === "narrow_centered") return "max-w-xl mx-auto";
+  if (variant === "sidebar_column") return "max-w-3xl mx-auto";
+  if (variant && FULL_BLEED_VARIANTS.has(variant)) return "w-full";
+  if (variant && WIDE_VARIANTS.has(variant)) return "max-w-5xl mx-auto";
+
+  // Default: same as before (max-w-3xl centered) -- backward compatible
+  return "max-w-3xl mx-auto";
+}
+
+// ---------------------------------------------------------------------------
 // BlockRenderer
 // ---------------------------------------------------------------------------
 
@@ -108,7 +137,7 @@ export function BlockRenderer({ blocks }: { blocks: LayoutBlock[] }) {
   }
 
   return (
-    <article className="mx-auto max-w-3xl space-y-8 py-8">
+    <article className="w-full space-y-8 py-8">
       {blocks.map((block, i) => {
         const type = (block as { type?: string })?.type;
         const Component = type ? BLOCK_MAP[type] : undefined;
@@ -117,7 +146,7 @@ export function BlockRenderer({ blocks }: { blocks: LayoutBlock[] }) {
           return (
             <div
               key={i}
-              className="rounded border-2 border-dashed border-orange-300 bg-orange-50 p-4 text-sm text-orange-700"
+              className="max-w-3xl mx-auto rounded border-2 border-dashed border-orange-300 bg-orange-50 p-4 text-sm text-orange-700"
             >
               Unknown block type: {type ?? "undefined"}
             </div>
@@ -127,11 +156,13 @@ export function BlockRenderer({ blocks }: { blocks: LayoutBlock[] }) {
         const blockAnimation = (block as { animation?: AnimationType | null }).animation;
 
         return (
-          <BlockErrorBoundary key={i} blockType={type!} blockData={block}>
-            <AnimatedBlock index={i} animation={blockAnimation}>
-              <Component block={block} designSpec={designSpec ?? undefined} />
-            </AnimatedBlock>
-          </BlockErrorBoundary>
+          <div key={i} className={getBlockWidthClass(block)}>
+            <BlockErrorBoundary blockType={type!} blockData={block}>
+              <AnimatedBlock index={i} animation={blockAnimation}>
+                <Component block={block} designSpec={designSpec ?? undefined} />
+              </AnimatedBlock>
+            </BlockErrorBoundary>
+          </div>
         );
       })}
     </article>
