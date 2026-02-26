@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 11 of 13 (Magazine Renderer Enhancement)
-Plan: 03 of 4 (11-01 + 11-02 + 11-03 complete)
-Status: In progress
-Last activity: 2026-02-26 — Completed 11-03-PLAN.md (Block Components Upgrade)
+Plan: 04 of 4 (11-01 + 11-02 + 11-03 + 11-04 complete)
+Status: Phase complete
+Last activity: 2026-02-26 — Completed 11-04-PLAN.md (Detail Page Tab Integration)
 
-Progress: [#################.] 86% (31/36 plans)
+Progress: [##################] 89% (32/36 plans)
 
 ## Performance Metrics
 
@@ -65,6 +65,8 @@ Progress: [#################.] 86% (31/36 plans)
 - [11-03]: All blocks accept optional designSpec prop (forward-compatible, works without it)
 - [11-03]: Drop cap uses float-left pattern with Playfair Display serif for first character
 - [11-03]: Google Fonts loaded via next/font/google CSS variables (no external CDN)
+- [11-04]: ContentTabs as separate client component for tab-based detail page
+- [11-04]: null-to-undefined conversion at BlockRenderer boundary for designSpec prop compatibility
 
 ### Pending Todos
 
@@ -79,5 +81,5 @@ Progress: [#################.] 86% (31/36 plans)
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 11-03-PLAN.md (Block Components Upgrade). 11-01 + 11-02 + 11-03 done. Next: 11-04.
+Stopped at: Completed 11-04-PLAN.md (Detail Page Tab Integration). Phase 11 complete. Next: Phase 12.
 Resume file: None
