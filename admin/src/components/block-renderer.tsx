@@ -1,6 +1,7 @@
 import type { LayoutBlock } from "@/lib/types";
 import type { ComponentType } from "react";
 
+import { BlockErrorBoundary } from "@/components/block-error-boundary";
 import { HeroBlockComponent } from "@/components/blocks/hero-block";
 import { HeadlineBlockComponent } from "@/components/blocks/headline-block";
 import { BodyTextBlockComponent } from "@/components/blocks/body-text-block";
@@ -52,7 +53,11 @@ export function BlockRenderer({ blocks }: { blocks: LayoutBlock[] }) {
           );
         }
 
-        return <Component key={i} block={block} />;
+        return (
+          <BlockErrorBoundary key={i} blockType={type!} blockData={block}>
+            <Component block={block} />
+          </BlockErrorBoundary>
+        );
       })}
     </article>
   );
