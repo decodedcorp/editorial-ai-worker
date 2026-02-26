@@ -10,6 +10,7 @@ from editorial_ai.observability.models import (
     PipelineRunSummary,
     TokenUsage,
 )
+from editorial_ai.observability.node_wrapper import node_wrapper
 from editorial_ai.observability.storage import append_node_log, read_node_logs
 
 __all__ = [
@@ -20,5 +21,6 @@ __all__ = [
     "harvest_tokens",
     "read_node_logs",
     "record_token_usage",
+    "node_wrapper",
     "reset_token_collector",
 ]
