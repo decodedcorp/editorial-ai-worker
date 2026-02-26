@@ -65,9 +65,9 @@
 
 ### 파이프라인 고도화
 
-- [ ] **ADV-01**: 다이나믹 모델 라우팅 — 작업 복잡도에 따라 Gemini Pro/Flash/Flash-Lite 자동 선택
-- [ ] **ADV-02**: 컨텍스트 캐싱 — 반복 참조 소스 문서에 대한 Vertex AI 캐싱 적용으로 비용/지연 절감
-- [ ] **ADV-03**: 적응형 루브릭 — 콘텐츠 유형별(기술 블로그/감성 매거진) 동적 평가 기준 조정
+- [x] **ADV-01**: 다이나믹 모델 라우팅 — 작업 복잡도에 따라 Gemini Pro/Flash/Flash-Lite 자동 선택
+- [x] **ADV-02**: 컨텍스트 캐싱 — 반복 참조 소스 문서에 대한 Vertex AI 캐싱 적용으로 비용/지연 절감
+- [x] **ADV-03**: 적응형 루브릭 — 콘텐츠 유형별(기술 블로그/감성 매거진) 동적 평가 기준 조정
 
 ## Future Requirements
 
@@ -144,9 +144,9 @@
 | MAG-02 | Phase 11 | Complete |
 | MAG-03 | Phase 11 | Complete |
 | MAG-04 | Phase 11 | Complete |
-| ADV-01 | Phase 13 | Pending |
-| ADV-02 | Phase 13 | Pending |
-| ADV-03 | Phase 13 | Pending |
+| ADV-01 | Phase 13 | Complete |
+| ADV-02 | Phase 13 | Complete |
+| ADV-03 | Phase 13 | Complete |
 
 **Coverage:**
 - v1.0 requirements: 17 total (all complete)
@@ -156,4 +156,4 @@
 
 ---
 *Requirements defined: 2026-02-20*
-*Last updated: 2026-02-26 after v1.1 roadmap creation*
+*Last updated: 2026-02-26 — v1.1 milestone complete, all requirements shipped*

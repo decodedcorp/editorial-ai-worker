@@ -3,7 +3,7 @@
 ## Milestones
 
 - v1.0 MVP 파이프라인 구축 (Phases 1-8) -- shipped 2026-02-26
-- v1.1 파이프라인 실행 검증 + 관측성 + 매거진 렌더러 (Phases 9-13) -- in progress
+- v1.1 파이프라인 실행 검증 + 관측성 + 매거진 렌더러 (Phases 9-13) -- shipped 2026-02-26
 
 ## Phases
 
@@ -139,7 +139,7 @@ Plans:
 
 </details>
 
-### v1.1 파이프라인 실행 검증 + 관측성 + 매거진 렌더러 (In Progress)
+### v1.1 파이프라인 실행 검증 + 관측성 + 매거진 렌더러 (SHIPPED 2026-02-26)
 
 **Milestone Goal:** v1.0 파이프라인을 실제 환경에서 실행 검증하고, 노드별 상세 로그를 수집하여 Admin에 표시하며, Layout JSON을 실제 매거진 형태로 렌더링한다.
 
@@ -147,7 +147,7 @@ Plans:
 - [x] **Phase 10: Pipeline Observability Backend** - 노드별 실행 메트릭 수집, 저장, API 제공
 - [x] **Phase 11: Magazine Renderer Enhancement** - Layout JSON을 매거진 품질로 렌더링하는 블록 컴포넌트 고도화
 - [x] **Phase 12: Observability Dashboard** - Admin UI에 파이프라인 실행 로그와 진행 상태 표시
-- [ ] **Phase 13: Pipeline Advanced** - 모델 라우팅, 컨텍스트 캐싱, 적응형 루브릭으로 파이프라인 고도화
+- [x] **Phase 13: Pipeline Advanced** - 모델 라우팅, 컨텍스트 캐싱, 적응형 루브릭으로 파이프라인 고도화
 
 ## Phase Details (v1.1)
 
@@ -224,7 +224,12 @@ Plans:
   1. 노드별 작업 복잡도에 따라 Gemini Pro/Flash/Flash-Lite 중 적절한 모델이 자동 선택되고, 선택 근거가 로그에 기록된다
   2. 동일 소스 문서를 참조하는 반복 실행에서 Vertex AI 컨텍스트 캐싱이 적용되어 토큰 비용이 절감된다
   3. 콘텐츠 유형(기술 블로그 vs 감성 매거진)에 따라 Review Agent의 평가 루브릭이 자동 조정된다
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [x] 13-01-PLAN.md — Config-driven model router (YAML config, Flash-Lite/Flash/Pro routing, observability logging)
+- [x] 13-02-PLAN.md — Adaptive review rubrics (content type classifier, rubric registry, dynamic review prompt)
+- [x] 13-03-PLAN.md — Context caching for retry paths (CacheManager, review/editorial cache on retry, cached token tracking)
 
 ## Progress
 
@@ -245,4 +250,4 @@ Phases execute in numeric order: 9 -> 10 -> 11 (parallelizable with 10) -> 12 ->
 | 10. Pipeline Observability Backend | v1.1 | 3/3 | Complete | 2026-02-26 |
 | 11. Magazine Renderer Enhancement | v1.1 | 4/4 | Complete | 2026-02-26 |
 | 12. Observability Dashboard | v1.1 | 3/3 | Complete | 2026-02-26 |
-| 13. Pipeline Advanced | v1.1 | 0/TBD | Not started | - |
+| 13. Pipeline Advanced | v1.1 | 3/3 | Complete | 2026-02-26 |
