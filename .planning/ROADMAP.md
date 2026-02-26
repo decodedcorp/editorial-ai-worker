@@ -176,8 +176,13 @@ Plans:
   1. 파이프라인을 실행하면 7개 노드 각각의 실행 시간(ms), 토큰 사용량, 성공/실패 상태가 pipeline_node_runs 테이블에 자동 저장된다
   2. GET /api/contents/{id}/logs 호출 시 해당 콘텐츠의 노드별 실행 로그가 시간순으로 반환된다
   3. 관측성 수집이 실패해도 파이프라인 실행은 중단되지 않는다 (fire-and-forget)
-  4. 관측성 데이터가 EditorialPipelineState가 아닌 별도 테이블에 저장되어 기존 체크포인트와 충돌하지 않는다
-**Plans**: TBD
+  4. 관측성 데이터가 EditorialPipelineState가 아닌 별도 저장소(로컬 JSONL)에 저장되어 기존 체크포인트와 충돌하지 않는다
+**Plans**: 3 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — Observability models, token collector context var, JSONL storage
+- [ ] 10-02-PLAN.md — Node wrapper decorator, service layer token injection, graph wiring
+- [ ] 10-03-PLAN.md — Logs API endpoint (GET /api/contents/{id}/logs)
 
 ### Phase 11: Magazine Renderer Enhancement
 **Goal**: Admin 상세 페이지의 매거진 프리뷰가 실제 이미지, 에디토리얼 타이포그래피, 에러 복원력을 갖춘 매거진 품질로 렌더링되는 상태
