@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 11 of 13 (Magazine Renderer Enhancement)
-Plan: — (awaiting plan-phase)
-Status: Ready to plan
-Last activity: 2026-02-26 — Phase 10 complete (3/3 plans, verified)
+Plan: 02 of 4 (Shared Components)
+Status: In progress
+Last activity: 2026-02-26 — Completed 11-02-PLAN.md
 
-Progress: [##############....] 78% (28/36 plans — v1.0 complete, phases 9-10 complete)
+Progress: [###############...] 81% (29/36 plans)
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Progress: [##############....] 78% (28/36 plans — v1.0 complete, phases 9-10 c
 - [10-02]: Node wrapping applied after node_overrides so test stubs also get wrapped
 - [10-02]: BaseException catch for node errors to handle KeyboardInterrupt/SystemExit
 - [10-03]: Logs router registered before admin at same prefix; include_io defaults true
+- [11-02]: Native <img> over next/image for magazine content (avoids remotePatterns for arbitrary external URLs)
 
 ### Pending Todos
 
@@ -72,5 +73,5 @@ Progress: [##############....] 78% (28/36 plans — v1.0 complete, phases 9-10 c
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Phase 10 complete, verified (4/4 must-haves). Ready to plan Phase 11.
+Stopped at: Completed 11-02-PLAN.md (Shared Components). Next: 11-03.
 Resume file: None
