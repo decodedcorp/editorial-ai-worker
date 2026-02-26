@@ -1,0 +1,30 @@
+defaults:
+  model: "gemini-2.5-flash"
+
+nodes:
+  curation_research:
+    default_model: "gemini-2.5-flash"
+  curation_subtopics:
+    default_model: "gemini-2.5-flash-lite"
+  curation_extract:
+    default_model: "gemini-2.5-flash-lite"
+  design_spec:
+    default_model: "gemini-2.5-flash-lite"
+  editorial_content:
+    default_model: "gemini-2.5-flash"
+    upgrade_model: "gemini-2.5-pro"
+    upgrade_conditions:
+      min_revision_count: 2
+  editorial_layout_parse:
+    default_model: "gemini-2.5-flash-lite"
+  editorial_repair:
+    default_model: "gemini-2.5-flash-lite"
+  enrich_keywords:
+    default_model: "gemini-2.5-flash-lite"
+  enrich_regenerate:
+    default_model: "gemini-2.5-flash"
+  review:
+    default_model: "gemini-2.5-flash"
+    upgrade_model: "gemini-2.5-pro"
+    upgrade_conditions:
+      min_revision_count: 2
