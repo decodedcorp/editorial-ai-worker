@@ -144,7 +144,7 @@ Plans:
 **Milestone Goal:** v1.0 파이프라인을 실제 환경에서 실행 검증하고, 노드별 상세 로그를 수집하여 Admin에 표시하며, Layout JSON을 실제 매거진 형태로 렌더링한다.
 
 - [x] **Phase 9: E2E Execution Foundation** - 실제 환경에서 파이프라인이 처음부터 끝까지 동작하는 상태 확보
-- [ ] **Phase 10: Pipeline Observability Backend** - 노드별 실행 메트릭 수집, 저장, API 제공
+- [x] **Phase 10: Pipeline Observability Backend** - 노드별 실행 메트릭 수집, 저장, API 제공
 - [ ] **Phase 11: Magazine Renderer Enhancement** - Layout JSON을 매거진 품질로 렌더링하는 블록 컴포넌트 고도화
 - [ ] **Phase 12: Observability Dashboard** - Admin UI에 파이프라인 실행 로그와 진행 상태 표시
 - [ ] **Phase 13: Pipeline Advanced** - 모델 라우팅, 컨텍스트 캐싱, 적응형 루브릭으로 파이프라인 고도화
@@ -180,9 +180,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — Observability models, token collector context var, JSONL storage
-- [ ] 10-02-PLAN.md — Node wrapper decorator, service layer token injection, graph wiring
-- [ ] 10-03-PLAN.md — Logs API endpoint (GET /api/contents/{id}/logs)
+- [x] 10-01-PLAN.md — Observability models, token collector context var, JSONL storage
+- [x] 10-02-PLAN.md — Node wrapper decorator, service layer token injection, graph wiring
+- [x] 10-03-PLAN.md — Logs API endpoint (GET /api/contents/{id}/logs)
 
 ### Phase 11: Magazine Renderer Enhancement
 **Goal**: Admin 상세 페이지의 매거진 프리뷰가 실제 이미지, 에디토리얼 타이포그래피, 에러 복원력을 갖춘 매거진 품질로 렌더링되는 상태
@@ -231,7 +231,7 @@ Phases execute in numeric order: 9 -> 10 -> 11 (parallelizable with 10) -> 12 ->
 | 7. Admin Backend + HITL | v1.0 | 3/3 | Complete | 2026-02-25 |
 | 8. Admin Dashboard UI | v1.0 | 3/3 | Complete | 2026-02-26 |
 | 9. E2E Execution Foundation | v1.1 | 3/3 | Complete | 2026-02-26 |
-| 10. Pipeline Observability Backend | v1.1 | 0/TBD | Not started | - |
+| 10. Pipeline Observability Backend | v1.1 | 3/3 | Complete | 2026-02-26 |
 | 11. Magazine Renderer Enhancement | v1.1 | 0/TBD | Not started | - |
 | 12. Observability Dashboard | v1.1 | 0/TBD | Not started | - |
 | 13. Pipeline Advanced | v1.1 | 0/TBD | Not started | - |
