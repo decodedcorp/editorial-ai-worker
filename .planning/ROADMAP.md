@@ -209,7 +209,12 @@ Plans:
   1. 콘텐츠 상세 페이지에서 노드별 실행 타임라인(노드명, 소요시간, 성공/실패)을 시각적으로 확인할 수 있다
   2. 각 노드의 토큰 사용량과 예상 비용(Gemini 2.5 Flash 가격 기준)이 로그 패널에 표시된다
   3. 콘텐츠 목록 페이지에서 각 항목의 파이프라인 진행 상태(큐레이션 중/리뷰 중/승인 대기 중)를 한눈에 파악할 수 있다
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 12-01-PLAN.md — BFF proxy route, TypeScript types, cost/duration utilities
+- [ ] 12-02-PLAN.md — Pipeline tab (Gantt timeline, node detail, cost summary, ContentTabs wiring)
+- [ ] 12-03-PLAN.md — List page pipeline status column (BFF enrichment, step indicator, summary metrics)
 
 ### Phase 13: Pipeline Advanced
 **Goal**: 파이프라인이 작업 복잡도에 따라 모델을 자동 선택하고, 반복 참조 소스를 캐싱하며, 콘텐츠 유형별 평가 기준을 동적 조정하는 상태
@@ -239,5 +244,5 @@ Phases execute in numeric order: 9 -> 10 -> 11 (parallelizable with 10) -> 12 ->
 | 9. E2E Execution Foundation | v1.1 | 3/3 | Complete | 2026-02-26 |
 | 10. Pipeline Observability Backend | v1.1 | 3/3 | Complete | 2026-02-26 |
 | 11. Magazine Renderer Enhancement | v1.1 | 4/4 | Complete | 2026-02-26 |
-| 12. Observability Dashboard | v1.1 | 0/TBD | Not started | - |
+| 12. Observability Dashboard | v1.1 | 0/3 | Planned | - |
 | 13. Pipeline Advanced | v1.1 | 0/TBD | Not started | - |
