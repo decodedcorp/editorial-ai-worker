@@ -22,6 +22,7 @@ from editorial_ai.config import settings
 from editorial_ai.models.editorial import (
     EditorialContent,
 )
+from editorial_ai.observability import record_token_usage
 from editorial_ai.models.layout import (
     BodyTextBlock,
     CelebFeatureBlock,
@@ -130,6 +131,13 @@ class EditorialService:
                 temperature=0.7,
             ),
         )
+        if hasattr(response, "usage_metadata") and response.usage_metadata:
+            record_token_usage(
+                prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
+                completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
+                total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                model_name=self.content_model,
+            )
 
         raw_json = response.text or "{}"
 
@@ -178,6 +186,13 @@ class EditorialService:
                     temperature=1.0,
                 ),
             )
+            if hasattr(response, "usage_metadata") and response.usage_metadata:
+                record_token_usage(
+                    prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
+                    completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
+                    total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                    model_name=self.image_model,
+                )
 
             candidates = response.candidates
             if not candidates:
@@ -244,6 +259,13 @@ class EditorialService:
                     temperature=0.0,
                 ),
             )
+            if hasattr(response, "usage_metadata") and response.usage_metadata:
+                record_token_usage(
+                    prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
+                    completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
+                    total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                    model_name=self.content_model,
+                )
 
             raw_text = response.text or "[]"
             import json
@@ -296,6 +318,13 @@ class EditorialService:
                 temperature=0.0,
             ),
         )
+        if hasattr(response, "usage_metadata") and response.usage_metadata:
+            record_token_usage(
+                prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
+                completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
+                total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                model_name=self.content_model,
+            )
 
         return response.text or "{}"
 

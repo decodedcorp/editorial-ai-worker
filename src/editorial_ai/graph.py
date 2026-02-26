@@ -17,6 +17,7 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
+from editorial_ai.observability import node_wrapper
 from editorial_ai.nodes.admin_gate import admin_gate
 from editorial_ai.nodes.curation import curation_node
 from editorial_ai.nodes.editorial import editorial_node
@@ -84,6 +85,10 @@ def build_graph(
     }
     if node_overrides:
         nodes.update(node_overrides)
+
+    # Wrap all nodes with observability instrumentation
+    for name in list(nodes.keys()):
+        nodes[name] = node_wrapper(name)(nodes[name])
 
     builder = StateGraph(EditorialPipelineState)
 

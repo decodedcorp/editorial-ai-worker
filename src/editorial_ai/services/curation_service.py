@@ -18,6 +18,7 @@ from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_ex
 
 from editorial_ai.config import settings
 from editorial_ai.models.curation import CuratedTopic, CurationResult, GroundingSource
+from editorial_ai.observability import record_token_usage
 from editorial_ai.prompts.curation import (
     build_extraction_prompt,
     build_subtopic_expansion_prompt,
@@ -126,6 +127,13 @@ class CurationService:
                 temperature=0.7,
             ),
         )
+        if hasattr(response, "usage_metadata") and response.usage_metadata:
+            record_token_usage(
+                prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
+                completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
+                total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                model_name=self.model,
+            )
         text = response.text or ""
         sources = _extract_grounding_sources(response)
         return text, sources
@@ -144,6 +152,13 @@ class CurationService:
                 temperature=0.3,
             ),
         )
+        if hasattr(response, "usage_metadata") and response.usage_metadata:
+            record_token_usage(
+                prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
+                completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
+                total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                model_name=self.model,
+            )
         try:
             raw_text = response.text or "[]"
             subtopics = json.loads(_strip_markdown_fences(raw_text))
@@ -176,6 +191,13 @@ class CurationService:
                 temperature=0.0,
             ),
         )
+        if hasattr(response, "usage_metadata") and response.usage_metadata:
+            record_token_usage(
+                prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
+                completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
+                total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                model_name=self.model,
+            )
         raw_text = response.text or "{}"
         # Try parsing, with markdown fence fallback
         for text_candidate in [raw_text, _strip_markdown_fences(raw_text)]:

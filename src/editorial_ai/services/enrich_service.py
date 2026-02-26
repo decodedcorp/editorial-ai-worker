@@ -20,6 +20,7 @@ from google.genai import types
 
 from editorial_ai.config import settings
 from editorial_ai.models.celeb import Celeb
+from editorial_ai.observability import record_token_usage
 from editorial_ai.models.editorial import EditorialContent
 from editorial_ai.models.layout import (
     BodyTextBlock,
@@ -79,6 +80,13 @@ async def expand_keywords(client: genai.Client, keyword: str) -> list[str]:
             temperature=0.3,
         ),
     )
+    if hasattr(response, "usage_metadata") and response.usage_metadata:
+        record_token_usage(
+            prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
+            completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
+            total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+            model_name=settings.default_model,
+        )
     try:
         raw = _strip_markdown_fences(response.text or "[]")
         terms = json.loads(raw)
@@ -128,6 +136,13 @@ async def regenerate_with_enrichment(
                 temperature=0.7,
             ),
         )
+        if hasattr(response, "usage_metadata") and response.usage_metadata:
+            record_token_usage(
+                prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
+                completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
+                total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                model_name=settings.editorial_model,
+            )
         raw_text = response.text or "{}"
         return EditorialContent.model_validate_json(
             _strip_markdown_fences(raw_text),

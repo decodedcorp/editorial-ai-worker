@@ -15,6 +15,7 @@ from pydantic import ValidationError
 
 from editorial_ai.config import settings
 from editorial_ai.models.layout import BodyTextBlock, MagazineLayout
+from editorial_ai.observability import record_token_usage
 from editorial_ai.models.review import CriterionResult, ReviewResult
 from editorial_ai.prompts.review import build_review_prompt
 from editorial_ai.services.curation_service import (
@@ -103,6 +104,13 @@ class ReviewService:
                 temperature=0.0,
             ),
         )
+        if hasattr(response, "usage_metadata") and response.usage_metadata:
+            record_token_usage(
+                prompt_tokens=getattr(response.usage_metadata, "prompt_token_count", 0) or 0,
+                completion_tokens=getattr(response.usage_metadata, "candidates_token_count", 0) or 0,
+                total_tokens=getattr(response.usage_metadata, "total_token_count", 0) or 0,
+                model_name=self.model,
+            )
 
         raw_text = response.text or "{}"
         result = ReviewResult.model_validate_json(_strip_markdown_fences(raw_text))
