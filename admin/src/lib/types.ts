@@ -258,3 +258,22 @@ export interface LogsResponse {
   runs: NodeRunLog[];
   summary: PipelineRunSummary | null;
 }
+
+// ---------------------------------------------------------------------------
+// Content item with pipeline summary (enriched by BFF list proxy)
+// ---------------------------------------------------------------------------
+
+export interface PipelineSummaryFields {
+  total_duration_ms: number | null;
+  estimated_cost_usd: number | null;
+  retry_count: number;
+}
+
+export interface ContentItemWithSummary extends ContentItem {
+  pipeline_summary: PipelineSummaryFields | null;
+}
+
+export interface ContentListWithSummaryResponse {
+  items: ContentItemWithSummary[];
+  total: number;
+}
