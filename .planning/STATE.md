@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 12 of 13 (Observability Dashboard)
-Plan: 1 of 3 complete (12-01 done, 12-02+12-03 W2 remaining)
+Plan: 2 of 3 complete (12-01+12-02 done, 12-03 remaining)
 Status: In progress
-Last activity: 2026-02-26 — Completed 12-01-PLAN.md (data foundation)
+Last activity: 2026-02-26 — Completed 12-02-PLAN.md (Pipeline tab visualization)
 
-Progress: [##################-] 92% (33/36 plans)
+Progress: [##################-] 94% (34/36 plans)
 
 ## Performance Metrics
 
@@ -67,6 +67,9 @@ Progress: [##################-] 92% (33/36 plans)
 - [11-03]: Google Fonts loaded via next/font/google CSS variables (no external CDN)
 - [11-04]: ContentTabs as separate client component for tab-based detail page
 - [11-04]: null-to-undefined conversion at BlockRenderer boundary for designSpec prop compatibility
+- [12-02]: Round grouping by detecting repeated node_name for retry visualization
+- [12-02]: IO data lazy-loaded on demand (include_io=true) to avoid heavy initial page load
+- [12-02]: Parallel fetch of content + logs on detail page with graceful logs failure fallback
 
 ### Pending Todos
 
@@ -81,5 +84,5 @@ Progress: [##################-] 92% (33/36 plans)
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 12-01-PLAN.md (data foundation). Ready for 12-02 (Pipeline tab).
+Stopped at: Completed 12-02-PLAN.md (Pipeline tab visualization). Ready for 12-03 (list page status indicators).
 Resume file: None
