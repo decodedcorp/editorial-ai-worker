@@ -1,0 +1,117 @@
+{
+  "id": "6bb448a3-bdab-48e3-a1e8-f97da2ea8f89",
+  "thread_id": "K-POP 공항패션 크로스오버",
+  "status": "published",
+  "title": "공항은 런웨이! K-POP 4세대 아이콘들의 스타일 크로스오버",
+  "keyword": "K-POP 공항패션 크로스오버",
+  "layout_json": {
+    "schema_version": "1.0",
+    "title": "공항은 런웨이! K-POP 4세대 아이콘들의 스타일 크로스오버",
+    "subtitle": null,
+    "keyword": "K-POP 공항패션 크로스오버",
+    "blocks": [
+      {
+        "type": "hero",
+        "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-10-13_21-44-28/2024-10-13_21-44-28_UTC_8.jpg",
+        "overlay_title": "공항은 런웨이! K-POP 4세대 아이콘들의 스타일 크로스오버",
+        "overlay_subtitle": "무심한 듯 시크하게, 때로는 과감하게. K-POP 스타들의 공항패션이 전 세계 패션 트렌드를 이끌고 있다.",
+        "animation": "parallax"
+      },
+      {
+        "type": "headline",
+        "text": "공항은 런웨이! K-POP 4세대 아이콘들의 스타일 크로스오버",
+        "level": 1,
+        "animation": "fade-up"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "K-POP 4세대 아이콘들의 공항패션은 이제 단순한 이동복장이 아니다. 전 세계 팬들과 미디어의 시선을 한 몸에 받는 그들의 공항 출국길은 그 자체로 하나의 패션쇼이자 트렌드의 정점이다. 편안함과 스타일리시함을 동시에 추구하며, 하이엔드 브랜드부터 스트리트웨어까지 자유롭게 넘나드는 크로스오버 스타일은 이들이 왜 시대의 아이콘인지 여실히 보여준다. 이들의 패션은 공항이라는 일상적인 공간을 런웨이로 탈바꿈시키며 새로운 스타일 공식을 제시한다.",
+          "블랙핑크 제니는 DSQUARED2 모헤어 미니 케이프 니트와 CHANEL 롱 네크리스, 그리고 또 다른 CHANEL 네크리스를 레이어링하여 특유의 고급스러운 캐주얼룩을 완성했다. 리사 역시 LOEWE 롱 슬리브 티셔츠에 LOUIS VUITTON LV 데이 캡을 믹스매치하여 편안하면서도 힙한 무드를 연출했으며, POP MART CRYBABY x Powerpuff Girls Series 키링으로 위트를 더했다. 지수는 R13 레오파드 셔츠와 courrèges 배기 와이드 레그 트윌 팬츠로 빈티지하면서도 시크한 매력을 발산했으며, DIOR 미디엄 그랜드 투어 멀티포켓 백으로 포인트를 주었다.",
+          "이처럼 K-POP 스타들은 각자의 개성을 살리면서도 예상치 못한 조합으로 신선한 스타일을 창조한다. 공항패션은 더 이상 숨겨진 사복 패션이 아닌, 셀럽들의 패션 감각을 가장 솔직하게 드러내는 무대가 되었다. 이들의 스타일링은 전 세계 패션 팔로워들에게 영감을 주며, 다음 시즌의 트렌드를 미리 엿볼 수 있는 바로미터 역할을 톡톡히 해내고 있다. 공항을 넘어 세계로 뻗어나가는 K-POP 패션 크로스오버의 힘은 앞으로도 계속될 것이다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "pull_quote",
+        "quote": "공항은 런웨이! K-POP 4세대 아이콘들의 스타일 크로스오버가 전 세계 패션 트렌드를 이끌고 있다.",
+        "attribution": null,
+        "animation": "scale-in"
+      },
+      {
+        "type": "celeb_feature",
+        "celebs": [
+          {
+            "celeb_id": null,
+            "name": "jennie",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-10-13_21-44-28/2024-10-13_21-44-28_UTC_8.jpg",
+            "description": "BLACKPINK 멤버"
+          },
+          {
+            "celeb_id": null,
+            "name": "lisa",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-05-09_08-45-22/2024-05-09_08-45-22_UTC_3.jpg",
+            "description": "BLACKPINK 멤버"
+          },
+          {
+            "celeb_id": null,
+            "name": "jisoo",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2025-08-02_03-15-44/2025-08-02_03-15-44_UTC_5.jpg",
+            "description": "BLACKPINK 멤버"
+          }
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "product_showcase",
+        "products": [
+          {
+            "product_id": "",
+            "name": "DSQUARED2 Mohair Mini Cape Knit",
+            "brand": null,
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/1adb63fc-738b-47c6-802/thumb.jpg",
+            "link_url": null,
+            "description": null
+          }
+        ],
+        "animation": "slide-right"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "hashtag_bar",
+        "hashtags": [
+          "KPOP공항패션",
+          "스타일크로스오버",
+          "4세대아이콘",
+          "셀럽패션",
+          "트렌드세터"
+        ],
+        "animation": "slide-left"
+      },
+      {
+        "type": "credits",
+        "entries": [
+          {
+            "role": "AI Editor",
+            "name": "decoded editorial"
+          }
+        ],
+        "animation": "fade-in"
+      }
+    ],
+    "created_at": null,
+    "metadata": [],
+    "design_spec": null
+  },
+  "layout_image_base64": null,
+  "review_summary": "Auto-passed for testing.",
+  "rejection_reason": null,
+  "admin_feedback": null,
+  "created_at": "2026-02-26T11:01:22.545228+00:00",
+  "updated_at": "2026-02-26T11:01:22.549903+00:00",
+  "published_at": "2026-02-26T11:01:22.549909+00:00"
+}

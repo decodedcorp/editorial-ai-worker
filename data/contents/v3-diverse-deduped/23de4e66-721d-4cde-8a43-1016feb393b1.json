@@ -1,0 +1,88 @@
+{
+  "id": "23de4e66-721d-4cde-8a43-1016feb393b1",
+  "thread_id": "로제 SAINT LAURENT 올드머니",
+  "status": "published",
+  "title": "로제 효과: SAINT LAURENT를 입고 올드머니의 정수를 보여주다",
+  "keyword": "로제 SAINT LAURENT 올드머니",
+  "layout_json": {
+    "schema_version": "1.0",
+    "title": "로제 효과: SAINT LAURENT를 입고 올드머니의 정수를 보여주다",
+    "subtitle": null,
+    "keyword": "로제 SAINT LAURENT 올드머니",
+    "blocks": [
+      {
+        "type": "hero",
+        "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-04-17_15-29-13/2024-04-17_15-29-13_UTC_5.jpg",
+        "overlay_title": "로제 효과: SAINT LAURENT를 입고 올드머니의 정수를 보여주다",
+        "overlay_subtitle": "블랙핑크 로제는 '올드머니' 트렌드의 대표 아이콘입니다. SAINT LAURENT의 앰버서더로서 그녀는 브랜드의 시크하고 절제된 미학을 완벽하게 구현하죠. TIFFANY & Co. 주얼리와 함께 고급스러운 분위기를 ",
+        "animation": "fade-up",
+        "layout_variant": "full_bleed"
+      },
+      {
+        "type": "headline",
+        "text": "로제 효과: SAINT LAURENT를 입고 올드머니의 정수를 보여주다",
+        "level": 1,
+        "animation": "fade-up"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "블랙핑크 로제는 '올드머니' 트렌드의 대표 아이콘입니다. SAINT LAURENT의 앰버서더로서 그녀는 브랜드의 시크하고 절제된 미학을 완벽하게 구현하죠. TIFFANY & Co. 주얼리와 함께 고급스러운 분위기를 자아내며, 과하지 않으면서도 우아하고 세련된 스타일을 선보입니다. 로제의 패션은 부와 품격을 드러내면서도 일상에 자연스럽게 스며드는 '진정한 럭셔리'가 무엇인지 보여주는 교과서와 같습니다.",
+          "로제 스타일의 핵심은 '하이-로우 믹스'입니다. SAINT LAURENT 캐시미어 스웨터에 THE ROW 백, 그리고 New Era NY Yankees 볼캡을 매치하는 그녀의 센스는 감탄을 자아냅니다. Brandy Melville Christy Hoodie나 R13 Multi-Pocket Utility Pant 같은 캐주얼 아이템도 로제가 입으면 럭셔리함으로 승화되죠. 그녀는 아이템 가격이 아닌, 스타일링의 힘으로 전체 룩의 가치를 끌어올리는 패션 마스터입니다.",
+          "로제가 보여주는 올드머니 스타일은 '애쓰지 않는 우아함'의 전형입니다. SAINT LAURENT Oversized Jacket in Lambskin 같은 고급 아우터도 그녀에게는 자연스러운 일상복이 되죠. BLACKPINK World Tour Dad Cap 같은 팬 아이템마저 패셔너블하게 소화합니다. 로제의 패션은 부유함 과시보다, 오랜 시간 축적된 취향과 안목에서 우러나오는 편안하고 자신감 있는 태도를 반영합니다. 그녀는 진정한 멋이란 무엇인지 보여주는 시대의 아이콘입니다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "celeb_feature",
+        "celebs": [
+          {
+            "celeb_id": null,
+            "name": "rose",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-04-17_15-29-13/2024-04-17_15-29-13_UTC_5.jpg",
+            "description": "BLACKPINK 멤버"
+          }
+        ],
+        "animation": "scale-in"
+      },
+      {
+        "type": "pull_quote",
+        "quote": "로제의 패션은 부와 품격을 드러내면서도 일상에 자연스럽게 스며드는 '진정한 럭셔리'가 무엇인지 보여주는 교과서와 같습니다.",
+        "attribution": null,
+        "animation": "scale-in"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "product_showcase",
+        "products": [
+          {
+            "product_id": "",
+            "name": "SAINT LAURENT Cashmere Sweater",
+            "brand": null,
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/2d184230-dcc9-466c-9d1/thumb.jpg",
+            "description": null
+          }
+        ],
+        "animation": "slide-right"
+      }
+    ],
+    "created_at": null,
+    "metadata": [],
+    "design_spec": null
+  },
+  "review_summary": "Auto-passed for testing.",
+  "rejection_reason": null,
+  "admin_feedback": null,
+  "created_at": "2026-02-26T10:47:53.459986+00:00",
+  "updated_at": "2026-02-26T10:47:53.460970+00:00",
+  "published_at": "2026-02-26T10:47:53.460972+00:00"
+}

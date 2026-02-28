@@ -1,0 +1,92 @@
+{
+  "id": "70b1b66e-d14b-4d76-a354-c77a619df989",
+  "thread_id": "다니엘 뉴진스 캐주얼 스트릿",
+  "status": "published",
+  "title": "뉴진스 다니엘, Z세대가 열광하는 캐주얼 스트릿 스타일 공략법",
+  "keyword": "다니엘 뉴진스 캐주얼 스트릿",
+  "layout_json": {
+    "schema_version": "1.0",
+    "title": "뉴진스 다니엘, Z세대가 열광하는 캐주얼 스트릿 스타일 공략법",
+    "subtitle": null,
+    "keyword": "다니엘 뉴진스 캐주얼 스트릿",
+    "blocks": [
+      {
+        "type": "hero",
+        "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/newjeanscloset/2024-02-03_06-00-00/2024-02-03_06-00-00_UTC_3.jpg",
+        "overlay_title": "뉴진스 다니엘, Z세대가 열광하는 캐주얼 스트릿 스타일 공략법",
+        "overlay_subtitle": "하이엔드와 키치함을 넘나들며 자신만의 패션 코드를 완성하는 다니엘의 스타일링 비밀을 파헤쳐 본다.",
+        "animation": "parallax"
+      },
+      {
+        "type": "headline",
+        "text": "뉴진스 다니엘, Z세대가 열광하는 캐주얼 스트릿 스타일 공략법",
+        "level": 1,
+        "animation": "fade-up"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "Z세대의 패션 아이콘으로 떠오른 뉴진스 다니엘은 그 누구보다 자유롭고 개성 넘치는 스타일로 시선을 사로잡는다. 그녀의 룩은 스트릿웨어의 대명사 NIKE부터 독특한 감성의 BAPE, 그리고 럭셔리의 정점 CELINE까지, 장르를 불문하고 다양한 브랜드를 능숙하게 믹스매치하는 것이 특징이다. 새틴 봄버 재킷에 스포티한 에어맥스를 매치하고, 때로는 사랑스러운 플라워 캡과 캐릭터 마스코트 인형으로 발랄함을 더하는 다니엘의 스타일은 '10대 특유의 발랄한 스트릿 감성'이라는 트렌드 배경을 완벽하게 구현하며 Z세대 캐주얼의 새로운 기준을 제시하고 있다.",
+          "다니엘의 캐주얼 스트릿 스타일에서 빼놓을 수 없는 아이템들은 바로 그녀의 자유로운 감각을 대변한다. 스포티하면서도 트렌디한 무드를 연출하는 NIKE Dugout Loose Satin Jacket에 사랑스러운 포인트를 더하는 DEW E DEW E Flower Cap_Beige, 그리고 장난기 가득한 Asamimichan Face Stuffed Mascot는 그녀의 유쾌한 에너지를 고스란히 담아낸다. 또한, 강렬한 스트릿 무드의 BAPE x Alpha Industries Shark Full Zip Hoodie와 힙한 실루엣을 완성하는 Pintuck Cargo Denim Pants, 그리고 캐주얼한 매력을 더하는 NewJeans Club Cap의 조합은 쿨하고 시크한 다니엘의 또 다른 면모를 보여주며 팬들의 열광적인 반응을 이끌어낸다.",
+          "특히 다니엘은 하이엔드 아이템을 캐주얼하게 소화하는 데 탁월한 능력을 보인다. 고급스러운 CELINE Loose Celine Paris T-Shirt에 편안하면서도 스타일리시한 CELINE Slides를 매치하여 럭셔리 브랜드의 무게감을 덜어내고, 여기에 귀여운 LANG & LU Loves Bunny T-Shirts를 믹스하여 자신만의 플레이풀한 감성을 불어넣는다. 이처럼 다니엘은 고가의 브랜드와 일상적인 아이템, 그리고 키치한 소품들을 자유자재로 오가며 '하이엔드와 플레이풀함의 경계를 자유롭게 오가는' 독보적인 스타일을 구축하며, 패션계에 신선한 바람을 불어넣고 있다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "pull_quote",
+        "quote": "다니엘은 단순히 옷을 입는 것을 넘어, 자신만의 스토리를 스타일로 풀어낸다.",
+        "attribution": null,
+        "animation": "scale-in"
+      },
+      {
+        "type": "celeb_feature",
+        "celebs": [
+          {
+            "celeb_id": null,
+            "name": "danielle",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/newjeanscloset/2024-02-03_06-00-00/2024-02-03_06-00-00_UTC_3.jpg",
+            "description": "NewJeans 멤버"
+          }
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "product_showcase",
+        "products": [
+          {
+            "product_id": "",
+            "name": "NIKE Dugout Loose Satin Jacket",
+            "brand": null,
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/danielle-2024-02/thumb.jpg",
+            "description": null
+          }
+        ],
+        "animation": "slide-right"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "credits",
+        "entries": [
+          {
+            "role": "AI Editor",
+            "name": "decoded editorial"
+          }
+        ],
+        "animation": "fade-in"
+      }
+    ],
+    "created_at": null,
+    "metadata": [],
+    "design_spec": null
+  },
+  "review_summary": "Auto-passed for testing.",
+  "rejection_reason": null,
+  "admin_feedback": null,
+  "created_at": "2026-02-26T10:48:53.371710+00:00",
+  "updated_at": "2026-02-26T10:48:53.373701+00:00",
+  "published_at": "2026-02-26T10:48:53.373704+00:00"
+}

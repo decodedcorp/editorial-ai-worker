@@ -1,0 +1,111 @@
+{
+  "id": "207ff976-2924-418e-a041-10a5de45dea3",
+  "thread_id": "리사 STELLA McCARTNEY 지속가능 패션",
+  "status": "published",
+  "title": "리사, 지속가능 패션의 새로운 아이콘: STELLA McCARTNEY와 BVLGARI가 만났을 때",
+  "keyword": "리사 STELLA McCARTNEY 지속가능 패션",
+  "layout_json": {
+    "schema_version": "1.0",
+    "title": "리사, 지속가능 패션의 새로운 아이콘: STELLA McCARTNEY와 BVLGARI가 만났을 때",
+    "subtitle": null,
+    "keyword": "리사 STELLA McCARTNEY 지속가능 패션",
+    "blocks": [
+      {
+        "type": "hero",
+        "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-08-15_23-52-40/2024-08-15_23-52-40_UTC_6.jpg",
+        "overlay_title": "리사, 지속가능 패션의 새로운 아이콘: STELLA McCARTNEY와 BVLGARI가 만났을 때",
+        "overlay_subtitle": "K-POP을 넘어선 패션 선구자 리사가 STELLA McCARTNEY와 BVLGARI를 통해 보여주는 지속가능한 하이패션의 미래.",
+        "animation": "parallax"
+      },
+      {
+        "type": "headline",
+        "text": "리사, 지속가능 패션의 새로운 아이콘: STELLA McCARTNEY와 BVLGARI가 만났을 때",
+        "level": 1,
+        "animation": "fade-up"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "블랙핑크 리사는 지속가능한 하이패션의 새로운 아이콘입니다. STELLA McCARTNEY와 BVLGARI를 중심으로 비건 레더, 재활용 데님 등 환경을 생각하는 아이템을 자연스럽게 소화하며 패션과 환경의 조화를 보여줍니다. 그녀의 스타일은 지속가능성이 얼마나 세련되고 매력적일 수 있는지 증명하며, 미래 패션의 방향을 제시합니다.",
+          "리사의 패션은 섬세한 디테일과 과감한 믹스매치로 빛을 발합니다. STELLA McCARTNEY의 Popper-Studded Bootcut Denim Jeans와 BVLGARI의 B.Zero1 Ring, B.Zero1 Bracelet으로 럭셔리하면서도 지속가능한 스타일을 제시하죠. GALLERY DEPT. Ebay Tee와 Acne Studios Studded Jeans - Loose Fit의 믹스매치도 돋보입니다.",
+          "그녀는 LOUIS VUITTON LV Malletage Round Sunglasses나 Chrome Hearts Leather Cross Patch Blue Mini Bowling Bag 같은 액세서리 선택으로 자신만의 개성을 더욱 강조합니다. Coperni Stripped Cropped Shirt와 BVLGARI Serpenti Viper Ring을 매치하며 환경 의식과 트렌디함을 동시에 잡는 리사의 스타일은 지속가능 패션이 더 이상 특별한 것이 아닌, 우리 모두의 일상이 될 수 있음을 보여줍니다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "celeb_feature",
+        "celebs": [
+          {
+            "celeb_id": null,
+            "name": "lisa",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-08-15_23-52-40/2024-08-15_23-52-40_UTC_6.jpg",
+            "description": "BLACKPINK 멤버"
+          }
+        ],
+        "animation": "scale-in"
+      },
+      {
+        "type": "pull_quote",
+        "quote": "리사는 지속가능 패션이 얼마나 세련되고 매력적일 수 있는지 증명합니다.",
+        "attribution": null,
+        "animation": "scale-in"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "블랙핑크 리사는 지속가능한 하이패션의 새로운 아이콘입니다. STELLA McCARTNEY와 BVLGARI를 중심으로 비건 레더, 재활용 데님 등 환경을 생각하는 아이템을 자연스럽게 소화하며 패션과 환경의 조화를 보여줍니다. 그녀의 스타일은 지속가능성이 얼마나 세련되고 매력적일 수 있는지 증명하며, 미래 패션의 방향을 제시합니다.",
+          "리사의 패션은 섬세한 디테일과 과감한 믹스매치로 빛을 발합니다. STELLA McCARTNEY의 Popper-Studded Bootcut Denim Jeans와 BVLGARI의 B.Zero1 Ring, B.Zero1 Bracelet으로 럭셔리하면서도 지속가능한 스타일을 제시하죠. GALLERY DEPT. Ebay Tee와 Acne Studios Studded Jeans - Loose Fit의 믹스매치도 돋보입니다.",
+          "그녀는 LOUIS VUITTON LV Malletage Round Sunglasses나 Chrome Hearts Leather Cross Patch Blue Mini Bowling Bag 같은 액세서리 선택으로 자신만의 개성을 더욱 강조합니다. Coperni Stripped Cropped Shirt와 BVLGARI Serpenti Viper Ring을 매치하며 환경 의식과 트렌디함을 동시에 잡는 리사의 스타일은 지속가능 패션이 더 이상 특별한 것이 아닌, 우리 모두의 일상이 될 수 있음을 보여줍니다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "product_showcase",
+        "products": [
+          {
+            "product_id": "",
+            "name": "STELLA McCARTNEY Popper-Studded Bootcut Denim Jeans",
+            "brand": null,
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/aab03351-9617-4325-9f2/thumb.jpg",
+            "description": null
+          }
+        ],
+        "animation": "slide-right"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "블랙핑크 리사는 지속가능한 하이패션의 새로운 아이콘입니다. STELLA McCARTNEY와 BVLGARI를 중심으로 비건 레더, 재활용 데님 등 환경을 생각하는 아이템을 자연스럽게 소화하며 패션과 환경의 조화를 보여줍니다. 그녀의 스타일은 지속가능성이 얼마나 세련되고 매력적일 수 있는지 증명하며, 미래 패션의 방향을 제시합니다.",
+          "리사의 패션은 섬세한 디테일과 과감한 믹스매치로 빛을 발합니다. STELLA McCARTNEY의 Popper-Studded Bootcut Denim Jeans와 BVLGARI의 B.Zero1 Ring, B.Zero1 Bracelet으로 럭셔리하면서도 지속가능한 스타일을 제시하죠. GALLERY DEPT. Ebay Tee와 Acne Studios Studded Jeans - Loose Fit의 믹스매치도 돋보입니다.",
+          "그녀는 LOUIS VUITTON LV Malletage Round Sunglasses나 Chrome Hearts Leather Cross Patch Blue Mini Bowling Bag 같은 액세서리 선택으로 자신만의 개성을 더욱 강조합니다. Coperni Stripped Cropped Shirt와 BVLGARI Serpenti Viper Ring을 매치하며 환경 의식과 트렌디함을 동시에 잡는 리사의 스타일은 지속가능 패션이 더 이상 특별한 것이 아닌, 우리 모두의 일상이 될 수 있음을 보여줍니다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "hashtag_bar",
+        "hashtags": [
+          "지속가능패션",
+          "리사스타일",
+          "STELLAMcCARTNEY",
+          "BVLGARI",
+          "에코럭셔리"
+        ],
+        "animation": "slide-left"
+      }
+    ],
+    "created_at": null,
+    "metadata": [],
+    "design_spec": null
+  },
+  "review_summary": "Auto-passed for testing.",
+  "rejection_reason": null,
+  "admin_feedback": null,
+  "created_at": "2026-02-26T10:42:44.210000+00:00",
+  "updated_at": "2026-02-26T10:42:44.211413+00:00",
+  "published_at": "2026-02-26T10:42:44.211416+00:00"
+}

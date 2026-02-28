@@ -1,0 +1,110 @@
+{
+  "id": "42b0fa8a-24fe-4bc1-bd92-9000e36e153a",
+  "thread_id": "K-POP 공항패션 크로스오버",
+  "status": "published",
+  "title": "K-POP 4세대 아이콘, 공항을 런웨이로 만들다: 스타일 크로스오버의 미학",
+  "keyword": "K-POP 공항패션 크로스오버",
+  "layout_json": {
+    "schema_version": "1.0",
+    "title": "K-POP 4세대 아이콘, 공항을 런웨이로 만들다: 스타일 크로스오버의 미학",
+    "subtitle": null,
+    "keyword": "K-POP 공항패션 크로스오버",
+    "blocks": [
+      {
+        "type": "hero",
+        "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-10-13_21-44-28/2024-10-13_21-44-28_UTC_8.jpg",
+        "overlay_title": "K-POP 4세대 아이콘, 공항을 런웨이로 만들다: 스타일 크로스오버의 미학",
+        "overlay_subtitle": "무심한 듯 시크하게, 혹은 과감하게. K-POP 스타들의 공항패션은 더 이상 단순한 이동 복장이 아닌, 개성을 드러내는 패션 스테이트먼트가 되었다.",
+        "animation": "parallax"
+      },
+      {
+        "type": "headline",
+        "text": "K-POP 4세대 아이콘, 공항을 런웨이로 만들다: 스타일 크로스오버의 미학",
+        "level": 1,
+        "animation": "fade-up"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "K-POP 4세대 아이콘들의 공항패션은 단순한 이동을 넘어선 하나의 패션 이벤트로 자리매김했습니다. 카메라 플래시 세례 속에서도 빛을 발하는 이들의 스타일은 전 세계 팬들에게 영감을 주며 새로운 트렌드를 제시하죠. 마치 무대가 연장된 듯한 공항은 이제 스타들의 개성과 브랜드 아이덴티티가 조화롭게 어우러지는 또 하나의 런웨이가 되었습니다. 이들은 각자의 패션 철학을 담아내며, 공항룩의 진화를 이끌고 있습니다.",
+          "블랙핑크 jennie는 DSQUARED2 모헤어 미니 케이프 니트와 CHANEL 롱 네크리스 및 일반 네크리스를 레이어링하여 특유의 고급스러우면서도 힙한 무드를 완벽하게 연출했습니다. lisa는 LOEWE 롱 슬리브 티셔츠에 LOUIS VUITTON LV 데이 캡을 매치하며 캐주얼하면서도 엣지 있는 믹스매치 룩을 선보였죠. 여기에 POP MART CRYBABY x Powerpuff Girls Series 같은 위트 있는 아이템으로 포인트를 주는 센스까지 잊지 않았습니다.",
+          "또 다른 멤버 jisoo는 R13 레오파드 셔츠와 courrèges 배기 와이드 팬츠로 빈티지하면서도 세련된 무드를 자랑했습니다. DIOR 미디엄 그랜드 투어 멀티포켓 백으로 실용성과 스타일을 동시에 잡는 센스를 보여주며, 공항패션의 정석을 제시했습니다. 이처럼 K-POP 스타들은 하이엔드 브랜드와 스트리트 패션, 빈티지 아이템을 자유자재로 넘나들며 자신들만의 독보적인 스타일을 구축하고 있습니다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "celeb_feature",
+        "celebs": [
+          {
+            "celeb_id": null,
+            "name": "jennie",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-10-13_21-44-28/2024-10-13_21-44-28_UTC_8.jpg",
+            "description": "BLACKPINK 멤버"
+          },
+          {
+            "celeb_id": null,
+            "name": "lisa",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-05-09_08-45-22/2024-05-09_08-45-22_UTC_3.jpg",
+            "description": "BLACKPINK 멤버"
+          },
+          {
+            "celeb_id": null,
+            "name": "jisoo",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2025-08-02_03-15-44/2025-08-02_03-15-44_UTC_5.jpg",
+            "description": "BLACKPINK 멤버"
+          }
+        ],
+        "animation": "scale-in"
+      },
+      {
+        "type": "pull_quote",
+        "quote": "공항은 이제 K-POP 스타들의 개성과 브랜드 아이덴티티가 조화롭게 어우러지는 또 하나의 런웨이가 되었다.",
+        "attribution": null,
+        "animation": "scale-in"
+      },
+      {
+        "type": "product_showcase",
+        "products": [
+          {
+            "product_id": "",
+            "name": "DSQUARED2 Mohair Mini Cape Knit",
+            "brand": null,
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/1adb63fc-738b-47c6-802/thumb.jpg",
+            "description": null
+          }
+        ],
+        "animation": "slide-right"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "hashtag_bar",
+        "hashtags": [
+          "KPOP공항패션",
+          "아이돌패션",
+          "스타일크로스오버",
+          "4세대아이돌",
+          "패션트렌드"
+        ],
+        "animation": "slide-left"
+      }
+    ],
+    "created_at": null,
+    "metadata": [],
+    "design_spec": null
+  },
+  "review_summary": "Auto-passed for testing.",
+  "rejection_reason": null,
+  "admin_feedback": null,
+  "created_at": "2026-02-26T10:49:59.540012+00:00",
+  "updated_at": "2026-02-26T10:49:59.541259+00:00",
+  "published_at": "2026-02-26T10:49:59.541263+00:00"
+}

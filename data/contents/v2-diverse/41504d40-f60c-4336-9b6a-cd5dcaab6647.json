@@ -1,0 +1,112 @@
+{
+  "id": "41504d40-f60c-4336-9b6a-cd5dcaab6647",
+  "thread_id": "지수 Cartier DIOR 주얼리 스타일링",
+  "status": "published",
+  "title": "지수, 하이엔드 주얼리로 완성하는 '엘레강스 캐주얼'의 정석",
+  "keyword": "지수 Cartier DIOR 주얼리 스타일링",
+  "layout_json": {
+    "schema_version": "1.0",
+    "title": "지수, 하이엔드 주얼리로 완성하는 '엘레강스 캐주얼'의 정석",
+    "subtitle": null,
+    "keyword": "지수 Cartier DIOR 주얼리 스타일링",
+    "blocks": [
+      {
+        "type": "hero",
+        "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-03-24_08-15-22/2024-03-24_08-15-22_UTC_5.jpg",
+        "overlay_title": "지수, 하이엔드 주얼리로 완성하는 '엘레강스 캐주얼'의 정석",
+        "overlay_subtitle": "캐주얼과 럭셔리의 경계를 허무는 그녀의 독보적인 스타일링 비법을 파헤쳐 본다.",
+        "animation": "parallax"
+      },
+      {
+        "type": "headline",
+        "text": "지수, 하이엔드 주얼리로 완성하는 '엘레강스 캐주얼'의 정석",
+        "level": 1,
+        "animation": "fade-up"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "블랙핑크 지수는 단순한 아이돌을 넘어 시대의 패션 아이콘으로 자리매김했다. 그녀가 선보이는 '엘레강스 캐주얼' 스타일은 전 세계 팬들의 이목을 집중시킨다. 편안한 애슬레저 룩에 Cartier Trinity 컬렉션과 같은 하이엔드 주얼리를 과감하게 매치하며, 일상 속에서도 품격 있는 아우라를 잃지 않는 것이 핵심이다. 상반된 요소들을 조화롭게 엮어내며, 주얼리가 단순한 장식을 넘어 스타일을 완성하는 강력한 도구임을 증명한다. 그녀의 손끝에서 탄생하는 룩은 ‘꾸민 듯 안 꾸민 듯’한 세련미의 극치를 보여준다.",
+          "지수의 스타일링은 구체적인 아이템 매치에서 더욱 빛을 발한다. alo yoga의 Cropped Cozy Day Full Zip Jacket 위에 Cartier Trinity Necklace를 레이어링하여 편안함 속에 우아함을 더한다. LEMAIRER Large Croissant Bag과 alo Routine Cropped Zip Hoodie를 매치해 코지하면서도 시크한 루즈핏을 연출하는 센스는 감탄을 자아낸다. DIOR Miss Dior Flap Bag과 Cartier Tank Louis Watch로 클래식한 매력을 발산하고, Chrome Hearts Triple Cross Beanie로 힙한 스타일링까지, 그녀의 패션 스펙트럼은 무한하다.",
+          "지수는 이처럼 다양한 아이템들을 자유자재로 넘나들며 자신만의 확고한 스타일 세계를 구축했다. 그녀의 패션은 특정 브랜드나 장르에 얽매이지 않고, 개인의 취향과 개성을 존중하는 현대 패션의 흐름을 정확히 짚어낸다. Cartier, DIOR과 같은 럭셔리 브랜드의 아이템들을 일상복과 자연스럽게 어우러지게 하는 지수의 능력은 많은 이들에게 주얼리 스타일링에 대한 새로운 영감을 제공한다. 이제 주얼리는 특별한 날만을 위한 것이 아닌, 매일의 스타일을 업그레이드하는 필수 요소임을 지수가 몸소 보여주고 있다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "celeb_feature",
+        "celebs": [
+          {
+            "celeb_id": null,
+            "name": "jisoo",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-03-24_08-15-22/2024-03-24_08-15-22_UTC_5.jpg",
+            "description": "BLACKPINK 멤버"
+          }
+        ],
+        "animation": "scale-in"
+      },
+      {
+        "type": "pull_quote",
+        "quote": "지수는 캐주얼한 베이스에 하이주얼리를 더해 품격을 높이는 '엘레강스 캐주얼'의 아이콘이다.",
+        "attribution": null,
+        "animation": "scale-in"
+      },
+      {
+        "type": "product_showcase",
+        "products": [
+          {
+            "product_id": "",
+            "name": "Cartier Trinity Necklace",
+            "brand": null,
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/jisoo-2024-03/thumb.jpg",
+            "description": null
+          }
+        ],
+        "animation": "slide-right"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "블랙핑크 지수는 단순한 아이돌을 넘어 시대의 패션 아이콘으로 자리매김했다. 그녀가 선보이는 '엘레강스 캐주얼' 스타일은 전 세계 팬들의 이목을 집중시킨다. 편안한 애슬레저 룩에 Cartier Trinity 컬렉션과 같은 하이엔드 주얼리를 과감하게 매치하며, 일상 속에서도 품격 있는 아우라를 잃지 않는 것이 핵심이다. 상반된 요소들을 조화롭게 엮어내며, 주얼리가 단순한 장식을 넘어 스타일을 완성하는 강력한 도구임을 증명한다. 그녀의 손끝에서 탄생하는 룩은 ‘꾸민 듯 안 꾸민 듯’한 세련미의 극치를 보여준다.",
+          "지수의 스타일링은 구체적인 아이템 매치에서 더욱 빛을 발한다. alo yoga의 Cropped Cozy Day Full Zip Jacket 위에 Cartier Trinity Necklace를 레이어링하여 편안함 속에 우아함을 더한다. LEMAIRER Large Croissant Bag과 alo Routine Cropped Zip Hoodie를 매치해 코지하면서도 시크한 루즈핏을 연출하는 센스는 감탄을 자아낸다. DIOR Miss Dior Flap Bag과 Cartier Tank Louis Watch로 클래식한 매력을 발산하고, Chrome Hearts Triple Cross Beanie로 힙한 스타일링까지, 그녀의 패션 스펙트럼은 무한하다.",
+          "지수는 이처럼 다양한 아이템들을 자유자재로 넘나들며 자신만의 확고한 스타일 세계를 구축했다. 그녀의 패션은 특정 브랜드나 장르에 얽매이지 않고, 개인의 취향과 개성을 존중하는 현대 패션의 흐름을 정확히 짚어낸다. Cartier, DIOR과 같은 럭셔리 브랜드의 아이템들을 일상복과 자연스럽게 어우러지게 하는 지수의 능력은 많은 이들에게 주얼리 스타일링에 대한 새로운 영감을 제공한다. 이제 주얼리는 특별한 날만을 위한 것이 아닌, 매일의 스타일을 업그레이드하는 필수 요소임을 지수가 몸소 보여주고 있다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "hashtag_bar",
+        "hashtags": [
+          "지수패션",
+          "엘레강스캐주얼",
+          "까르띠에트리니티",
+          "디올스타일",
+          "주얼리스타일링"
+        ],
+        "animation": "slide-left"
+      },
+      {
+        "type": "credits",
+        "entries": [
+          {
+            "role": "AI Editor",
+            "name": "decoded editorial"
+          }
+        ],
+        "animation": "fade-in"
+      }
+    ],
+    "created_at": null,
+    "metadata": [],
+    "design_spec": null
+  },
+  "review_summary": "Auto-passed for testing.",
+  "rejection_reason": null,
+  "admin_feedback": null,
+  "created_at": "2026-02-26T10:43:40.817925+00:00",
+  "updated_at": "2026-02-26T10:43:40.819537+00:00",
+  "published_at": "2026-02-26T10:43:40.819540+00:00"
+}

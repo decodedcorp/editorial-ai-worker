@@ -1,0 +1,92 @@
+{
+  "id": "c22989d5-d38c-42a9-ba80-e56a09828723",
+  "thread_id": "지수 Cartier DIOR 주얼리 스타일링",
+  "status": "published",
+  "title": "지수, 주얼리로 완성하는 '엘레강스 캐주얼'의 정석",
+  "keyword": "지수 Cartier DIOR 주얼리 스타일링",
+  "layout_json": {
+    "schema_version": "1.0",
+    "title": "지수, 주얼리로 완성하는 '엘레강스 캐주얼'의 정석",
+    "subtitle": null,
+    "keyword": "지수 Cartier DIOR 주얼리 스타일링",
+    "blocks": [
+      {
+        "type": "hero",
+        "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-03-24_08-15-22/2024-03-24_08-15-22_UTC_5.jpg",
+        "overlay_title": "지수, 주얼리로 완성하는 '엘레강스 캐주얼'의 정석",
+        "overlay_subtitle": "BLACKPINK 지수는 Cartier와 DIOR을 통해 일상복에 하이패션의 품격을 더하는 자신만의 독보적인 스타일을 선보입니다.",
+        "animation": "parallax"
+      },
+      {
+        "type": "headline",
+        "text": "지수, 주얼리로 완성하는 '엘레강스 캐주얼'의 정석",
+        "level": 1,
+        "animation": "fade-up"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "BLACKPINK 지수가 선보이는 스타일은 '엘레강스 캐주얼'이라는 새로운 장르를 개척하고 있습니다. 그녀는 Cartier Trinity 컬렉션과 DIOR 백을 활용해 평범할 수 있는 캐주얼 룩에 예상치 못한 고급스러움을 불어넣습니다. 주얼리를 단순한 장식이 아닌 스타일의 핵심 요소로 활용하며, 그녀의 패션은 언제나 세련되면서도 편안함을 잃지 않는 균형감을 자랑합니다. 지수는 하이주얼리가 일상 속에서도 빛을 발할 수 있음을 증명합니다.",
+          "특히 그녀의 애슬레저 룩은 이러한 철학을 잘 보여줍니다. alo yoga의 Cropped Cozy Day Full Zip Jacket과 함께 Cartier Trinity Necklace와 Ring을 레이어링하여 스포티함과 우아함을 동시에 잡아냈습니다. 또한, LEMAIRE Large Croissant Bag (Soft Nappa Leather)과 alo Routine Cropped Zip Hoodie, High-Waist Night Out Cargo Trouser를 매치한 코지한 루즈핏 스타일에는 예상치 못한 반전 매력을 더하며, 고급스러운 주얼리나 백이 캐주얼 룩에 어떻게 세련된 포인트를 줄 수 있는지 완벽하게 보여줍니다.",
+          "지수의 스타일링은 DIOR Miss Dior Flap Bag과 Cartier Tank Louis Watch를 활용한 모습에서도 빛을 발합니다. 클래식한 명품 아이템들을 개성 있는 Chrome Hearts Triple Cross Beanie와 믹스매치하는 과감함은 그녀의 패션 센스를 더욱 돋보이게 합니다. 지수는 단순히 트렌드를 따르는 것을 넘어, 자신만의 방식으로 명품과 캐주얼의 경계를 허물며 '주얼리가 완성하는 스타일'의 새로운 기준을 제시하고 있습니다. 그녀의 스타일은 많은 이들에게 영감을 줍니다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "pull_quote",
+        "quote": "지수는 주얼리를 단순한 액세서리가 아닌, 스타일의 핵심 요소로 활용하며 캐주얼 룩에 예상치 못한 고급스러움을 불어넣습니다.",
+        "attribution": null,
+        "animation": "scale-in"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "celeb_feature",
+        "celebs": [
+          {
+            "celeb_id": null,
+            "name": "jisoo",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-03-24_08-15-22/2024-03-24_08-15-22_UTC_5.jpg",
+            "description": "BLACKPINK 멤버"
+          }
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "product_showcase",
+        "products": [
+          {
+            "product_id": "",
+            "name": "Cartier Trinity Necklace",
+            "brand": null,
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/jisoo-2024-03/thumb.jpg",
+            "description": null
+          }
+        ],
+        "animation": "slide-right"
+      },
+      {
+        "type": "credits",
+        "entries": [
+          {
+            "role": "AI Editor",
+            "name": "decoded editorial"
+          }
+        ],
+        "animation": "fade-in"
+      }
+    ],
+    "created_at": null,
+    "metadata": [],
+    "design_spec": null
+  },
+  "review_summary": "Auto-passed for testing.",
+  "rejection_reason": null,
+  "admin_feedback": null,
+  "created_at": "2026-02-26T10:48:21.424496+00:00",
+  "updated_at": "2026-02-26T10:48:21.426371+00:00",
+  "published_at": "2026-02-26T10:48:21.426375+00:00"
+}

@@ -1,0 +1,92 @@
+{
+  "id": "60e96622-2ae4-400d-8cf8-c07b74592e90",
+  "thread_id": "제니 Chloé 소프트 럭셔리",
+  "status": "published",
+  "title": "제니의 소프트 럭셔리: 과시하지 않는 우아함의 정석",
+  "keyword": "제니 Chloé 소프트 럭셔리",
+  "layout_json": {
+    "schema_version": "1.0",
+    "title": "제니의 소프트 럭셔리: 과시하지 않는 우아함의 정석",
+    "subtitle": null,
+    "keyword": "제니 Chloé 소프트 럭셔리",
+    "blocks": [
+      {
+        "type": "hero",
+        "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2025-09-14_21-28-37/2025-09-14_21-28-37_UTC_4.jpg",
+        "overlay_title": "제니의 소프트 럭셔리: 과시하지 않는 우아함의 정석",
+        "overlay_subtitle": "BLACKPINK 제니가 Chloé 글로벌 앰배서더로서 선보이는, 절제된 아름다움과 편안함이 공존하는 뉴 럭셔리 스타일을 조명합니다.",
+        "animation": "parallax"
+      },
+      {
+        "type": "headline",
+        "text": "제니의 소프트 럭셔리: 과시하지 않는 우아함의 정석",
+        "level": 1,
+        "animation": "fade-up"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "BLACKPINK 제니는 Chloé의 글로벌 앰배서더로서 '소프트 럭셔리' 트렌드의 아이콘으로 확고히 자리매김했습니다. 그녀의 스타일은 화려한 로고 플레이 대신, 고급스러운 소재와 절제된 디자인으로 본연의 가치를 드러내는 '과시하지 않는 럭셔리'의 정수를 보여줍니다. 리브드 니트 탱크탑, 캐시미어 아이템, 뉴트럴 톤 팔레트는 그녀만의 시그니처가 되며, 편안함과 세련미를 동시에 추구하는 현대 여성들의 워너비 스타일로 각광받고 있습니다. 제니는 럭셔리가 더 이상 시각적인 과시가 아닌, 개인의 취향과 가치를 반영하는 것임을 몸소 증명하고 있습니다.",
+          "최근 포착된 그녀의 모습에서 이러한 경향은 더욱 두드러집니다. 편안하면서도 세련된 Chloé Ribbed Knit Wool Tank Top은 부드러운 실루엣과 고급스러운 촉감으로 그녀의 내추럴한 매력을 극대화합니다. 여기에 그녀의 일상에 스며든 STANLEY The Quencher® Luxe Tumbler와 STANLEY All Day Slim Bottle은 단순한 소품을 넘어, 제니가 추구하는 건강하고 지속 가능한 라이프스타일을 대변합니다. 또한, adidas Adicolor Essentials Crew Sweatshirt와 Rolling Stone Modern Logo Dad Hat 같은 캐주얼 아이템을 활용하여 '꾸민 듯 안 꾸민 듯'한 effortlessly chic 룩을 완성하며, MOSKI EYEWEAR Amsterdam Sunglasses로 시크함을 더합니다.",
+          "제니는 단순히 옷을 입는 것을 넘어, 자신만의 방식으로 아이템에 스토리를 불어넣습니다. 그녀가 선택하는 모든 것은 '나다움'을 표현하는 수단이자, 럭셔리가 더 이상 시각적인 과시가 아닌, 개인의 취향과 가치를 반영하는 것임을 보여줍니다. 진정한 럭셔리는 섬세한 디테일과 편안함, 그리고 일상에 자연스럽게 녹아드는 태도에서 비롯된다는 것을 제니는 몸소 증명하고 있습니다. 그녀의 스타일은 우리에게 진정한 '소프트 럭셔리'의 의미를 다시 한번 일깨워주며, 패션계에 새로운 영감을 불어넣고 있습니다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "celeb_feature",
+        "celebs": [
+          {
+            "celeb_id": null,
+            "name": "jennie",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2025-09-14_21-28-37/2025-09-14_21-28-37_UTC_4.jpg",
+            "description": "BLACKPINK 멤버"
+          }
+        ],
+        "animation": "scale-in"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "pull_quote",
+        "quote": "진정한 럭셔리는 섬세한 디테일과 편안함, 그리고 일상에 자연스럽게 녹아드는 태도에서 비롯된다.",
+        "attribution": null,
+        "animation": "scale-in"
+      },
+      {
+        "type": "product_showcase",
+        "products": [
+          {
+            "product_id": "",
+            "name": "Chloé Ribbed Knit Wool Tank Top",
+            "brand": null,
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/a0fdc6d4-70c2-4d8f-b45/thumb.jpg",
+            "description": null
+          }
+        ],
+        "animation": "slide-right"
+      },
+      {
+        "type": "credits",
+        "entries": [
+          {
+            "role": "AI Editor",
+            "name": "decoded editorial"
+          }
+        ],
+        "animation": "fade-in"
+      }
+    ],
+    "created_at": null,
+    "metadata": [],
+    "design_spec": null
+  },
+  "review_summary": "Auto-passed for testing.",
+  "rejection_reason": null,
+  "admin_feedback": null,
+  "created_at": "2026-02-26T10:46:50.812073+00:00",
+  "updated_at": "2026-02-26T10:46:50.813167+00:00",
+  "published_at": "2026-02-26T10:46:50.813169+00:00"
+}

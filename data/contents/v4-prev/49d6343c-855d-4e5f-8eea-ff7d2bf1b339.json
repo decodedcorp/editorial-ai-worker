@@ -1,0 +1,100 @@
+{
+  "id": "49d6343c-855d-4e5f-8eea-ff7d2bf1b339",
+  "thread_id": "제니 vs 리사 스타일 배틀",
+  "status": "published",
+  "title": "블랙핑크 스타일 배틀: 제니의 하이-스트릿 vs 리사의 CEO 시크",
+  "keyword": "제니 vs 리사 스타일 배틀",
+  "layout_json": {
+    "schema_version": "1.0",
+    "title": "블랙핑크 스타일 배틀: 제니의 하이-스트릿 vs 리사의 CEO 시크",
+    "subtitle": null,
+    "keyword": "제니 vs 리사 BLACKPINK 스타일 배틀",
+    "blocks": [
+      {
+        "type": "hero",
+        "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2025-07-18_04-23-11/2025-07-18_04-23-11_UTC_3.jpg",
+        "overlay_title": "블랙핑크 스타일 배틀: 제니의 하이-스트릿 vs 리사의 CEO 시크",
+        "overlay_subtitle": "같은 그룹, 다른 매력! 블랙핑크 두 패션 아이콘의 독보적인 스타일 세계를 파헤쳐 본다.",
+        "animation": "parallax"
+      },
+      {
+        "type": "headline",
+        "text": "블랙핑크 스타일 배틀: 제니의 하이-스트릿 vs 리사의 CEO 시크",
+        "level": 1,
+        "animation": "fade-up"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "K-POP을 넘어 글로벌 패션 아이콘으로 자리매김한 블랙핑크, 그중 제니와 리사는 각기 다른 패션 세계관으로 팬들을 사로잡습니다. 제니는 럭셔리와 스트릿 무드를 자유자재로 넘나드는 '하이-스트릿 믹스' 스타일의 선두주자입니다. 고급스러운 FOUNDRÆ의 Pave Diamond Initial - Heart Beat Super Fine 펜던트와 Protection - Thin Champleve Enamel Band 링을 과감히 매치하고, Supreme의 Waxed Wool 6-Panel 캡으로 힙한 스트릿 감성을 더해 예상치 못한 스타일링 시너지를 만들어냅니다. 이러한 대조적인 아이템 조합은 제니만의 시그니처 룩을 완성하며 '인간 샤넬'다운 면모를 보여줍니다.",
+          "반면, 리사는 자신의 레이블 LLOUD를 설립하며 '셀럽 앙트레프러너'로서의 면모를 스타일에도 투영합니다. 그녀의 패션은 한층 성숙하고 대담해진 CEO 시크를 보여주죠. LLOUD의 Light Pink Crop Tee와 Light Pink Shorts를 매치한 캐주얼하면서도 엣지 있는 룩은 그녀의 브랜드 아이덴티티를 명확히 드러냅니다. Christian Louboutin의 Cassia Lace Up 슈즈로 치명적인 매력을 더하고, ROJANATORN Baifern Necklace와 DEADLINE Embroidered Logo Ballcap으로 포인트를 주어 쿨하면서도 시크한 리사만의 스타일을 완성합니다. 제니가 믹스매치의 달인이라면, 리사는 비전과 개성을 패션으로 표현하는 아티스트입니다.",
+          "이처럼 제니와 리사는 같은 그룹 소속임에도 불구하고 극명하게 다른 패션 세계를 구축하고 있습니다. 제니의 예측 불가능한 하이-스트릿 믹스매치와 리사의 당당하고 비전 있는 셀럽 앙트레프러너 스타일. 이 두 파워풀한 패션 아이콘의 스타일 배틀은 앞으로도 계속해서 패션계에 신선한 영감을 불어넣을 것입니다. 당신의 마음을 사로잡은 스타일은 과연 누구인가요? 그들의 다음 행보가 더욱 기대되는 이유입니다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "pull_quote",
+        "quote": "제니는 럭셔리와 스트릿 무드를 자유자재로 넘나드는 '하이-스트릿 믹스' 스타일의 선두주자입니다.",
+        "attribution": null,
+        "animation": "scale-in"
+      },
+      {
+        "type": "celeb_feature",
+        "celebs": [
+          {
+            "celeb_id": null,
+            "name": "jennie",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2025-07-18_04-23-11/2025-07-18_04-23-11_UTC_3.jpg",
+            "description": "BLACKPINK 멤버"
+          },
+          {
+            "celeb_id": null,
+            "name": "lisa",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2025-09-15_22-18-58/2025-09-15_22-18-58_UTC_9.jpg",
+            "description": "BLACKPINK 멤버"
+          }
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "product_showcase",
+        "products": [
+          {
+            "product_id": "",
+            "name": "FOUNDRÆ Pave Diamond Initial - Heart Beat Super Fine",
+            "brand": null,
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/33d03380-3511-4fd2-b21/thumb.jpg",
+            "link_url": null,
+            "description": null
+          }
+        ],
+        "animation": "slide-right"
+      },
+      {
+        "type": "credits",
+        "entries": [
+          {
+            "role": "AI Editor",
+            "name": "decoded editorial"
+          }
+        ],
+        "animation": "fade-in"
+      }
+    ],
+    "created_at": null,
+    "metadata": [],
+    "design_spec": null
+  },
+  "layout_image_base64": null,
+  "review_summary": "Auto-passed for testing.",
+  "rejection_reason": null,
+  "admin_feedback": null,
+  "created_at": "2026-02-26T11:00:58.812300+00:00",
+  "updated_at": "2026-02-26T11:00:58.822515+00:00",
+  "published_at": "2026-02-26T11:00:58.822524+00:00"
+}

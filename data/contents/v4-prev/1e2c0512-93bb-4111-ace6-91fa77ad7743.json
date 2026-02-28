@@ -1,0 +1,126 @@
+{
+  "id": "1e2c0512-93bb-4111-ace6-91fa77ad7743",
+  "thread_id": "리사 STELLA McCARTNEY 지속가능 패션",
+  "status": "published",
+  "title": "리사, 지속가능 패션의 새로운 얼굴: STELLA McCARTNEY와 BVLGARI가 빚어낸 에코 럭셔리",
+  "keyword": "리사 STELLA McCARTNEY 지속가능 패션",
+  "layout_json": {
+    "schema_version": "1.0",
+    "title": "리사, 지속가능 패션의 새로운 얼굴: STELLA McCARTNEY와 BVLGARI가 빚어낸 에코 럭셔리",
+    "subtitle": null,
+    "keyword": "리사 STELLA McCARTNEY 지속가능 패션",
+    "blocks": [
+      {
+        "type": "hero",
+        "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-08-15_23-52-40/2024-08-15_23-52-40_UTC_6.jpg",
+        "overlay_title": "리사, 지속가능 패션의 새로운 얼굴: STELLA McCARTNEY와 BVLGARI가 빚어낸 에코 럭셔리",
+        "overlay_subtitle": "K-POP을 넘어 글로벌 패션 아이콘으로 자리매김한 BLACKPINK 리사가 지속가능한 하이패션의 선두 주자로 떠오르고 있습니다. 그녀는 STELLA McCARTNEY와 BVLGARI를 중심으로, 패션과 환경 의식의",
+        "animation": "fade-up",
+        "layout_variant": "full_bleed"
+      },
+      {
+        "type": "headline",
+        "text": "리사, 지속가능 패션의 새로운 얼굴: STELLA McCARTNEY와 BVLGARI가 빚어낸 에코 럭셔리",
+        "level": 1,
+        "animation": "fade-up"
+      },
+      {
+        "type": "celeb_feature",
+        "celebs": [
+          {
+            "celeb_id": null,
+            "name": "lisa",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2024-08-15_23-52-40/2024-08-15_23-52-40_UTC_6.jpg",
+            "description": "BLACKPINK 멤버"
+          }
+        ],
+        "animation": "scale-in"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "K-POP을 넘어 글로벌 패션 아이콘으로 자리매김한 BLACKPINK 리사가 지속가능한 하이패션의 선두 주자로 떠오르고 있습니다. 그녀는 STELLA McCARTNEY와 BVLGARI를 중심으로, 패션과 환경 의식의 완벽한 조화를 보여주며 새로운 트렌드를 이끌고 있습니다. 비건 레더, 재활용 소재 데님, 그리고 에코 프렌들리 주얼리를 자연스럽게 소화하는 리사의 모습은 지속가능성이 더 이상 '선택'이 아닌 '필수'가 된 시대에 가장 빛나는 패션의 본보기가 되고 있습니다. 그녀의 스타일은 단순한 아름다움을 넘어, 윤리적 소비와 환경 보호라는 중요한 메시지를 전달합니다.",
+          "리사의 지속가능한 패션 여정에서 STELLA McCARTNEY는 빼놓을 수 없는 핵심 브랜드입니다. 그녀가 착용한 STELLA McCARTNEY Popper-Studded Bootcut Denim Jeans는 재활용 소재로 제작되어 환경 보호에 기여하면서도 스타일리시함을 잃지 않는 지속가능 패션의 정수를 보여줍니다. 또한, BVLGARI B.Zero1 Ring과 BVLGARI B.Zero1 Bracelet, 그리고 BVLGARI Serpenti Viper Ring은 럭셔리 주얼리가 윤리적 가치를 담을 수 있음을 증명합니다. 여기에 GALLERY DEPT. Ebay Tee, Acne Studios Studded Jeans - Loose Fit, Coperni Stripped Cropped Shirt 같은 아트 지향 브랜드와의 믹스매치는 리사만의 개성 넘치는 스타일을 완성하며, LOUIS VUITTON LV Malletage Round Sunglasses와 Chrome Hearts Leather Cross Patch Blue Mini Bowling Bag 등의 액세서리 선택 역시 그녀의 패션 센스를 돋보이게 합니다.",
+          "리사는 이처럼 하이패션과 스트릿 패션, 그리고 지속가능성을 아우르는 독보적인 스타일을 통해 전 세계 팬들에게 깊은 영감을 주고 있습니다. 그녀의 패션은 단순한 의상 착용을 넘어, 우리가 어떤 옷을 입고 어떤 가치를 지지할 것인지에 대한 질문을 던집니다. 리사처럼 지속가능한 아름다움을 추구하는 것은 패션계의 미래를 밝히는 중요한 발걸음이 될 것입니다. 그녀의 다음 행보가 더욱 기대되는 이유입니다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "pull_quote",
+        "quote": "지속가능성은 이제 선택이 아닌 필수가 되었고, 리사는 그 가장 빛나는 증거다.",
+        "attribution": null,
+        "animation": "scale-in"
+      },
+      {
+        "type": "product_showcase",
+        "products": [
+          {
+            "product_id": "",
+            "name": "STELLA McCARTNEY Popper-Studded Bootcut Denim Jeans",
+            "brand": null,
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/aab03351-9617-4325-9f2/thumb.jpg",
+            "link_url": null,
+            "description": null
+          }
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "product_showcase",
+        "products": [
+          {
+            "product_id": "",
+            "name": "STELLA McCARTNEY Popper-Studded Bootcut Denim Jeans",
+            "brand": null,
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/aab03351-9617-4325-9f2/thumb.jpg",
+            "link_url": null,
+            "description": null
+          }
+        ],
+        "animation": "slide-right"
+      },
+      {
+        "type": "hashtag_bar",
+        "hashtags": [
+          "리사패션",
+          "지속가능패션",
+          "스텔라맥카트니",
+          "불가리",
+          "에코럭셔리",
+          "비건레더"
+        ],
+        "animation": "slide-left"
+      },
+      {
+        "type": "credits",
+        "entries": [
+          {
+            "role": "AI Editor",
+            "name": "decoded editorial"
+          }
+        ],
+        "animation": "fade-in"
+      }
+    ],
+    "created_at": null,
+    "metadata": [],
+    "design_spec": null
+  },
+  "layout_image_base64": null,
+  "review_summary": "Auto-passed for testing.",
+  "rejection_reason": null,
+  "admin_feedback": null,
+  "created_at": "2026-02-26T10:59:04.205313+00:00",
+  "updated_at": "2026-02-26T10:59:04.228521+00:00",
+  "published_at": "2026-02-26T10:59:04.231078+00:00"
+}

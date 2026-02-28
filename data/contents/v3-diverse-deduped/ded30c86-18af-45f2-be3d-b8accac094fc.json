@@ -1,0 +1,88 @@
+{
+  "id": "ded30c86-18af-45f2-be3d-b8accac094fc",
+  "thread_id": "제니 vs 리사 스타일 배틀",
+  "status": "published",
+  "title": "블랙핑크 제니 vs 리사: 패션 세계관 충돌, 당신의 선택은?",
+  "keyword": "제니 vs 리사 스타일 배틀",
+  "layout_json": {
+    "schema_version": "1.0",
+    "title": "블랙핑크 제니 vs 리사: 패션 세계관 충돌, 당신의 선택은?",
+    "subtitle": null,
+    "keyword": "제니 vs 리사 BLACKPINK 스타일 배틀",
+    "blocks": [
+      {
+        "type": "hero",
+        "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2025-07-18_04-23-11/2025-07-18_04-23-11_UTC_3.jpg",
+        "overlay_title": "블랙핑크 제니 vs 리사: 패션 세계관 충돌, 당신의 선택은?",
+        "overlay_subtitle": "같은 그룹, 다른 매력으로 글로벌 패션계를 뒤흔드는 두 아이콘의 스타일 대결을 집중 분석합니다.",
+        "animation": "parallax"
+      },
+      {
+        "type": "headline",
+        "text": "블랙핑크 제니 vs 리사: 패션 세계관 충돌, 당신의 선택은?",
+        "level": 1,
+        "animation": "fade-up"
+      },
+      {
+        "type": "body_text",
+        "paragraphs": [
+          "블랙핑크의 두 패션 아이콘, 제니와 리사가 완전히 다른 스타일 세계관으로 글로벌 패션계를 뜨겁게 달구고 있습니다. 제니는 파인 주얼리와 스트릿웨어의 대담한 믹스매치로 '하이-스트릿 믹스'를, 리사는 자신의 브랜드 LLOUD와 하이엔드 아이템을 활용한 '셀럽 앙트레프러너' 스타일을 선보이죠. 이 확연히 대비되는 두 사람의 패션 대결, 당신의 선택은?",
+          "블랙핑크 제니는 파인 주얼리와 스트릿웨어의 대담한 조합으로 독보적인 하이-스트릿 믹스 스타일을 완성합니다. 그녀는 FOUNDRÆ의 Pave Diamond Initial 목걸이 같은 고급 주얼리에 Supreme의 Waxed Wool 6-Panel 캡을 매치해 예상치 못한 반전 매력을 선사하죠. 럭셔리와 캐주얼의 경계를 허물며 새로운 패션 공식을 제시하는 제니의 스타일은 늘 시선을 사로잡습니다.",
+          "리사는 '셀럽 앙트레프러너'로서의 면모를 패션에 담아냅니다. 자신의 레이블 LLOUD를 론칭하며 LLOUD Light Pink Crop Tee와 Shorts 같은 캐주얼하면서도 힙한 아이템을 선보이죠. DEADLINE Embroidered Logo Ballcap으로 스트릿 무드를 더하고, Christian Louboutin Cassia Lace Up 슈즈로 엣지를 더합니다. ROJANATORN Baifern Necklace 같은 유니크한 선택은 그녀의 대담한 패션 철학을 보여줍니다."
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "pull_quote",
+        "quote": "파인 주얼리와 스트릿웨어의 대담한 조합, 제니가 제시하는 새로운 패션 공식!",
+        "attribution": null,
+        "animation": "scale-in"
+      },
+      {
+        "type": "divider",
+        "style": "line",
+        "animation": "none"
+      },
+      {
+        "type": "celeb_feature",
+        "celebs": [
+          {
+            "celeb_id": null,
+            "name": "jennie",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2025-07-18_04-23-11/2025-07-18_04-23-11_UTC_3.jpg",
+            "description": "BLACKPINK 멤버"
+          },
+          {
+            "celeb_id": null,
+            "name": "lisa",
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/blackpinkk.style/2025-09-15_22-18-58/2025-09-15_22-18-58_UTC_9.jpg",
+            "description": "BLACKPINK 멤버"
+          }
+        ],
+        "animation": "fade-up"
+      },
+      {
+        "type": "product_showcase",
+        "products": [
+          {
+            "product_id": "",
+            "name": "FOUNDRÆ Pave Diamond Initial - Heart Beat Super Fine",
+            "brand": null,
+            "image_url": "https://pub-6354054b117b46b9a0fe99e4a546e681.r2.dev/items/33d03380-3511-4fd2-b21/thumb.jpg",
+            "description": null
+          }
+        ],
+        "animation": "slide-right"
+      }
+    ],
+    "created_at": null,
+    "metadata": [],
+    "design_spec": null
+  },
+  "review_summary": "Auto-passed for testing.",
+  "rejection_reason": null,
+  "admin_feedback": null,
+  "created_at": "2026-02-26T10:49:34.124278+00:00",
+  "updated_at": "2026-02-26T10:49:34.126281+00:00",
+  "published_at": "2026-02-26T10:49:34.126284+00:00"
+}
